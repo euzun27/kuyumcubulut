@@ -1,0 +1,39 @@
+AKBAŞ KUYUMCU TAKİP — MEVCUT KAYITLARI KORUYARAK GÜNCELLEME
+
+M2 2022 Mac için Apple Silicon paketini kullanın.
+
+1. Mevcut uygulamayı açın. Üç nokta menüsünden YEDEK AL seçin.
+2. Kuyumcu Takip'i tamamen kapatın (Command + Q). Eski ve yeni sürümü
+   aynı anda çalıştırmayın.
+3. Yeni ZIP'i çıkarıp içindeki DMG'yi açın. Kuyumcu Takip uygulamasını
+   Applications / Uygulamalar klasörüne sürükleyin; eskisinin yerine koyun.
+4. Uygulamayı Applications / Uygulamalar klasöründen açın.
+
+Mevcut veriler şu klasörde kalır:
+~/Library/Application Support/KuyumcuTakip/
+
+Bu klasörü veya kuyumcu.db dosyasını SİLMEYİN. Boş veritabanı kopyalamayın.
+Bu güncellemede veritabanını sıfırlama veya tekrar veri girme işlemi YOKTUR.
+İlk açılışta mevcut veritabanının otomatik yedeği alınır; stok dağılımını
+izleyen ek yapı oluşturulur. Eski alış, satış, cari ve gider kayıtları korunur.
+Eski kayıtların alış bağlantıları ve önceki kâr sonuçları değiştirilmez.
+
+DEĞİŞEN SATIŞ AKIŞI
+Normal satış ve hurda satış artık tek alış kaydından değil STOKTAN seçilir.
+Aynı cins ve ayardaki ürünler, tedarikçiden bağımsız olarak birleştirilir.
+Satış, toplam kalan gram kadar yapılabilir. Maliyet ve milyem kârı için
+alışlar en eski tarihli kayıttan başlayarak karşılanır (FIFO).
+Bir satış birden fazla alıştan karşılanabilir; ekranda tek satış kaydı kalır.
+Stok kontrolü gram üzerinden yapılır; alış/satış fiyatı stok sınırını etkilemez.
+
+Güncelleme tamamlandığında mevcut alış, satış, cari ve gider kayıtlarınızın
+göründüğünü kontrol edin. Veri taşımak için ayrıca içe aktarma gerekmez.
+
+
+SON SURUMDEKI EK IYILESTIRMELER
+Ayarlar uc nokta menusundedir: gorunum, acilista yedekleme sikligi ve son
+basarili yedek bilgisi. Finansal hesaplama kurallari ayarlardan degistirilmez.
+Manuel has girildiginde gram sabit kalir, islem milyemi otomatik hesaplanir.
+Satisin alis milyemi stok kaynagindan korunur. Eski kayitlar yeniden hesaplanmaz.
+Tablolarda sabit baslik, not goruntuleme ve cari gecmisinden kayda gecis bulunur.
+Bu surumde musteri veritabani veya bos bir veritabani dagitilmaz.

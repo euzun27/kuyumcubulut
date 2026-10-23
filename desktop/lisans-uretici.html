@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lisans Üretici | Dünyatek Kuyumcu Portalı</title>
+<style>
+  :root { --bg: #f4f1ea; --panel: #fffdf8; --text: #1d2621; --muted: #5f6b64; --line: #e2dccd; --green: #2d3e36; --gold: #c9a24b; --red: #b3402f; --ok: #1b7a56; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 "Segoe UI", Inter, Arial, sans-serif; }
+  header { background: var(--green); color: #f4eee2; padding: 20px 16px; border-bottom: 3px solid var(--gold); }
+  header .wrap { display: flex; align-items: center; gap: 14px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header p { margin: 2px 0 0; color: #d6b262; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  main { padding: 20px 16px 40px; display: grid; gap: 16px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; }
+  h2 { margin: 0; font-size: 16px; }
+  label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  input, select, textarea { font: inherit; color: var(--text); padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; width: 100%; }
+  textarea { font: 13px/1.45 Consolas, ui-monospace, monospace; resize: vertical; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  button { font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--green); background: var(--green); color: #fff; cursor: pointer; }
+  button.secondary { background: transparent; color: var(--green); }
+  button:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .status { font-size: 13px; padding: 8px 12px; border-radius: 8px; background: #f1ede2; }
+  .status.ok { background: #e3f2ea; color: var(--ok); }
+  .status.err { background: #f8e4e0; color: var(--red); }
+  .warn { font-size: 13px; color: var(--muted); border-left: 3px solid var(--gold); padding-left: 10px; margin: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  td code { font-size: 12px; }
+  .table-wrap { overflow-x: auto; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="none" stroke="#d6b262" stroke-width="2"/><text x="20" y="26" text-anchor="middle" font-size="16" font-weight="700" fill="#f4eee2" font-family="Segoe UI, Arial">DT</text></svg>
+  <div><h1>Lisans Üretici</h1><p>Dünyatek Kuyumcu Portalı · yalnızca Dünyatek Bilişim için</p></div>
+</div></header>
+<main class="wrap">
+  <section>
+    <h2>1. Özel anahtar dosyası</h2>
+    <p class="warn">Lisanslar yalnızca <b>dunyatek-lisans-ozel-anahtar.json</b> dosyasıyla üretilir. Bu dosyayı kimseyle paylaşmayın, bir kopyasını USB bellekte saklayın. Dosya bu bilgisayardan dışarı gönderilmez.</p>
+    <div class="row">
+      <input id="keyFile" type="file" accept=".json,application/json" />
+    </div>
+    <div id="keyStatus" class="status">Dosya seçilmedi.</div>
+  </section>
+
+  <section>
+    <h2>2. Müşteri bilgileri</h2>
+    <div class="grid">
+      <label>Firma adı<input id="firma" maxlength="80" placeholder="Örn. YILMAZ KUYUMCULUK" /></label>
+      <label>Makine kodu<input id="makine" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" /></label>
+      <label>Süre
+        <select id="sure">
+          <option value="365">1 yıl</option>
+          <option value="730">2 yıl</option>
+          <option value="30">30 gün</option>
+          <option value="0">Süresiz</option>
+          <option value="tarih">Belirli bir tarihe kadar</option>
+        </select>
+      </label>
+      <label id="tarihRow" hidden>Bitiş tarihi<input id="tarih" type="date" /></label>
+    </div>
+    <div class="row"><button id="uret" type="button" disabled>Lisans anahtarı üret</button></div>
+    <div id="formStatus" class="status" hidden></div>
+  </section>
+
+  <section id="sonuc" hidden>
+    <h2>3. Müşteriye gönderin</h2>
+    <label>Lisans anahtarı<textarea id="anahtar" rows="4" readonly></textarea></label>
+    <label>Hazır mesaj<textarea id="mesaj" rows="10" readonly></textarea></label>
+    <div class="row">
+      <button id="kopyalaAnahtar" type="button">Anahtarı kopyala</button>
+      <button id="kopyalaMesaj" type="button" class="secondary">Mesajı kopyala</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Parola sıfırlama kodu</h2>
+    <p>Müşteri yönetici parolasını unuttuysa giriş ekranında <b>Parolamı unuttum</b>'a basar ve ekrandaki iki kodu okur. Kod yalnızca o bilgisayarda ve bir kez çalışır; arayan kişinin işyeri sahibi olduğundan emin olun.</p>
+    <div class="grid">
+      <label>Makine kodu<input id="pMakine" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" /></label>
+      <label>İstek kodu<input id="pIstek" maxlength="9" placeholder="XXXX-XXXX" autocomplete="off" /></label>
+    </div>
+    <div class="row"><button id="pUret" type="button" disabled>Sıfırlama kodu üret</button></div>
+    <div id="pStatus" class="status" hidden></div>
+    <div id="pSonuc" hidden>
+      <label>Sıfırlama kodu<textarea id="pKod" rows="3" readonly></textarea></label>
+      <div class="row"><button id="pKopyala" type="button">Kodu kopyala</button></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="row" style="justify-content: space-between"><h2>Üretilen lisanslar (bu bilgisayarda)</h2><button id="csv" type="button" class="secondary">CSV indir</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Firma</th><th>Makine kodu</th><th>Bitiş</th></tr></thead><tbody id="gecmis"></tbody></table></div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let privateKey = null;
+const b64url = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const iso = (d) => d.toISOString().slice(0, 10);
+const tr = (s) => s ? s.split("-").reverse().join(".") : "Süresiz";
+
+function status(el, text, cls) { el.hidden = false; el.textContent = text; el.className = `status ${cls || ""}`; }
+
+$("keyFile").addEventListener("change", async () => {
+  const file = $("keyFile").files[0];
+  if (!file) return;
+  try {
+    const jwk = JSON.parse(await file.text());
+    if (jwk.kty !== "OKP" || jwk.crv !== "Ed25519" || !jwk.d) throw new Error("Bu dosya lisans özel anahtarı değil.");
+    privateKey = await crypto.subtle.importKey("jwk", { kty: jwk.kty, crv: jwk.crv, x: jwk.x, d: jwk.d }, { name: "Ed25519" }, false, ["sign"]);
+    status($("keyStatus"), "Özel anahtar yüklendi. Lisans ve parola sıfırlama kodu üretebilirsiniz.", "ok");
+    $("uret").disabled = false; $("pUret").disabled = false;
+  } catch (e) {
+    privateKey = null; $("uret").disabled = true; $("pUret").disabled = true;
+    status($("keyStatus"), e.name === "NotSupportedError" ? "Bu tarayıcı Ed25519 imzasını desteklemiyor; güncel Edge veya Chrome kullanın." : (e.message || "Dosya okunamadı."), "err");
+  }
+});
+
+$("sure").addEventListener("change", () => { $("tarihRow").hidden = $("sure").value !== "tarih"; });
+$("makine").addEventListener("input", () => {
+  const raw = $("makine").value.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 16);
+  $("makine").value = raw.match(/.{1,4}/g)?.join("-") || "";
+});
+
+$("uret").addEventListener("click", async () => {
+  const firma = $("firma").value.trim();
+  const makine = $("makine").value.trim();
+  if (!firma) return status($("formStatus"), "Firma adını yazın.", "err");
+  if (!/^[0-9A-F]{4}(-[0-9A-F]{4}){3}$/.test(makine)) return status($("formStatus"), "Makine kodu XXXX-XXXX-XXXX-XXXX biçiminde olmalı (programın Lisans penceresinde yazar).", "err");
+  const bugun = new Date();
+  let bitis = null;
+  if ($("sure").value === "tarih") {
+    bitis = $("tarih").value;
+    if (!bitis || bitis <= iso(bugun)) return status($("formStatus"), "İleri bir bitiş tarihi seçin.", "err");
+  } else if ($("sure").value !== "0") {
+    bitis = iso(new Date(bugun.getTime() + Number($("sure").value) * 86400000));
+  }
+  const veri = new TextEncoder().encode(JSON.stringify({ v: 1, f: firma, m: makine, b: iso(bugun), s: bitis }));
+  const imza = await crypto.subtle.sign({ name: "Ed25519" }, privateKey, veri);
+  const anahtar = `DT1-${b64url(veri)}.${b64url(imza)}`;
+  $("anahtar").value = anahtar;
+  $("mesaj").value = `Merhaba,\n\n${firma} için Dünyatek Kuyumcu Portalı lisans anahtarınız (${bitis ? `${tr(bitis)} tarihine kadar` : "süresiz"}):\n\n${anahtar}\n\nProgramda sağ üstteki dişli menüden LİSANS'a tıklayıp anahtarı yapıştırın ve Etkinleştir'e basın.\n\nDünyatek Bilişim · 0342 361 01 18`;
+  $("sonuc").hidden = false;
+  status($("formStatus"), `Lisans üretildi: ${firma}, ${bitis ? tr(bitis) + " tarihine kadar" : "süresiz"}.`, "ok");
+  const gecmis = load(); gecmis.unshift({ tarih: new Date().toLocaleString("tr-TR"), firma, makine, bitis, anahtar }); save(gecmis); draw();
+});
+
+const hexInput = (id, len) => $(id).addEventListener("input", () => {
+  const raw = $(id).value.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, len);
+  $(id).value = raw.match(/.{1,4}/g)?.join("-") || "";
+});
+hexInput("pMakine", 16); hexInput("pIstek", 8);
+$("pUret").addEventListener("click", async () => {
+  const makine = $("pMakine").value.trim(), istek = $("pIstek").value.trim();
+  if (!/^[0-9A-F]{4}(-[0-9A-F]{4}){3}$/.test(makine)) return status($("pStatus"), "Makine kodu XXXX-XXXX-XXXX-XXXX biçiminde olmalı.", "err");
+  if (!/^[0-9A-F]{4}-[0-9A-F]{4}$/.test(istek)) return status($("pStatus"), "İstek kodu XXXX-XXXX biçiminde olmalı.", "err");
+  const veri = new TextEncoder().encode(JSON.stringify({ v: 1, t: "parola", m: makine, r: istek }));
+  const imza = await crypto.subtle.sign({ name: "Ed25519" }, privateKey, veri);
+  $("pKod").value = `DP1-${b64url(veri)}.${b64url(imza)}`;
+  $("pSonuc").hidden = false;
+  status($("pStatus"), "Sıfırlama kodu üretildi. Müşteri kodu yapıştırıp e-postasını ve yeni parolasını yazar.", "ok");
+});
+$("pKopyala").addEventListener("click", (e) => copy("pKod", e.target));
+
+const copy = async (id, btn) => { try { await navigator.clipboard.writeText($(id).value); } catch { $(id).select(); document.execCommand("copy"); } const t = btn.textContent; btn.textContent = "Kopyalandı"; setTimeout(() => (btn.textContent = t), 1500); };
+$("kopyalaAnahtar").addEventListener("click", (e) => copy("anahtar", e.target));
+$("kopyalaMesaj").addEventListener("click", (e) => copy("mesaj", e.target));
+
+function load() { try { return JSON.parse(localStorage.getItem("dunyatek-lisanslar") || "[]"); } catch { return []; } }
+function save(list) { try { localStorage.setItem("dunyatek-lisanslar", JSON.stringify(list)); } catch { /* tarayıcı izin vermezse geçmiş tutulmaz */ } }
+function draw() {
+  const rows = load();
+  $("gecmis").replaceChildren(...(rows.length ? rows : [null]).map((r) => {
+    const tr_ = document.createElement("tr");
+    if (!r) { tr_.innerHTML = '<td colspan="4">Henüz lisans üretilmedi.</td>'; return tr_; }
+    for (const v of [r.tarih, r.firma, r.makine, tr(r.bitis)]) { const td = document.createElement("td"); td.textContent = v; tr_.append(td); }
+    return tr_;
+  }));
+}
+$("csv").addEventListener("click", () => {
+  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = "﻿Tarih;Firma;Makine kodu;Bitiş;Anahtar\n" + load().map((r) => [r.tarih, r.firma, r.makine, tr(r.bitis), r.anahtar].map(q).join(";")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "dunyatek-lisanslar.csv"; a.click();
+});
+draw();
+</script>
+</body>
+</html>

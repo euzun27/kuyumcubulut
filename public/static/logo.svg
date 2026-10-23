@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Dünyatek">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7e3a3"/>
+      <stop offset=".45" stop-color="#d4a541"/>
+      <stop offset="1" stop-color="#8a6420"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16222c"/>
+      <stop offset="1" stop-color="#0c141b"/>
+    </linearGradient>
+    <clipPath id="c"><circle cx="256" cy="256" r="146"/></clipPath>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bg)"/>
+  <rect x="30" y="30" width="452" height="452" rx="100" fill="none" stroke="url(#g)" stroke-width="6" opacity=".55"/>
+  <g fill="none" stroke="url(#g)" stroke-linecap="round">
+    <circle cx="256" cy="256" r="150" stroke-width="18"/>
+  </g>
+  <g fill="none" stroke="url(#g)" stroke-width="10" clip-path="url(#c)" opacity=".85">
+    <ellipse cx="256" cy="256" rx="64" ry="150"/>
+    <path d="M90 196h332M90 256h332M90 316h332"/>
+  </g>
+  <path d="M256 62l14 24-14 24-14-24z" fill="url(#g)"/>
+</svg>

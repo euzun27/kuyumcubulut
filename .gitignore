@@ -1,0 +1,60 @@
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments / local config
+.env
+.venv/
+venv/
+
+# Runtime logs
+*.log
+uvicorn*.log
+
+# Local browser/runtime profiles
+.chrome_debug_profile/
+
+# Local databases and backups
+*.db
+*.sqlite
+*.sqlite3
+*_backup.db
+
+# Exported backups
+kuyumcu_backup_*.json
+*.bak
+
+# SQLite runtime side files
+*.db-journal
+*.db-wal
+*.db-shm
+# Local data files
+/data/*.db
+/data/*.sqlite
+/data/*.sqlite3
+
+# Build artifacts
+build/
+dist/
+KuyumcuTakip-Windows/
+KuyumcuTakip-Windows.zip
+*.dmg
+
+# Runtime preferences and generated release metadata
+/data/ui_settings.json
+/static/build-info.json
+
+# Cloudflare / Node
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+parity.jsonl*
+tests/.build/
+
+# Masaüstü kurulum çıktısı
+desktop/.cache/
+desktop/cikti/

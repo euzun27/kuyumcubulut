@@ -1,0 +1,31 @@
+{
+  "name": "dunyatek-kuyumcu",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "wrangler pages dev",
+    "deploy": "npm run build && wrangler pages deploy",
+    "db:migrate:local": "wrangler d1 migrations apply kuyumcu-production --local",
+    "db:migrate:remote": "wrangler d1 migrations apply kuyumcu-production --remote",
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/build.mjs && node --test tests/app.test.mjs tests/kasa.test.mjs tests/takip.test.mjs tests/etiket.test.mjs tests/lisans.test.mjs tests/metal.test.mjs tests/pano.test.mjs tests/gider.test.mjs tests/harem.test.mjs tests/doviz.test.mjs tests/uctan-uca.test.mjs",
+    "test:parity": "scripts/parity.sh",
+    "kurulum": "node desktop/build.mjs"
+  },
+  "dependencies": {
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260916.1",
+    "@hono/node-server": "^2.1.5",
+    "@hono/vite-build": "^1.11.1",
+    "@hono/vite-dev-server": "^0.26.1",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3",
+    "vite": "^8.1.4",
+    "wrangler": "^4.151.1",
+    "ws": "^8.21.0"
+  }
+}

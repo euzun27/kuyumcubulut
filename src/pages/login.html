@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#121a22" />
+  <title>Giriş | Dünyatek Kuyumcu Portalı</title>
+  <meta name="description" content="Dünyatek Bilişim tarafından geliştirilen kuyumcu alış, satış, hurda, stok ve cari takip portalı." />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(circle at 50% 0%, #1d2a36 0%, #121a22 60%); color: #e6d2a5; font-family: "Segoe UI", Arial, sans-serif; }
+    main { width: min(100%, 380px); animation: reveal .5s ease-out both; }
+    .brand { text-align: center; margin-bottom: 28px; }
+    .logo { display: block; width: 88px; height: 88px; margin: 0 auto 18px; }
+    h1 { margin: 0; font-size: 30px; font-weight: 500; letter-spacing: .2em; padding-left: .2em; }
+    .subtitle { margin: 8px 0 0; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: #b1b6b9; }
+    form { background: #ffffff08; border: 1px solid #c9a66333; border-radius: 10px; padding: 24px; }
+    h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: #f2e3bf; }
+    .hint { margin: 0 0 18px; font-size: 13px; line-height: 1.45; color: #b1b6b9; }
+    label { display: block; margin: 0 0 14px; font-size: 12px; letter-spacing: .04em; color: #c9cdd0; }
+    input { display: block; width: 100%; margin-top: 6px; padding: 11px 12px; background: #0d141a; color: #f4ead2; border: 1px solid #ffffff1f; border-radius: 6px; font: inherit; font-size: 15px; }
+    input:focus { outline: none; border-color: #c9a663; box-shadow: 0 0 0 3px #c9a66333; }
+    button { width: 100%; margin-top: 6px; padding: 12px; background: #c9a663; color: #121a22; border: 0; border-radius: 6px; font: inherit; font-weight: 600; letter-spacing: .04em; cursor: pointer; }
+    button:hover { background: #d8b874; }
+    button:disabled { opacity: .6; cursor: wait; }
+    button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    .link { display: block; width: auto; margin: 14px auto 0; padding: 4px; background: none; color: #c9a663; font-weight: 500; font-size: 13px; text-decoration: underline; }
+    .link:hover { background: none; color: #e6d2a5; }
+    .codes { display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; margin: 0 0 16px; }
+    .codes strong { white-space: nowrap; }
+    .codes div { padding: 10px; border: 1px dashed #c9a66366; border-radius: 6px; text-align: center; }
+    .codes span { display: block; font-size: 11px; color: #b1b6b9; letter-spacing: .04em; }
+    .codes strong { display: block; margin-top: 4px; font-family: Consolas, monospace; font-size: 14px; color: #f4ead2; letter-spacing: .02em; }
+    textarea { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; background: #0d141a; color: #f4ead2; border: 1px solid #ffffff1f; border-radius: 6px; font: 12px Consolas, monospace; resize: vertical; }
+    #ok { margin: 12px 0 0; font-size: 13px; color: #9ed4a8; text-align: center; }
+    #error, #resetError { min-height: 20px; margin: 12px 0 0; font-size: 13px; color: #f09b8f; text-align: center; }
+    .vendor { margin: 26px 0 0; text-align: center; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #c9a66399; }
+    [hidden] { display: none !important; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { main { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <img class="logo" src="/static/logo-dt.png" alt="Dünyatek Bilişim logosu" width="88" height="88" />
+      <h1>DÜNYATEK</h1>
+      <p class="subtitle">Kuyumcu Portalı</p>
+    </div>
+
+    <form id="form" novalidate hidden>
+      <h2 id="formTitle">Giriş yap</h2>
+      <p class="hint" id="formHint" hidden>İlk kurulum: yönetici hesabını oluşturun. Diğer kullanıcıları daha sonra menüdeki Kullanıcılar bölümünden eklersiniz.</p>
+      <label id="nameRow" hidden>Ad Soyad<input id="name" name="name" autocomplete="name" /></label>
+      <label>E-posta<input id="email" name="email" type="email" autocomplete="username" required /></label>
+      <label>Parola<input id="password" name="password" type="password" autocomplete="current-password" required /></label>
+      <label id="confirmRow" hidden>Parola (tekrar)<input id="confirm" name="confirm" type="password" autocomplete="new-password" /></label>
+      <button id="submit" type="submit">Giriş yap</button>
+      <p id="error" role="alert" aria-live="polite"></p>
+      <button id="forgot" class="link" type="button" hidden>Parolamı unuttum</button>
+      <p id="ok" hidden></p>
+    </form>
+
+    <form id="reset" novalidate hidden>
+      <h2>Parolamı unuttum</h2>
+      <p class="hint">Personel parolasını yönetici, Kullanıcılar bölümünden yeniler. Yönetici parolası için Dünyatek Bilişim destek hattını arayın ve aşağıdaki iki kodu okuyun; size bir sıfırlama kodu verilecek.</p>
+      <div class="codes"><div><span>Makine kodu</span><strong id="makine">…</strong></div><div><span>İstek kodu</span><strong id="istek">…</strong></div></div>
+      <label>Sıfırlama kodu<textarea id="kod" rows="3" autocomplete="off" spellcheck="false"></textarea></label>
+      <label>E-posta<input id="resetEmail" type="email" autocomplete="username" /></label>
+      <label>Yeni parola<input id="newPassword" type="password" autocomplete="new-password" /></label>
+      <label>Yeni parola (tekrar)<input id="newPassword2" type="password" autocomplete="new-password" /></label>
+      <button id="resetSubmit" type="submit">Parolayı yenile</button>
+      <p id="resetError" role="alert" aria-live="polite"></p>
+      <button id="back" class="link" type="button">Girişe dön</button>
+    </form>
+
+    <p class="vendor">Dünyatek Bilişim</p>
+    <noscript>Uygulamayı açmak için JavaScript etkin olmalıdır.</noscript>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const form = $('form');
+    let setup = false;
+
+    async function call(path, body) {
+      const response = await fetch(path, {
+        method: body ? 'POST' : 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.status === 'error') throw new Error(result.message || 'İşlem yapılamadı.');
+      return result.data;
+    }
+
+    function showSetup() {
+      setup = true;
+      $('formTitle').textContent = 'Yönetici hesabı oluştur';
+      $('formHint').hidden = false;
+      $('nameRow').hidden = false;
+      $('confirmRow').hidden = false;
+      $('password').autocomplete = 'new-password';
+      $('submit').textContent = 'Kurulumu tamamla';
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      $('error').textContent = '';
+      const email = $('email').value.trim();
+      const password = $('password').value;
+      if (setup && password !== $('confirm').value) { $('error').textContent = 'Parolalar aynı değil.'; return; }
+      $('submit').disabled = true;
+      try {
+        if (setup) await call('/api/auth/register', { name: $('name').value.trim(), email, password });
+        else await call('/api/auth/login', { email, password });
+        window.location.replace('/');
+      } catch (error) {
+        $('error').textContent = error.message;
+      } finally {
+        $('submit').disabled = false;
+      }
+    });
+
+    // Parolamı unuttum: masaüstü sürümde Dünyatek'in verdiği imzalı kodla parola yenilenir.
+    $('forgot').addEventListener('click', async () => {
+      $('error').textContent = '';
+      try {
+        const d = await call('/api/parola-sifirla');
+        $('makine').textContent = d.makine_kodu; $('istek').textContent = d.istek_kodu;
+        $('resetEmail').value = $('email').value.trim();
+        form.hidden = true; $('reset').hidden = false; $('kod').focus();
+      } catch {
+        $('error').textContent = 'Parolanızı yöneticinize veya Dünyatek Bilişim destek hattına yeniletin.';
+      }
+    });
+    $('back').addEventListener('click', () => { $('reset').hidden = true; form.hidden = false; $('email').focus(); });
+    $('reset').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      $('resetError').textContent = '';
+      if ($('newPassword').value !== $('newPassword2').value) { $('resetError').textContent = 'Parolalar aynı değil.'; return; }
+      $('resetSubmit').disabled = true;
+      try {
+        const response = await fetch('/api/parola-sifirla', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kod: $('kod').value, email: $('resetEmail').value.trim(), yeni_parola: $('newPassword').value }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.status === 'error') throw new Error(result.message || 'İşlem yapılamadı.');
+        $('email').value = $('resetEmail').value.trim(); $('password').value = '';
+        $('reset').hidden = true; form.hidden = false;
+        $('ok').textContent = result.message; $('ok').hidden = false; $('password').focus();
+      } catch (error) {
+        $('resetError').textContent = error.message;
+      } finally {
+        $('resetSubmit').disabled = false;
+      }
+    });
+
+    call('/api/auth/status').then((status) => {
+      if (status.user) { window.location.replace('/'); return; }
+      if (status.needs_setup) showSetup();
+      else $('forgot').hidden = false;
+      form.hidden = false;
+      (setup ? $('name') : $('email')).focus();
+    }).catch(() => {
+      form.hidden = false;
+      $('error').textContent = 'Sunucuya ulaşılamadı. Sayfayı yenileyin.';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kullanım Kılavuzu | Dünyatek Kuyumcu Portalı</title>
+<meta name="description" content="Dünyatek Kuyumcu Portalı kullanım kılavuzu: kurulum, satış, alış, hurda, gümüş ve bakır, sipariş, atölye, kasa, cari, stok, emanet, etiket, raporlar ve yedekleme.">
+<link rel="icon" type="image/png" href="../logo-dt.png">
+<style>
+:root {
+  --green: #2d3e36;
+  --green-2: #3f6b55;
+  --green-soft: #e8f0eb;
+  --gold: #c9a24b;
+  --gold-2: #d6b262;
+  --gold-soft: #f7efd9;
+  --paper: #fbf8f1;
+  --card: #ffffff;
+  --ink: #1f2925;
+  --muted: #5d6862;
+  --rule: #e4dccb;
+  --red: #a8352b;
+  --red-soft: #fbeceb;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px; line-height: 1.62;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+img { max-width: 100%; height: auto; }
+a { color: var(--green-2); }
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 64px; }
+
+/* Kapak */
+.cover {
+  position: relative; overflow: hidden; color: #f3e7c8;
+  background: radial-gradient(120% 80% at 80% 0%, #3b5246 0%, var(--green) 55%, #1f2c26 100%);
+  padding: 72px 24px 64px; text-align: center;
+}
+.cover::before, .cover::after { content: ""; position: absolute; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold)); }
+.cover::before { top: 0; } .cover::after { bottom: 0; }
+.cover-inner { max-width: 760px; margin: 0 auto; position: relative; }
+.cover-logo { width: 132px; height: 132px; display: block; margin: 0 auto 28px; }
+.cover-brand { margin: 0; font-size: 15px; letter-spacing: .42em; text-transform: uppercase; color: var(--gold-2); }
+.cover h1 { margin: 18px 0 8px; font-size: 44px; line-height: 1.12; font-weight: 600; color: #fff; letter-spacing: .01em; }
+.cover .cover-sub { margin: 0; font-size: 22px; color: var(--gold-2); font-weight: 500; letter-spacing: .06em; }
+.cover-rule { width: 120px; height: 2px; background: var(--gold); margin: 30px auto; border: 0; }
+.cover-lead { max-width: 560px; margin: 0 auto; font-size: 16px; color: #d9dfd9; }
+.cover-meta { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+.cover-meta span { border: 1px solid rgba(214,178,98,.55); border-radius: 999px; padding: 6px 16px; font-size: 14px; color: #f3e7c8; }
+.cover-foot { margin-top: 48px; font-size: 13px; letter-spacing: .28em; text-transform: uppercase; color: rgba(214,178,98,.8); }
+
+/* İçindekiler */
+.toc { background: var(--card); border: 1px solid var(--rule); border-top: 4px solid var(--gold); border-radius: 10px; padding: 28px 32px; margin: 40px 0 8px; }
+.toc h2 { margin: 0 0 4px; color: var(--green); font-size: 26px; }
+.toc p.hint { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+.toc ol { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 40px; }
+.toc li { break-inside: avoid; }
+.toc a { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; text-decoration: none; color: var(--ink); border-bottom: 1px dotted var(--rule); }
+.toc a:hover { color: var(--green-2); }
+.toc .no { flex: 0 0 auto; min-width: 26px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.toc .t { flex: 1 1 auto; }
+.toc .pg { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--muted); display: none; }
+
+/* Bölümler */
+section.chapter { padding-top: 48px; }
+.eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+h1.ch { margin: 4px 0 0; font-size: 32px; line-height: 1.2; color: var(--green); font-weight: 650; }
+h1.ch + .rule { height: 3px; width: 100%; margin: 12px 0 20px; border: 0; background: linear-gradient(90deg, var(--gold) 0, var(--gold-2) 30%, var(--rule) 30%); }
+.lead { font-size: 17px; color: #39443e; margin: 0 0 18px; }
+h2 { color: var(--green); font-size: 22px; margin: 32px 0 10px; line-height: 1.3; }
+h3 { color: var(--green-2); font-size: 18px; margin: 22px 0 6px; }
+p { margin: 0 0 12px; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin: 3px 0; }
+strong { color: #17201c; }
+.ui { font-weight: 650; color: var(--green); white-space: nowrap; }
+code, .path { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: .92em; background: #f1ece0; border: 1px solid #e3dac6; border-radius: 4px; padding: 1px 5px; word-break: break-all; }
+kbd {
+  display: inline-block; min-width: 26px; text-align: center; padding: 1px 7px; margin: 0 1px;
+  font: 600 13px/1.5 "Segoe UI", Arial, sans-serif; color: var(--green);
+  background: linear-gradient(#fff, #f2ede2); border: 1px solid #cfc4ad; border-bottom-width: 3px; border-radius: 5px;
+}
+
+/* Adım adım */
+ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 8px 0 18px; }
+ol.steps > li { counter-increment: step; position: relative; padding: 2px 0 10px 44px; margin: 0; }
+ol.steps > li::before {
+  content: counter(step); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--green); color: #f3e7c8; font-weight: 700; font-size: 14px; display: grid; place-items: center;
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+
+/* Bilgi kutuları */
+.callout { border-radius: 8px; padding: 12px 16px 12px 52px; margin: 16px 0; position: relative; border: 1px solid; break-inside: avoid; }
+.callout::before { position: absolute; left: 14px; top: 11px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 15px; }
+.callout .ct { display: block; font-weight: 700; margin-bottom: 2px; }
+.callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+.tip { background: var(--green-soft); border-color: #c4d8cb; }
+.tip::before { content: "i"; background: var(--green-2); color: #fff; font-family: Georgia, serif; }
+.tip .ct { color: var(--green-2); }
+.warn { background: var(--red-soft); border-color: #efc7c3; }
+.warn::before { content: "!"; background: var(--red); color: #fff; }
+.warn .ct { color: var(--red); }
+.note { background: var(--gold-soft); border-color: #ead9ae; }
+.note::before { content: "★"; background: var(--gold); color: #fff; font-size: 13px; }
+.note .ct { color: #8a6a1f; }
+
+/* Şekiller */
+figure { margin: 18px 0 22px; break-inside: avoid; page-break-inside: avoid; }
+figure .frame { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 8px; box-shadow: 0 2px 10px rgba(45,62,54,.07); text-align: center; }
+figure img { display: block; margin: 0 auto; border-radius: 6px; }
+figure.small .frame { display: table; margin: 0 auto; }
+figure.small img { max-width: 520px; width: 100%; }
+figure.xs img { max-width: 380px; width: 100%; }
+figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); text-align: center; }
+figcaption b { color: var(--green); }
+.figrow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.figrow figure { margin: 10px 0; }
+
+/* Tablolar */
+table.facts { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 15px; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; break-inside: avoid; }
+table.facts th, table.facts td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.facts th { background: #f3eee2; color: var(--green); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+table.facts tr:last-child td { border-bottom: 0; }
+table.facts td:first-child { font-weight: 600; color: var(--green); white-space: nowrap; }
+.formula { background: var(--card); border: 1px dashed var(--gold); border-radius: 8px; padding: 10px 14px; margin: 10px 0 16px; font-weight: 600; color: var(--green); text-align: center; }
+
+/* SSS */
+.faq { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 12px 16px; margin: 12px 0; break-inside: avoid; }
+.faq h3 { margin: 0 0 6px; font-size: 17px; }
+.faq p:last-child, .faq ul:last-child, .faq ol:last-child { margin-bottom: 0; }
+
+/* İletişim kartı */
+.contact { background: var(--card); border: 1px solid var(--rule); border-top: 5px solid var(--gold); border-radius: 12px; padding: 28px 30px; margin: 16px 0 24px; box-shadow: 0 4px 18px rgba(45,62,54,.08); break-inside: avoid; }
+.contact-head { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+.contact-head img { width: 72px; height: 72px; flex: 0 0 auto; border-radius: 50%; background: var(--green); padding: 6px; }
+.contact-head h2 { margin: 0; font-size: 22px; }
+.contact-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; letter-spacing: .06em; }
+.contact-intro { color: #39443e; margin: 0 0 20px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; margin: 0; }
+.contact-grid div { border-left: 3px solid var(--gold-2); padding: 2px 0 2px 12px; }
+.contact-grid dt { font-size: 12px; font-weight: 700; letter-spacing: .14em; color: var(--gold); }
+.contact-grid dd { margin: 2px 0 0; font-size: 17px; font-weight: 600; color: var(--green); }
+.contact-grid .wide { grid-column: 1 / -1; }
+.contact-foot { margin: 22px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); text-align: center; color: var(--muted); font-size: 14px; }
+
+.page-end { text-align: center; color: var(--muted); font-size: 13px; margin-top: 40px; }
+
+@media (max-width: 720px) {
+  body { font-size: 15.5px; }
+  .wrap { padding: 0 16px 48px; }
+  .cover { padding: 52px 16px 44px; }
+  .cover h1 { font-size: 32px; }
+  .cover .cover-sub { font-size: 18px; }
+  .toc { padding: 20px 16px; }
+  .toc ol { columns: 1; }
+  h1.ch { font-size: 26px; }
+  .figrow, .contact-grid { grid-template-columns: 1fr; }
+  .contact { padding: 22px 16px; }
+  table.facts { font-size: 14px; }
+  table.facts td:first-child { white-space: normal; }
+  ol.steps > li { padding-left: 40px; }
+}
+
+/* Yan yana adım + şekil */
+.side { display: grid; grid-template-columns: 1fr minmax(0, 300px); gap: 20px; align-items: start; }
+.side figure { margin-top: 0; }
+@media (max-width: 700px) { .side { grid-template-columns: 1fr; } }
+
+/* Baskı (A4) */
+@page { size: A4; margin: 15mm 16mm 18mm; }
+@page :first { margin: 0; }
+@media print {
+  body { background: #fff; font-size: 10.4pt; line-height: 1.5; }
+  .wrap { max-width: none; padding: 0; }
+  .cover { height: 297mm; padding: 0; display: flex; align-items: center; justify-content: center; break-after: page; }
+  .cover h1 { font-size: 34pt; }
+  .cover .cover-sub { font-size: 17pt; }
+  .cover-logo { width: 46mm; height: 46mm; }
+  .toc { margin: 0; border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0; padding: 6mm 2mm 0; break-after: page; }
+  .toc ol { columns: 1; }
+  .toc a { padding: 2.2mm 0; }
+  .toc .pg { display: inline; }
+  section.chapter { padding-top: 0; break-before: page; }
+  h1.ch { font-size: 22pt; }
+  h2 { font-size: 14.5pt; margin-top: 7mm; }
+  h3 { font-size: 12pt; }
+  h2, h3, .eyebrow, h1.ch { break-after: avoid; page-break-after: avoid; }
+  .lead { font-size: 11.5pt; }
+  figure img { max-height: 118mm; width: auto; }
+  figure.small img { max-width: 120mm; max-height: 105mm; }
+  figure.xs img { max-width: 82mm; }
+  figure .frame { box-shadow: none; }
+  .figrow figure img { max-height: 95mm; }
+  figcaption { font-size: 9pt; }
+  table.facts { font-size: 9.6pt; }
+  .callout { font-size: 10pt; }
+  a { color: inherit; text-decoration: none; }
+  .contact-grid dd { font-size: 12pt; }
+  .page-end { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="cover" id="kapak">
+  <div class="cover-inner">
+    <img class="cover-logo" src="../logo-dt.png" alt="Dünyatek Bilişim logosu" width="132" height="132">
+    <p class="cover-brand">Dünyatek Bilişim</p>
+    <h1>Dünyatek Kuyumcu Portalı</h1>
+    <p class="cover-sub">Kullanım Kılavuzu</p>
+    <hr class="cover-rule">
+    <p class="cover-lead">Satış, alış, hurda, gümüş ve bakır, sipariş, atölye, kasa, cari, stok, emanet, etiket ve raporlar için adım adım rehber. Kurulumdan yedeklemeye kadar kuyumcu dükkânınızın günlük işleri.</p>
+    <div class="cover-meta"><span>Sürüm 1.1</span><span>Ekim 2026</span><span>Windows masaüstü kurulumu</span></div>
+    <p class="cover-foot">www.dunyatek.com</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<nav class="toc" aria-label="İçindekiler">
+  <h2>İçindekiler</h2>
+  <p class="hint">Bir başlığa tıklayarak o bölüme gidebilirsiniz.</p>
+  <ol>
+    <li><a href="#kurulum"><span class="no">1</span><span class="t">Kurulum ve ilk açılış</span><span class="pg" data-ch="1">3</span></a></li>
+    <li><a href="#genel"><span class="no">2</span><span class="t">Ekrana genel bakış</span><span class="pg" data-ch="2">6</span></a></li>
+    <li><a href="#has"><span class="no">3</span><span class="t">Has fiyatı, döviz kurları ve TV fiyat panosu</span><span class="pg" data-ch="3">10</span></a></li>
+    <li><a href="#satis"><span class="no">4</span><span class="t">Satış ve fiş</span><span class="pg" data-ch="4">14</span></a></li>
+    <li><a href="#alis"><span class="no">5</span><span class="t">Alış</span><span class="pg" data-ch="5">18</span></a></li>
+    <li><a href="#hurda"><span class="no">6</span><span class="t">Hurda alış ve hurda satış</span><span class="pg" data-ch="6">20</span></a></li>
+    <li><a href="#metal"><span class="no">7</span><span class="t">Gümüş ve bakır</span><span class="pg" data-ch="7">22</span></a></li>
+    <li><a href="#siparis"><span class="no">8</span><span class="t">Sipariş ve tamir</span><span class="pg" data-ch="8">26</span></a></li>
+    <li><a href="#atolye"><span class="no">9</span><span class="t">Atölye takibi</span><span class="pg" data-ch="9">28</span></a></li>
+    <li><a href="#kasa"><span class="no">10</span><span class="t">Kasa, döviz ve gün sonu</span><span class="pg" data-ch="10">33</span></a></li>
+    <li><a href="#cari"><span class="no">11</span><span class="t">Cari hesaplar ve cari kartı</span><span class="pg" data-ch="11">43</span></a></li>
+    <li><a href="#gider"><span class="no">12</span><span class="t">Giderler</span><span class="pg" data-ch="12">48</span></a></li>
+    <li><a href="#stok"><span class="no">13</span><span class="t">Stok</span><span class="pg" data-ch="13">50</span></a></li>
+    <li><a href="#emanet"><span class="no">14</span><span class="t">Emanet</span><span class="pg" data-ch="14">51</span></a></li>
+    <li><a href="#etiket"><span class="no">15</span><span class="t">Etiket ve barkod yazdırma</span><span class="pg" data-ch="15">52</span></a></li>
+    <li><a href="#rapor"><span class="no">16</span><span class="t">Dashboard ve raporlar</span><span class="pg" data-ch="16">55</span></a></li>
+    <li><a href="#yedek"><span class="no">17</span><span class="t">Yedekleme ve geri yükleme</span><span class="pg" data-ch="17">59</span></a></li>
+    <li><a href="#kullanici"><span class="no">18</span><span class="t">Kullanıcılar, roller ve parola</span><span class="pg" data-ch="18">61</span></a></li>
+    <li><a href="#sifirla"><span class="no">19</span><span class="t">Verileri sıfırlama</span><span class="pg" data-ch="19">63</span></a></li>
+    <li><a href="#sss"><span class="no">20</span><span class="t">Sık sorulan sorular ve sorun giderme</span><span class="pg" data-ch="20">64</span></a></li>
+    <li><a href="#iletisim"><span class="no">21</span><span class="t">Teknik destek ve iletişim</span><span class="pg" data-ch="21">67</span></a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section class="chapter" id="kurulum">
+  <p class="eyebrow">Bölüm 1</p>
+  <h1 class="ch">Kurulum ve ilk açılış</h1><hr class="rule">
+  <p class="lead">Dünyatek Kuyumcu Portalı, Windows bilgisayarınıza kurulan ve <strong>internet olmadan çalışan</strong> bir kuyumcu takip programıdır. Kayıtlarınız yalnızca kendi bilgisayarınızda saklanır.</p>
+
+  <h2>Programı kurma</h2>
+  <ol class="steps">
+    <li>Size verilen <span class="path">Dunyatek_Kuyumcu_Portal_Kurulum_1.1.6.exe</span> dosyasına çift tıklayın. Windows “Bu uygulamanın cihazınızda değişiklik yapmasına izin vermek istiyor musunuz?” diye sorarsa <span class="ui">Evet</span>’i seçin.</li>
+    <li>“Dünyatek Kuyumcu Portalı kurulumuna hoş geldiniz” sayfasında <span class="ui">İleri</span>’ye tıklayın.</li>
+    <li>Kurulum klasörü olarak <span class="path">C:\Dunyatek_Kuyumcu_Portal</span> önerilir. Bu klasörü değiştirmeden <span class="ui">Kur</span>’a tıklayın.</li>
+    <li>Kurulum bitince “Kurulum tamamlandı” sayfası açılır. <span class="ui">Programı şimdi aç</span> işaretliyse <span class="ui">Bitir</span>’e bastığınızda program açılır.</li>
+  </ol>
+  <p>Kurulum; masaüstüne ve Başlat menüsüne logolu <strong>Dunyatek_Kuyumcu_Portal</strong> simgesini koyar. Başlat menüsündeki program klasöründe ayrıca <strong>Yedek klasörü</strong> ve <strong>Kaldır</strong> kısayolları bulunur.</p>
+
+  <h2>Program nasıl çalışır?</h2>
+  <p>Masaüstündeki simgeye tıkladığınızda program arka planda kendi küçük sunucusunu başlatır ve portalı <strong>Microsoft Edge’de ayrı bir pencere</strong> olarak açar (Edge bulunamazsa varsayılan tarayıcınızda açılır). Pencerenin adresi <span class="path">http://localhost:47800</span> olur. Bu adres yalnızca o bilgisayardan açılabilir; başka bir bilgisayardan veya telefondan erişilemez.</p>
+  <table class="facts">
+    <tr><th>Ne</th><th>Nerede</th></tr>
+    <tr><td>Program</td><td><span class="path">C:\Dunyatek_Kuyumcu_Portal</span></td></tr>
+    <tr><td>Kayıtlarınız</td><td><span class="path">C:\Dunyatek_Kuyumcu_Portal\Veri</span> (veritabanı dosyası: <span class="path">kuyumcu.sqlite</span>)</td></tr>
+    <tr><td>Yedekler</td><td><span class="path">C:\DUNYATEK_BACKUP</span></td></tr>
+    <tr><td>Adres</td><td><span class="path">http://localhost:47800</span> (yalnızca bu bilgisayar)</td></tr>
+  </table>
+
+  <h2>Yeni sürüme güncelleme ve kaldırma</h2>
+  <ul>
+    <li><strong>Güncelleme:</strong> Yeni sürümün kurulum dosyasını aynı şekilde çalıştırın. Program eskisinin üzerine kurulur; kurulum çalışan programı kendisi kapatır. <strong>Kayıtlarınız ve yedekleriniz silinmez.</strong></li>
+    <li><strong>Kaldırma:</strong> Başlat menüsündeki <span class="ui">Kaldır</span> kısayolunu veya Windows’un uygulamalar listesini kullanın. Kaldırma işlemi <span class="path">Veri</span> ve <span class="path">C:\DUNYATEK_BACKUP</span> klasörlerini <strong>silmez</strong>; programı yeniden kurduğunuzda kaldığınız yerden devam edersiniz.</li>
+  </ul>
+
+  <h2>İlk açılış: yönetici hesabını oluşturma</h2>
+  <p>Program ilk kez açıldığında <strong>Yönetici hesabı oluştur</strong> ekranı gelir. Bu hesap programın sahibidir; diğer kullanıcıları daha sonra bu hesapla eklersiniz.</p>
+  <div class="figrow">
+    <figure><div class="frame"><img src="img/setup.jpg" alt="Yönetici hesabı oluşturma ekranı" width="600" height="780"></div><figcaption><b>Şekil 1.1</b> İlk kurulum: yönetici hesabı</figcaption></figure>
+    <figure><div class="frame"><img src="img/giris.jpg" alt="Giriş ekranı" width="600" height="700"></div><figcaption><b>Şekil 1.2</b> Sonraki açılışlarda giriş ekranı</figcaption></figure>
+  </div>
+  <ol class="steps">
+    <li><span class="ui">Ad Soyad</span> ve <span class="ui">E-posta</span> alanlarını doldurun. E-posta adresi giriş yaparken kullanıcı adınız olur.</li>
+    <li><span class="ui">Parola</span> ve <span class="ui">Parola (tekrar)</span> alanlarına aynı parolayı yazın. Parola <strong>en az 8 karakter</strong> olmalıdır.</li>
+    <li><span class="ui">Kurulumu tamamla</span>’ya tıklayın. Program açılır ve Dashboard ekranı gelir.</li>
+  </ol>
+  <div class="callout warn"><span class="ct">Parolanızı kaybetmeyin</span><p>Yönetici e-postasını ve parolasını güvenli bir yere not edin. Personel parolasını unutursa yönetici <span class="ui">Kullanıcılar</span> listesindeki <span class="ui">Parola</span> düğmesiyle yeni parola belirler; yönetici parolasını unutursanız giriş ekranındaki <span class="ui">Parolamı unuttum</span> bağlantısını kullanın (Bölüm 20’deki “Parolamı unuttum” sorusu).</p></div>
+
+  <h2 style="break-before: page">Deneme süresi ve lisans</h2>
+  <p>Program ilk açıldığı günden itibaren <strong>15 gün deneme</strong> olarak çalışır; üst çubukta kalan gün sayısı görünür. Devam etmek için bilgisayarınıza özel bir lisans anahtarı girmeniz gerekir.</p>
+  <div class="side">
+  <ol class="steps">
+    <li>Sağ üstteki dişli menüden <span class="ui">LİSANS</span>’a tıklayın (deneme sırasında üst çubuktaki <span class="ui">Deneme: … gün kaldı</span> yazısına da tıklayabilirsiniz).</li>
+    <li>Pencerede yazan <strong>makine kodunu</strong> <span class="ui">Kopyala</span> ile kopyalayıp Dünyatek Bilişim’e iletin.</li>
+    <li>Size gönderilen ve <span class="path">DT1-</span> ile başlayan lisans anahtarını <span class="ui">Lisans anahtarı</span> kutusuna yapıştırın ve <span class="ui">Etkinleştir</span>’e tıklayın.</li>
+  </ol>
+  <figure class="xs"><div class="frame"><img src="img/lisans.jpg" alt="Lisans penceresi" width="560" height="560"></div><figcaption><b>Şekil 1.3</b> Lisans penceresi: makine kodu ve anahtar girişi</figcaption></figure>
+  </div>
+  <ul>
+    <li>Lisans anahtarı yalnızca makine kodu verilen bilgisayarda çalışır. Programı başka bilgisayara kurarsanız veya Windows’u yeniden kurarsanız yeni makine kodu için yeni anahtar alın.</li>
+    <li>Deneme veya lisans süresi bitince program <strong>kilitlenmez ve verileriniz silinmez</strong>: kayıtları görebilir, yedek alabilirsiniz; yeni kayıt girmek için lisans anahtarı gerekir.</li>
+  </ul>
+</section>
+
+<!-- 2 -->
+<section class="chapter" id="genel">
+  <p class="eyebrow">Bölüm 2</p>
+  <h1 class="ch">Ekrana genel bakış</h1><hr class="rule">
+  <p class="lead">Program açıldığında solda menü, üstte fiyat ve ayar çubuğu, ortada seçtiğiniz ekran bulunur.</p>
+  <figure><div class="frame"><img src="img/dashboard.jpg" alt="Dashboard ekranı" width="1100" height="688"></div><figcaption><b>Şekil 2.1</b> Ana ekran (Dashboard): solda menü, üstte kurlar, HAS düğmesi, dişli menü ve arama</figcaption></figure>
+
+  <h2>Sol menü</h2>
+  <table class="facts">
+    <tr><th>Grup</th><th>Ekranlar</th></tr>
+    <tr><td>—</td><td>Dashboard <kbd>F9</kbd></td></tr>
+    <tr><td>İşlemler</td><td>Satış <kbd>F2</kbd>, Alış <kbd>F3</kbd>, Hurda Alış, Hurda Satış, Gümüş / Bakır, Döviz Al / Sat, Sipariş / Tamir, Atölye</td></tr>
+    <tr><td>Finans</td><td>Kasa <kbd>F4</kbd>, Cari <kbd>F6</kbd>, Giderler</td></tr>
+    <tr><td>Stok</td><td>Stok <kbd>F7</kbd>, Emanet <kbd>F8</kbd>, Etiket / Barkod</td></tr>
+    <tr><td>Raporlar</td><td>Raporlar</td></tr>
+  </table>
+  <p>Menünün altında oturum açan kişinin adı ve rolü (Yönetici, Personel veya İzleyici) ile <span class="ui">Çıkış</span> düğmesi yer alır. <strong>Sipariş / Tamir</strong> satırında kırmızı bir sayı görürseniz teslim günü bugün, yarın olan veya geçmiş iş var demektir.</p>
+
+  <h2>Üst çubuk</h2>
+  <ul>
+    <li><strong>USD / EUR kutuları:</strong> günün dolar ve euro satış kuru.</li>
+    <li><strong>HAS düğmesi:</strong> günün has altın fiyatı (TL/gr). Tıklayınca fiyat penceresi açılır (Bölüm 3).</li>
+    <li><strong>TV düğmesi:</strong> dükkândaki TV veya ikinci ekran için fiyat panosunu ayrı pencerede açar (Bölüm 3).</li>
+    <li><strong>Dişli (⚙) menü:</strong> ayarlar, yedekler, firma bilgileri, kısayollar, hesap ve çıkış.</li>
+    <li><strong>Ara… kutusu:</strong> açık ekrandaki tabloyu yazdığınız kelimeye göre süzer (örneğin müşteri adı, ürün cinsi). <kbd>/</kbd> tuşu imleci doğrudan bu kutuya götürür.</li>
+  </ul>
+
+  <div class="figrow">
+    <figure><div class="frame"><img src="img/menu.jpg" alt="Dişli menü" width="680" height="470"></div><figcaption><b>Şekil 2.2</b> Dişli menü</figcaption></figure>
+    <figure><div class="frame"><img src="img/kisayol.jpg" alt="Klavye kısayolları penceresi" width="560" height="442"></div><figcaption><b>Şekil 2.3</b> Klavye kısayolları penceresi</figcaption></figure>
+  </div>
+  <table class="facts">
+    <tr><th>Menü öğesi</th><th>Ne işe yarar</th></tr>
+    <tr><td>AYARLAR</td><td>Açık/koyu görünüm, otomatik yedekleme sıklığı, sürüm bilgisi; yöneticide ayrıca “Verileri sıfırla”.</td></tr>
+    <tr><td>YEDEK AL</td><td>O anın yedeğini hemen alır (Bölüm 17).</td></tr>
+    <tr><td>YEDEKLER VE GERİ YÜKLEME</td><td>Yedek listesi ve geri yükleme penceresi.</td></tr>
+    <tr><td>TÜM VERİLERİ DIŞA AKTAR</td><td>Tüm kayıtları okunabilir bir JSON dosyası olarak indirir.</td></tr>
+    <tr><td>FİRMA, LOGO VE FİŞ BİLGİLERİ</td><td>İşyeri adı ve logosu, fişlerde görünen adres, telefon, vergi bilgisi ve fiş alt notu (Bölüm 3).</td></tr>
+    <tr><td>FİYAT PANOSU (TV) AYARLARI</td><td>TV panosunda görünecek ürünler, fiyatların nereden geleceği ve kayan yazı (Bölüm 3).</td></tr>
+    <tr><td>KLAVYE KISAYOLLARI</td><td>Kısayol listesini gösterir (<kbd>?</kbd> tuşu da açar).</td></tr>
+    <tr><td>HESAP VE KULLANICILAR</td><td>Parola değiştirme; yöneticide kullanıcı ekleme ve yetki verme.</td></tr>
+    <tr><td>ÇIKIŞ YAP</td><td>Oturumu kapatır.</td></tr>
+  </table>
+
+  <h2>Klavye kısayolları</h2>
+  <table class="facts">
+    <tr><th>Tuş</th><th>Görev</th></tr>
+    <tr><td><kbd>F2</kbd></td><td>Satış ekranı</td></tr>
+    <tr><td><kbd>F3</kbd></td><td>Alış ekranı</td></tr>
+    <tr><td><kbd>F4</kbd></td><td>Kasa ekranı</td></tr>
+    <tr><td><kbd>F6</kbd></td><td>Cari ekranı</td></tr>
+    <tr><td><kbd>F7</kbd></td><td>Stok ekranı</td></tr>
+    <tr><td><kbd>F8</kbd></td><td>Emanet ekranı</td></tr>
+    <tr><td><kbd>F9</kbd></td><td>Dashboard</td></tr>
+    <tr><td><kbd>/</kbd></td><td>Arama kutusuna git</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Açık pencereyi kapat</td></tr>
+    <tr><td><kbd>?</kbd></td><td>Kısayol yardımını aç</td></tr>
+  </table>
+  <div class="callout tip"><span class="ct">İpucu</span><p>F tuşları bir pencere (ör. ödeme penceresi) açıkken çalışmaz; önce <kbd>Esc</kbd> ile pencereyi kapatın.</p></div>
+
+  <h2>Açık ve koyu tema</h2>
+  <p>Sol üstteki <strong>Dünyatek logosuna</strong> tıkladığınızda ekran koyu temaya, bir daha tıkladığınızda açık temaya geçer. Aynı seçim <span class="ui">Ayarlar</span> penceresindeki <span class="ui">Görünüm</span> alanından da yapılabilir. Tema yalnızca renkleri değiştirir; doldurduğunuz form ve kayıtlar etkilenmez.</p>
+  <figure><div class="frame"><img src="img/koyu-dashboard.jpg" alt="Koyu tema" width="1100" height="688"></div><figcaption><b>Şekil 2.4</b> Koyu tema örneği</figcaption></figure>
+
+  <h2>Her ekranda ortak olanlar</h2>
+  <ul>
+    <li><strong>Tarihler:</strong> her ekranda <strong>gün.ay.yıl</strong> (gg.aa.yyyy) biçimindedir, ör. <code>21.10.2026</code>. Tarih kutusuna yalnızca rakamları yazmanız yeterli: <code>21102026</code> yazınca noktalar kendiliğinden gelir. Kutunun sağındaki takvim simgesi kutunun hemen altında Türkçe bir takvim açar (<span class="ui">Bugün</span> düğmesi bugünü seçer); imleç kutudayken <kbd>↑</kbd> / <kbd>↓</kbd> tuşları tarihi bir gün ileri veya geri alır.</li>
+    <li><strong>Sayı yazma:</strong> ondalık için virgül kullanın (ör. <code>18,42</code>). Eksi işaretli değer girilemez.</li>
+    <li><strong>Kaydetme onayı:</strong> Satış, alış ve hurda kayıtlarında <span class="ui">Kaydet</span>’e bastıktan sonra “Bu kaydı kaydetmek istiyor musunuz” sorusu gelir; <span class="ui">Kaydet</span> ile onaylayın.</li>
+    <li><strong>Tablo düğmeleri:</strong> her satırda yazıcı (fiş/makbuz), kalem (düzenle) ve çöp kutusu (sil) simgeleri bulunur. Silme işlemi her zaman onay ister.</li>
+    <li><strong>CSV:</strong> tablo başlığının yanındaki <span class="ui">CSV</span> düğmesi tabloyu Excel’de açılabilen bir dosya olarak indirir.</li>
+    <li><strong>Notlar:</strong> tablodaki kısaltılmış nota tıklayınca notun tamamı açılır.</li>
+    <li><strong>İsimler büyük harfle kaydedilir:</strong> müşteri, tedarikçi, cari, atölye ve emanet sahibinin adını nasıl yazarsanız yazın (ör. <code>ayşe yılmaz</code>) program onu Türkçe kurallarla büyük harfe çevirir (<code>AYŞE YILMAZ</code>; i → İ, ı → I). Böylece aynı kişi cari ekstrede ve raporlarda tek ve düzgün bir isimle görünür. Daha önce girilmiş isimler de güncellemeden sonraki ilk açılışta bir kez büyük harfe çevrilir.</li>
+  </ul>
+</section>
+
+<!-- 3 -->
+<section class="chapter" id="has">
+  <p class="eyebrow">Bölüm 3</p>
+  <h1 class="ch">Has fiyatı, döviz kurları ve TV fiyat panosu</h1><hr class="rule">
+  <p class="lead">Has fiyatı, 1 gram has (saf) altının TL değeridir. Program satış, alış ve hurda formlarına bu fiyatı öneri olarak yazar.</p>
+  <ul>
+    <li>Bilgisayar internete bağlıysa program has fiyatını ve USD/EUR kurlarını <strong>canlı kaynaktan</strong> okur; ekrandaki fiyat 5 saniyede bir yenilenir. Program önce kuyumcuların takip ettiği <strong>Harem Altın</strong>’ın canlı fiyat akışına bağlanır; bağlantı koparsa veya 2 dakika fiyat gelmezse kendiliğinden <strong>Truncgil Finans</strong>’a geçer, Harem yeniden gelince ona döner. İsteğe bağlı olarak yönetici, HAS düğmesiyle açılan pencerenin altındaki <span class="ui">Canlı fiyat kaynağı</span> bölümüne altinapi.com’dan aldığı <strong>API anahtarını</strong> yazıp <span class="ui">Anahtarı kaydet</span>’e basar; anahtar okunamazsa program yine Truncgil’e döner. Fiyatın hangi kaynaktan geldiğini görmek için fareyi üst çubuktaki HAS düğmesinin üzerine getirin.</li>
+    <li>İnternet yoksa veya canlı fiyat okunamazsa <strong>sizin elle girdiğiniz fiyat</strong> kullanılır. Dashboard’daki “Has altın” kutusunda fiyatın yanında <em>canlı</em> veya <em>elle</em> yazar.</li>
+    <li>Üst çubukta görünen <span class="ui">HAS … ₺</span>, <span class="ui">USD</span> ve <span class="ui">EUR</span> rakamları <strong>satış</strong> fiyatıdır. Fareyi üzerine getirdiğinizde alış ve satış birlikte görünür; Dashboard kutularında büyük rakam satış, altındaki küçük yazı alıştır.</li>
+    <li>Fiyat yalnızca öneridir: yeni satışta <strong>satış</strong>, yeni alış ve hurda alışta <strong>alış</strong> fiyatı forma gelir; her kayıtta fiyatı değiştirebilirsiniz. Kayıt, sizin formda bıraktığınız fiyatla saklanır.</li>
+  </ul>
+  <div class="callout note"><span class="ct">Bilgi</span><p>Dashboard’daki “Stok Değeri (güncel)” kutusu, kalan has stoğunu günün <strong>alış</strong> fiyatıyla çarparak hesaplar. Fiyat girilmemişse bu kutu boş kalır.</p></div>
+  <h2>Has fiyatını elle girme</h2>
+  <div class="side">
+  <ol class="steps">
+    <li>Üst çubuktaki <span class="ui">HAS</span> düğmesine tıklayın (fiyat hiç girilmemişse düğmede <span class="ui">HAS FİYATI GİR</span> yazar).</li>
+    <li><span class="ui">Alış (TL/gr has)</span> ve <span class="ui">Satış (TL/gr has)</span> alanlarına günün fiyatlarını yazın.</li>
+    <li>İsterseniz USD ve EUR için alış ve satış kurlarını da girin. Kurlar döviz kasası işlemlerinde öneri olarak kullanılır.</li>
+    <li><span class="ui">Elle fiyatı kaydet</span>’e tıklayın.</li>
+  </ol>
+  <p>Yanlış bir fiyat girdiyseniz veya yeniden canlı fiyatla çalışmak istiyorsanız aynı pencerede <span class="ui">Canlı fiyata dön</span>’e tıklayın: elle girilen has fiyatı ve kurlar silinir, alanlara canlı fiyat gelir. Elle fiyat girilmemişse düğme alanları yalnızca güncel canlı fiyatla yeniler.</p>
+  <figure class="xs"><div class="frame"><img src="img/has-fiyati.jpg" alt="Has fiyatı penceresi" width="480" height="526"></div><figcaption><b>Şekil 3.1</b> Has fiyatı ve kurlar penceresi</figcaption></figure>
+  </div>
+
+  <h2>TV fiyat panosu</h2>
+  <p>Dükkândaki TV’de veya ikinci bir monitörde müşterilere günün alış ve satış fiyatlarını gösterebilirsiniz. Panoda işyerinizin logosu ve adı, saat ve tarih, altın, bilezik ve ayarlar, sarrafiye, gümüş, dolar ve euro bulunur. Fiyatlar 5 saniyede bir kendiliğinden yenilenir; değişen fiyatın yanında yükseldiyse yeşil ▲, düştüyse kırmızı ▼ görünür.</p>
+  <figure><div class="frame"><img src="img/pano.jpg" alt="TV fiyat panosu" width="1100" height="619"></div><figcaption><b>Şekil 3.2</b> TV fiyat panosu: solda altın ve bilezik, sağda sarrafiye, altta gümüş ve döviz, en altta kayan yazı</figcaption></figure>
+  <ol class="steps">
+    <li>TV’yi veya ikinci ekranı bilgisayara bağlayın (Windows’ta <kbd>Win</kbd> + <kbd>P</kbd> → <em>Genişlet</em>).</li>
+    <li>Üst çubukta, dişli simgesinin yanındaki <span class="ui">TV</span> düğmesine basın. Pano ayrı bir pencerede açılır.</li>
+    <li>Pencereyi fareyle TV ekranına sürükleyin ve üstteki <span class="ui">Tam ekran</span> düğmesine basın (veya <kbd>F</kbd> tuşu). Fare 3 saniye kıpırdamazsa düğmeler ve imleç gizlenir.</li>
+    <li>Programı kullanmaya ana pencereden devam edin; pano açık kalır. Kapatmak için panonun üstündeki <span class="ui">Kapat</span>’a basın.</li>
+  </ol>
+
+  <h2>Panodaki fiyatları ayarlama</h2>
+  <figure><div class="frame"><img src="img/pano-ayar.jpg" alt="Fiyat panosu ayarları" width="1100" height="688"></div><figcaption><b>Şekil 3.3</b> Fiyat panosu ayarları: çeyrek altın elle 10.450 / 10.780 TL yazılmış</figcaption></figure>
+  <p>Dişli menüden <span class="ui">FİYAT PANOSU (TV) AYARLARI</span>’nı açın. Her satırda şunları seçersiniz:</p>
+  <table class="facts">
+    <tr><th>Ayar</th><th>Ne işe yarar</th></tr>
+    <tr><td>Kutucuk</td><td>Satır panoda görünsün mü. İşaretini kaldırdığınız ürün panodan çıkar.</td></tr>
+    <tr><td>Ad</td><td>Panoda yazan ad (ör. “Çeyrek Altın” yerine “Çeyrek”).</td></tr>
+    <tr><td>Piyasa</td><td>Fiyat canlı piyasadan gelir. Piyasada o ürünün fiyatı bulunamazsa has fiyatı × çarpan kullanılır.</td></tr>
+    <tr><td>Has × çarpan</td><td>Fiyat, günün has fiyatının <em>çarpan</em> katıdır; kendi kâr payınızı böyle verirsiniz. Çarpan, 1 gramın veya 1 adetin kaç gram has ettiğidir (alış / satış). Örnek: has 6.552,69 / 6.610 TL, çeyrek çarpanı 1,600 / 1,640 → çeyrek 10.484 / 10.840 TL.</td></tr>
+    <tr><td>Elle</td><td>Yazdığınız alış ve satış fiyatı olduğu gibi görünür, piyasa değişse de değişmez. Binlik ayraç için nokta yazabilirsiniz (10.450).</td></tr>
+    <tr><td>Kayan yazı</td><td>Panonun altında kayan duyuru (ör. taksit seçenekleri, çalışma saatleri).</td></tr>
+  </table>
+  <p>Her satırın altındaki “Şu an …” yazısı, o satırın panoda göründüğü fiyatı ve nereden geldiğini gösterir. Gümüş fiyatı Gümüş / Bakır ekranındaki fiyattan, dolar ve euro üst çubuktaki kurlardan gelir. Ayarları yalnızca yönetici değiştirebilir; açık pano birkaç saniye içinde yeni ayarla yenilenir.</p>
+
+  <h2>İşyeri adı ve logosu</h2>
+  <div class="side">
+  <p>Panoda ve fişlerde görünen işyeri adı ile panodaki logo, dişli menüdeki <span class="ui">FİRMA, LOGO VE FİŞ BİLGİLERİ</span> penceresinden girilir. <span class="ui">Logo seç</span> ile PNG veya JPG logonuzu seçin; logo kendiliğinden küçültülüp kaydedilir. <span class="ui">Logoyu kaldır</span> logoyu siler. Saydam arka planlı PNG logo koyu panoda en iyi görünür.</p>
+  <figure class="xs"><div class="frame"><img src="img/firma-logo.jpg" alt="Firma, logo ve fiş bilgileri penceresi" width="560" height="542"></div><figcaption><b>Şekil 3.4</b> İşyeri adı ve logosu</figcaption></figure>
+  </div>
+  <div class="callout warn"><span class="ct">Bilmeniz gerekenler</span><ul>
+    <li>Pano yalnızca fiyat gösterir; müşteri programın içini, kasayı veya kayıtları göremez.</li>
+    <li>Canlı fiyat gelmezse panoda elle girdiğiniz has fiyatından hesaplanan fiyatlar görünür ve alt köşede “Günün fiyatı” yazar; canlıyken “Canlı piyasa” yazar.</li>
+  </ul></div>
+</section>
+
+<!-- 4 -->
+<section class="chapter" id="satis">
+  <p class="eyebrow">Bölüm 4</p>
+  <h1 class="ch">Satış ve fiş</h1><hr class="rule">
+  <p class="lead">Satış ekranı (<kbd>F2</kbd>) stoktaki ürünleri satmak, ödemeyi kasaya işlemek ve müşteriye fiş vermek için kullanılır.</p>
+
+  <h2>Temel hesaplar</h2>
+  <div class="formula">Has = Gram × Milyem ÷ 1000 &nbsp;·&nbsp; Tutar (TL) = Has × Has fiyatı + İşçilik</div>
+  <p>Örneğin 18,42 gram 22 ayar bileziği 940 milyemden satarsanız has 17,31 gr olur. Program satışın kârını iki şekilde gösterir: <strong>TL kârı</strong> (tutar − stoktan düşen alış maliyeti) ve <strong>milyem kârı</strong> (gram × satış ile alış milyemi farkı ÷ 1000, has cinsinden).</p>
+
+  <figure><div class="frame"><img src="img/satis.jpg" alt="Satış ekranı" width="1100" height="688"></div><figcaption><b>Şekil 4.1</b> Satış formu: barkod okutuldu, ürün stoktan seçildi, ödeme nakit</figcaption></figure>
+
+  <h2>Satış yapma</h2>
+  <ol class="steps">
+    <li><strong>Ürünü seçin.</strong> Etiketli bir parça satıyorsanız barkod okuyucuyla formun üstündeki <span class="ui">Barkod okutun veya yazın</span> kutusuna okutun (veya barkodu yazıp <kbd>Enter</kbd>’a basın). Cinsi, ayar, gram ve taş bilgisi kendiliğinden dolar. Etiketsiz satışta <span class="ui">STOKTAN ÜRÜN SEÇ</span>’e tıklayıp listeden cinsi ve ayarı seçin.</li>
+    <li><span class="ui">Müşteri</span> alanına adı yazın. Kayıtlı cariler yazdıkça listelenir; listeden seçebilirsiniz.</li>
+    <li>Sarrafiyede <span class="ui">Adet</span>, diğer ürünlerde <span class="ui">Satış Gram</span> alanını girin. <span class="ui">Alış Milyem</span> stoktan otomatik gelir.</li>
+    <li><span class="ui">Satış Milyem</span>’i yazın. Gerekirse <span class="ui">Has Fiyatı</span> ve <span class="ui">İşçilik (TL)</span> alanlarını düzeltin. Alttaki kutuda <em>Hesaplanan Has</em>, <em>Gram</em> ve <em>Tutar (TL)</em> anında görünür.</li>
+    <li>Ödemeyi seçin: tamamı tek yerden alınacaksa <span class="ui">Nakit al</span>, <span class="ui">Kart (POS)</span> veya <span class="ui">Havale / EFT</span> düğmesine bir kez tıklayın. Bölünmüş veya dövizli ödeme için <span class="ui">Ödeme Ekle / Düzenle</span>’yi kullanın (aşağıda).</li>
+    <li><span class="ui">Kaydet</span>’e basın ve onay sorusunu <span class="ui">Kaydet</span> ile onaylayın. Satış, tablonun en üstüne eklenir.</li>
+  </ol>
+  <div class="callout tip"><span class="ct">Hızlı ödeme düğmeleri</span><p><span class="ui">Nakit al</span>, <span class="ui">Kart (POS)</span> ve <span class="ui">Havale / EFT</span> düğmeleri işlem tutarının tamamını ilgili kasa hesabına yazar ve müşterinin has borcunu kapatır. Gram veya fiyatı sonradan değiştirirseniz ödeme tutarı da kendiliğinden güncellenir.</p></div>
+
+  <h2>Bölünmüş ve dövizli ödeme</h2>
+  <div class="callout tip"><span class="ct">Müşteri dolar veya euro ile öderse</span><p>Ödeme Bilgisi kutusunun yanındaki <span class="ui">Dolar</span> veya <span class="ui">Euro</span> düğmesine tıklayın. Program işlemin TL tutarını günün kuruyla dövize çevirir (müşteri döviz veriyorsa <strong>alış</strong>, siz döviz ödüyorsanız <strong>satış</strong> kuru) ve tutarı Nakit Dolar / Nakit Euro kasasına işler; özette kur da yazar. Alış ekranında aynı düğmeler müşteriye döviz ödemek içindir. Kuru değiştirmek veya ödemeyi TL ve döviz olarak bölmek için <span class="ui">Ödeme Ekle / Düzenle</span>’yi kullanın.</p></div>
+  <p><span class="ui">Ödeme Ekle / Düzenle</span> penceresinde beş seçenek vardır:</p>
+  <table class="facts">
+    <tr><th>Seçenek</th><th>Ne zaman kullanılır</th></tr>
+    <tr><td>Ödeme Yok</td><td>Müşteri şimdi ödemiyor; tutarın hası müşterinin cari borcuna yazılır.</td></tr>
+    <tr><td>Has ile Ödeme</td><td>Müşteri borcunun bir kısmını has olarak ödüyor.</td></tr>
+    <tr><td>Gram + Milyem</td><td>Müşteri ödemeyi altınla yapıyor; gram ve milyem girilir, has kendiliğinden hesaplanır.</td></tr>
+    <tr><td>Borcu Tam Kapat</td><td>İşlemin tamamı ödendi (para kasaya işlenmeden).</td></tr>
+    <tr><td>Nakit / Kart / Havale</td><td>Para birden çok hesaba veya dövizle alınıyor. Her satıra hesap ve tutar yazılır; dövizli hesapta kur da girilir.</td></tr>
+  </table>
+  <figure class="small"><div class="frame"><img src="img/odeme-modal.jpg" alt="Ödeme bilgisi penceresi" width="680" height="522"></div><figcaption><b>Şekil 4.2</b> Ödemenin bir kısmı dolar, kalanı nakit TL</figcaption></figure>
+  <p>Girilen para işlem tutarını karşılıyorsa borç tam kapanır. Eksikse, ödenen TL has fiyatıyla has’a çevrilir ve kalan has müşterinin cari hesabına borç olarak yazılır. Pencerede <em>İşlem tutarı</em> ve <em>Kalan</em> değerleri görünür. <span class="ui">Ödemeyi Uygula</span> ile pencereyi kapatın.</p>
+
+  <h2>Manuel has</h2>
+  <p>Hesaplanan has kutusundaki <span class="ui">Manuel has</span> alanına has miktarını doğrudan yazabilirsiniz; program bu durumda milyemi has ÷ gram × 1000 olarak ayarlar. <span class="ui">Otomatik</span> düğmesi önceki milyeme ve otomatik hesaba geri döner.</p>
+
+  <h2>Kayıtları düzeltme ve silme</h2>
+  <p>Formun altındaki <strong>Satış Kayıtları</strong> tablosunda kalem simgesi kaydı forma geri getirir; değişiklikten sonra <span class="ui">Güncelle</span>’ye basın. Çöp kutusu kaydı siler. Kayda bağlı kasa hareketleri kayıtla birlikte düzenlenir ve silinir. Tablonun üstünde seçili kayıtların <em>Satılan gram</em> ve <em>Milyem kârı</em> toplamları görünür.</p>
+  <div class="callout note"><span class="ct">Stok ve etiket</span><ul>
+    <li>Satış, aynı cins ve ayardaki toplam stoktan yapılır; stok yeterli değilse kayıt yapılmaz. Program en eski alıştan başlayarak düşer (FIFO).</li>
+    <li>Barkodlu satışta etiket “Satıldı” olur; aynı etiket ikinci kez satılamaz. Satış silinirse etiket yeniden “Stokta” olur.</li>
+  </ul></div>
+
+  <h2>Fiş yazdırma</h2>
+  <p>Tablodaki yazıcı simgesine tıklayın; 80 mm termal yazıcıya uygun bir <strong>Satış Fişi</strong> yazdırma penceresi açılır. Fişin üstündeki firma adı, adres, telefon ve vergi bilgisi ile alttaki teşekkür notu dişli menüdeki <span class="ui">FİRMA, LOGO VE FİŞ BİLGİLERİ</span> penceresinden girilir (yalnızca yönetici değiştirebilir).</p>
+  <div class="figrow">
+    <figure class="xs"><div class="frame"><img src="img/fis.jpg" alt="Satış fişi örneği" width="480" height="807"></div><figcaption><b>Şekil 4.3</b> 80 mm satış fişi</figcaption></figure>
+    <figure><div class="frame"><img src="img/firma.jpg" alt="Firma ve fiş bilgileri" width="560" height="432"></div><figcaption><b>Şekil 4.4</b> Firma ve fiş bilgileri</figcaption></figure>
+  </div>
+  <p>Fişin altında “Bu belge mali değeri olmayan bilgi fişidir.” yazar; resmi fatura veya yazar kasa fişi yerine geçmez.</p>
+</section>
+
+<!-- 5 -->
+<section class="chapter" id="alis">
+  <p class="eyebrow">Bölüm 5</p>
+  <h1 class="ch">Alış</h1><hr class="rule">
+  <p class="lead">Alış ekranı (<kbd>F3</kbd>) toptancıdan veya müşteriden alınan ürünleri stoğa ekler.</p>
+  <figure><div class="frame"><img src="img/alis.jpg" alt="Alış ekranı" width="1100" height="688"></div><figcaption><b>Şekil 5.1</b> Toptancıdan 20 adet çeyrek alışı, ödeme havale</figcaption></figure>
+  <ol class="steps">
+    <li><span class="ui">Tedarikçi</span> alanına toptancının veya satıcının adını yazın.</li>
+    <li>Sarrafiye alıyorsanız formun üstündeki <span class="ui">ÇEYREK</span>, <span class="ui">YARIM</span>, <span class="ui">TAM</span>, <span class="ui">ATA LİRA</span>, <span class="ui">GREMSE</span>, <span class="ui">BEŞLİ</span> veya <span class="ui">GRAM ALTIN</span> düğmesine tıklayın: cinsi, ayar ve milyem dolar; <span class="ui">Adet</span> yazınca gram kendiliğinden hesaplanır. <span class="ui">Has Fiyatı</span>, tutar TV panosundaki adet fiyatına (alışta alış, satışta satış) eşit çıkacak şekilde dolar; alanın altında kullanılan adet fiyatı yazar. BEŞLİ için piyasa fiyatı olmadığından has fiyatı kullanılır. Diğer ürünlerde <span class="ui">Cinsi</span>, <span class="ui">Ayar</span> ve <span class="ui">Gram</span>’ı yazın.</li>
+    <li><span class="ui">Alış Milyem</span>’i girin, <span class="ui">Has Fiyatı</span> ve <span class="ui">İşçilik (TL)</span>’i kontrol edin.</li>
+    <li>Ödemeyi seçin: <span class="ui">Nakit öde</span>, <span class="ui">Kart (POS)</span>, <span class="ui">Havale / EFT</span> veya <span class="ui">Ödeme Ekle / Düzenle</span>. Hiç ödeme seçmezseniz alışın hası tedarikçiye borç olarak cariye yazılır.</li>
+    <li><span class="ui">Kaydet</span>’e basıp onaylayın. Ürün stokta görünür.</li>
+  </ol>
+  <table class="facts">
+    <tr><th>Sarrafiye</th><th>Gram (1 adet)</th><th>Ayar / milyem</th></tr>
+    <tr><td>Çeyrek</td><td>1,75</td><td>22 / 916</td></tr>
+    <tr><td>Yarım</td><td>3,5</td><td>22 / 916</td></tr>
+    <tr><td>Tam</td><td>7</td><td>22 / 916</td></tr>
+    <tr><td>Ata Lira</td><td>7,216</td><td>22 / 916</td></tr>
+    <tr><td>Gremse</td><td>17,5</td><td>22 / 916</td></tr>
+    <tr><td>Beşli</td><td>36,08</td><td>22 / 916</td></tr>
+    <tr><td>Gram altın</td><td>1</td><td>24 / 995</td></tr>
+  </table>
+  <div class="callout tip"><span class="ct">İpucu</span><p>Alış makbuzu yazdırmak için Alış Kayıtları tablosundaki yazıcı simgesini kullanın.</p></div>
+</section>
+
+<!-- 6 -->
+<section class="chapter" id="hurda">
+  <p class="eyebrow">Bölüm 6</p>
+  <h1 class="ch">Hurda alış ve hurda satış</h1><hr class="rule">
+  <p class="lead">Müşteriden alınan bozuk veya kullanılmış altınlar normal stoktan ayrı, <strong>hurda stoğunda</strong> izlenir.</p>
+  <h2>Hurda alış</h2>
+  <figure><div class="frame"><img src="img/hurda-alis.jpg" alt="Hurda alış ekranı" width="1100" height="688"></div><figcaption><b>Şekil 6.1</b> Müşteriden 14,6 gr 22 ayar hurda alışı, ödeme nakit</figcaption></figure>
+  <ol class="steps">
+    <li>Menüden <span class="ui">Hurda Alış</span>’ı açın. <span class="ui">Cinsi</span> alanında “HURDA” hazır gelir.</li>
+    <li><span class="ui">Kişi / Firma</span>, <span class="ui">Ayar</span>, <span class="ui">Gram</span> ve ölçtüğünüz <span class="ui">Alış Milyem</span>’i girin.</li>
+    <li>Has fiyatını kontrol edin, ödemeyi seçin (çoğunlukla <span class="ui">Nakit öde</span>) ve <span class="ui">Kaydet</span>’e basın.</li>
+  </ol>
+  <h2>Hurda satış</h2>
+  <p>Biriken hurdayı rafineriye veya toptancıya satarken <span class="ui">Hurda Satış</span> ekranını kullanın. <span class="ui">HURDA STOKTAN SEÇ</span> ile ayarı seçin, gramı ve satış milyemini yazın, ödemeyi seçip kaydedin. Kayıtlar tablosunda her satışın milyem farkı, milyem kârı ve TL kârı görünür.</p>
+  <figure><div class="frame"><img src="img/hurda-satis.jpg" alt="Hurda satış ekranı" width="1100" height="688"></div><figcaption><b>Şekil 6.2</b> Hurda satış ekranı ve kayıtları</figcaption></figure>
+</section>
+
+<!-- 7 -->
+<section class="chapter" id="metal">
+  <p class="eyebrow">Bölüm 7</p>
+  <h1 class="ch">Gümüş ve bakır</h1><hr class="rule">
+  <p class="lead">Gümüş takı, külçe ve hurda ile hurda bakır alım satımı altından ayrı, <span class="ui">Gümüş / Bakır</span> ekranında tutulur. Stok saf gram üzerinden izlenir; altın stoğu, has hesabı ve altın carisi bu kayıtlardan etkilenmez.</p>
+  <figure><div class="frame"><img src="img/metal.jpg" alt="Gümüş ve bakır ekranı" width="1100" height="688"></div><figcaption><b>Şekil 7.1</b> Gümüş / Bakır ekranı: üstte stok, fiyat, kâr ve veresiye; altta alış veya satış formu</figcaption></figure>
+
+  <h2>Piyasada nasıl alınıp satılır</h2>
+  <ul>
+    <li><strong>Gümüş</strong> gram fiyatıyla alınıp satılır. Fiyat 1 gram <em>saf</em> (999) gümüşün fiyatıdır. 925 ayar (sterling) bir parçada her gramın 0,925’i saf gümüştür; program saf gramı kendiliğinden hesaplar.</li>
+    <li><strong>Gümüş takı satışında</strong> gram değerinin üzerine işçilik eklenir. Hurda ve külçe alışında işçilik olmaz.</li>
+    <li><strong>Bakır</strong> kilo fiyatıyla ve sınıfına göre alınır: 1. sınıf (parlak, temiz tel), 2. sınıf (kirli veya kaplamalı), eşya. Gramı yazarsınız, tutar kilo fiyatından hesaplanır.</li>
+  </ul>
+
+  <h2>Gümüş ve bakır fiyatını girme</h2>
+  <figure><div class="frame"><img src="img/metal-fiyat.jpg" alt="Gümüş ve bakır fiyatı penceresi" width="1100" height="688"></div><figcaption><b>Şekil 7.2</b> Fiyat penceresi: gümüş TL/gr, bakır TL/kg</figcaption></figure>
+  <p>Fiyat kutusundaki <span class="ui">Fiyat gir</span> düğmesine tıklayın, gümüşün gram, bakırın kilo alış ve satış fiyatını yazıp <span class="ui">Kaydet</span>’e basın. İnternet varsa gümüşün canlı fiyatı da okunur; ancak elle girdiğiniz fiyat her zaman önce gelir. Bir metalin kutularını boş bırakırsanız o metal için canlı fiyat kullanılır. Bakırın canlı fiyatı yoktur, kilo fiyatını siz girersiniz.</p>
+
+  <h2>Alış veya satış kaydı</h2>
+  <ol class="steps">
+    <li>Menüden <span class="ui">Gümüş / Bakır</span>’ı açın. Formun üstünden metali (<span class="ui">Gümüş</span> veya <span class="ui">Bakır</span>) ve işlemi (<span class="ui">Alış (müşteriden)</span> veya <span class="ui">Satış (müşteriye)</span>) seçin.</li>
+    <li>Hazır düğmelerden birine tıklayın: gümüşte <em>999 Külçe / granül, 925 Takı (sterling), 925 Hurda, 900, 800 Eski eşya</em>; bakırda <em>1. sınıf (parlak tel), 2. sınıf, Eşya / takı</em>. Ayar, milyem ve cinsi kendiliğinden dolar.</li>
+    <li><span class="ui">Kişi / Firma</span> ve <span class="ui">Gram</span>’ı yazın. Fiyat, girdiğiniz günün fiyatıyla gelir; gerekirse değiştirin. Takı satışında <span class="ui">İşçilik (TL)</span>’ı girin.</li>
+    <li><span class="ui">Saf gram</span> ve <span class="ui">Tutar</span> formun altında anında görünür.</li>
+    <li>Ödeme bölümünde hesabı ve tutarı girin; hepsi nakitse <span class="ui">Tamamı nakit</span>’e basın. Ödemeyi boş bırakırsanız tutarın tamamı <strong>kalan (veresiye)</strong> olarak kalır.</li>
+    <li><span class="ui">Kaydet</span>’e basın.</li>
+  </ol>
+  <table class="facts">
+    <tr><th>Hesap</th><th>Formül</th></tr>
+    <tr><td>Saf gram</td><td>Gram × milyem ÷ 1000</td></tr>
+    <tr><td>Gümüş tutarı</td><td>Saf gram × gram fiyatı + işçilik</td></tr>
+    <tr><td>Bakır tutarı</td><td>Gram ÷ 1000 × kilo fiyatı + işçilik</td></tr>
+    <tr><td>Örnek</td><td>420 gr 925 hurda gümüş: 420 × 925 ÷ 1000 = 388,5 saf gr; 388,5 × 41,50 TL = 16.122,75 TL</td></tr>
+  </table>
+
+  <h2>Stok, kâr ve veresiye</h2>
+  <figure><div class="frame"><img src="img/metal-kayitlar.jpg" alt="Gümüş ve bakır kayıtları" width="1100" height="688"></div><figcaption><b>Şekil 7.3</b> Gümüş ve Bakır Kayıtları: saf gram, fiyat, tutar, kalan ve kâr</figcaption></figure>
+  <ul>
+    <li><strong>Üst kutular:</strong> saf gümüş stoğu (ayarlara göre dağılımıyla), bakır stoğu, günün fiyatı, satış kârı ile stok değeri ve veresiye (müşterilerin bize borcu ve bizim ödeyeceğimiz).</li>
+    <li><strong>Stoktan fazla satılamaz:</strong> elinizdeki saf gümüş veya bakırdan fazlasını satmak isterseniz program uyarır; önce alış kaydını girin.</li>
+    <li><strong>Sekmeler:</strong> <span class="ui">TÜMÜ</span>, <span class="ui">GÜMÜŞ</span>, <span class="ui">BAKIR</span> ve ödemesi tamamlanmamış kayıtlar için <span class="ui">KALANI OLANLAR</span>.</li>
+    <li><strong>Kasa:</strong> ödemeler kasaya “Gümüş / Bakır” kaynağıyla kendiliğinden yazılır. Kaydı düzeltince kasa da düzelir; kaydı silerseniz kasa satırı da silinir.</li>
+  </ul>
+
+  <h2>Alış ve hurda ekranlarından kısayol</h2>
+  <figure><div class="frame"><img src="img/hurda-metal-kisayol.jpg" alt="Hurda alış ekranında gümüş ve bakır düğmeleri" width="1100" height="688"></div><figcaption><b>Şekil 7.4</b> Hurda Alış ekranında sarrafiyenin yanındaki <em>Gümüş / bakır</em> düğmeleri</figcaption></figure>
+  <p>Alış, Hurda Alış ve Hurda Satış ekranlarında altın sarrafiye düğmelerinin yanında, aynı sırada <span class="ui">GÜMÜŞ 925</span>, <span class="ui">GÜMÜŞ 999</span> ve <span class="ui">BAKIR</span> düğmeleri bulunur. Müşteri altın yerine gümüş veya bakır getirdiyse bu düğmeye basın; Gümüş / Bakır ekranı o metal ve ayar seçili olarak açılır.</p>
+
+  <div class="callout warn"><span class="ct">Bilerek basit tutulanlar</span><ul>
+    <li><strong>Gümüşte has carisi yoktur.</strong> Gümüş veresiyesi TL olarak, kaydın <em>Kalan</em> sütununda izlenir. Müşteri sonradan öderse kaydı kalem simgesiyle açıp ödemeyi ekleyin.</li>
+    <li><strong>Kâr ortalama maliyetle hesaplanır.</strong> Satılan gümüşün maliyeti, eldeki stoğun ortalama alış fiyatıdır (altındaki gibi ilk giren ilk çıkar değildir). Gümüşte tutarlar küçük olduğundan fark önemsizdir.</li>
+    <li><strong>Canlı gümüş fiyatı her zaman gelmeyebilir.</strong> Günün gümüş fiyatını sabahları kontrol edin, gelmediyse <span class="ui">Fiyat gir</span> ile elle yazın.</li>
+  </ul></div>
+</section>
+
+<!-- 8 -->
+<section class="chapter" id="siparis">
+  <p class="eyebrow">Bölüm 8</p>
+  <h1 class="ch">Sipariş ve tamir</h1><hr class="rule">
+  <p class="lead">Müşterinin sipariş ettiği ürünleri ve tamire bıraktığı parçaları teslim gününe kadar takip edin; kaporayı kasaya işleyin, müşteriye numaralı fiş verin.</p>
+  <figure><div class="frame"><img src="img/siparis.jpg" alt="Sipariş ve tamir ekranı" width="1100" height="688"></div><figcaption><b>Şekil 8.1</b> Sipariş / Tamir ekranı: üstte özet, ortada yeni kayıt formu, altta açık işler</figcaption></figure>
+  <h2>Yeni sipariş veya tamir kaydı</h2>
+  <ol class="steps">
+    <li>Formun üstünden <span class="ui">Sipariş</span> veya <span class="ui">Tamir</span>’i seçin.</li>
+    <li><span class="ui">Müşteri</span> ve <span class="ui">Telefon</span>’u yazın (cari kartında telefon kayıtlıysa kendiliğinden gelir).</li>
+    <li><span class="ui">Ürün</span> (tamirde <span class="ui">Yapılacak tamir</span>) alanına işi tarif edin; gerekirse cinsi, ayar ve gramı girin.</li>
+    <li><span class="ui">Fiyat (TL)</span>’ı ve <span class="ui">Söz verilen teslim</span> gününü girin. İşi verdiğiniz atölye belliyse <span class="ui">Atölye</span>’yi yazın.</li>
+    <li>Kapora alındıysa <span class="ui">Kapora / ön ödeme</span> bölümünde hesabı (Nakit TL, POS, Banka, döviz) ve tutarı girin.</li>
+    <li><span class="ui">Kaydet</span>’e basın. “Müşteriye fiş yazdırılsın mı” sorusuna <span class="ui">Yazdır</span> derseniz <strong>SP-numaralı</strong> sipariş veya tamir fişi çıkar.</li>
+  </ol>
+  <h2>Durum takibi</h2>
+  <p>Her iş <strong>Alındı → Atölyede → Hazır → Teslim edildi</strong> sırasıyla ilerler; gerekirse <strong>İptal</strong> seçilebilir. Durumu tablodaki açılır listeden veya satırdaki <span class="ui">Hazır</span> / <span class="ui">Teslim et</span> düğmesinden değiştirin.</p>
+  <ul>
+    <li><strong>Atölyede:</strong> Atölye ekranı bu sipariş bağlı olarak açılır; atölyeyi, verilen gram ve milyemi girip işi atölyeye verin (Bölüm 9). İş atölyedeyken sipariş tablosunda atölye adı ve işin aşaması görünür; iş atölyeden alınınca sipariş kendiliğinden “Hazır” olur.</li>
+    <li><strong>Teslim et:</strong> teslim günü, fiyat, kapora ve kalan tutar görünür; teslimde alınan parayı hesap seçerek girin. Ürün stoktan çıktıysa ayrıca Satış ekranından satış kaydı girin.</li>
+    <li><strong>Teslim günü sütunu:</strong> “yarın”, “bugün” veya “2 gün gecikti” gibi uyarılar renkli gösterilir; geciken işler kırmızıdır.</li>
+  </ul>
+  <p>Üstteki kutular açık iş, atölyedeki iş, teslim bekleyen hazır iş, geciken iş sayısını ve açık işlerde alınan kaporayı gösterir. Alttaki sekmelerle <span class="ui">AÇIK İŞLER</span>, <span class="ui">HAZIR</span>, <span class="ui">TESLİM EDİLENLER</span> ve <span class="ui">TÜMÜ</span> arasında geçiş yapılır.</p>
+  <figure><div class="frame"><img src="img/siparis-atolye.jpg" alt="Sipariş tablosunda atölye aşaması" width="1100" height="688"></div><figcaption><b>Şekil 8.2</b> Açık işler: tarihler gün.ay.yıl, ürün satırında atölye ve aşaması, teslim gününde kalan veya geciken gün</figcaption></figure>
+  <div class="callout warn"><span class="ct">Dikkat</span><p>Bir sipariş kaydını silerseniz ona bağlı kapora ve teslim ödemeleri de kasadan silinir.</p></div>
+</section>
+
+<!-- 9 -->
+<section class="chapter" id="atolye">
+  <p class="eyebrow">Bölüm 9</p>
+  <h1 class="ch">Atölye takibi</h1><hr class="rule">
+  <p class="lead">İmalat veya tamir için atölyeye verdiğiniz her işi tek ekranda izleyin: hangi atölyede, hangi aşamada, ne kadar has verildi, ne kadar geri geldi ve fire ne oldu.</p>
+  <figure><div class="frame"><img src="img/atolye.jpg" alt="Atölye ekranı" width="1100" height="688"></div><figcaption><b>Şekil 9.1</b> Atölye ekranı: yeni iş formu ve atölyedeki işler; her satırda aşama çubuğu, sonraki aşama ve dönüş günü</figcaption></figure>
+
+  <h2>Atölyeye iş verme</h2>
+  <ol class="steps">
+    <li>Menüden <span class="ui">Atölye</span>’yi açın ve formun üstünden <span class="ui">İmalat</span> veya <span class="ui">Tamir</span>’i seçin.</li>
+    <li><span class="ui">Veriliş günü</span>, <span class="ui">Atölye</span> ve <span class="ui">Yapılacak iş</span>’i yazın.</li>
+    <li>İş bir müşteri siparişi içinse <span class="ui">Bağlı sipariş</span> listesinden siparişi seçin. Sipariş kendiliğinden “Atölyede” olur.</li>
+    <li><span class="ui">Maden</span>’i (altın veya gümüş), atölyeye verdiğiniz <span class="ui">Verilen gram</span> ve <span class="ui">Verilen milyem</span>’i girin. <span class="ui">Verilen has</span> kendiliğinden hesaplanır.</li>
+    <li><span class="ui">Atölyenin söz verdiği gün</span> ve <span class="ui">Anlaşılan işçilik (TL)</span>’ı yazın, <span class="ui">Atölyeye ver</span>’e basın. İş <strong>AT-numarası</strong> alır.</li>
+  </ol>
+  <div class="callout tip"><span class="ct">Siparişten başlamak</span><p>Sipariş / Tamir ekranında bir işin durumunu <em>Atölyede</em> yaptığınızda Atölye ekranı o sipariş bağlı olarak açılır; kalan alanları doldurup <span class="ui">Atölyeye ver</span>’e basmanız yeterlidir.</p></div>
+
+  <h2>Aşamalar</h2>
+  <p>Kuyumcu atölyesinde bir iş genellikle aşağıdaki sırayla ilerler. Tamir işlerinde model ve döküm aşamaları yoktur; işin gerektirmediği aşamaları atlayabilirsiniz.</p>
+  <table class="facts">
+    <tr><th>Aşama</th><th>Ne yapılır</th></tr>
+    <tr><td>Atölyeye verildi</td><td>Altın veya parça tartılıp atölyeye teslim edildi.</td></tr>
+    <tr><td>Model / mum</td><td>Mum veya bilgisayarla model hazırlanır (yalnız imalat).</td></tr>
+    <tr><td>Döküm</td><td>Model alçıya alınıp altın dökülür (yalnız imalat).</td></tr>
+    <tr><td>Tesviye / montaj</td><td>Döküm temizlenir, eğe ve zımparayla şekil verilir, parçalar birleştirilir.</td></tr>
+    <tr><td>Kaynak / lehim</td><td>Kopuk veya kırık yerler, halka ve kilitler lehimlenir.</td></tr>
+    <tr><td>Mıhlama (taş)</td><td>Taşlar yuvalarına oturtulur.</td></tr>
+    <tr><td>Cila / polisaj</td><td>Parlatma ve son yüzey işlemi.</td></tr>
+    <tr><td>Rodaj / kaplama</td><td>Gerekiyorsa rodyum veya renkli kaplama.</td></tr>
+    <tr><td>Kontrol / damga</td><td>Ayar damgası, tartım ve son kontrol.</td></tr>
+    <tr><td>Hazır, alınmayı bekliyor</td><td>Atölye işi bitirdi; dükkâna getirilmesi bekleniyor.</td></tr>
+  </table>
+  <p>Aşamayı tablodaki <span class="ui">Aşama</span> listesinden seçin veya altındaki <span class="ui">Sonraki: …</span> bağlantısına tıklayın. Aşama çubuğunda tamamlanan aşamalar dolu görünür. Her değişiklik tarihi ve yapan kullanıcıyla kaydedilir; göz simgesi işin aşama geçmişini açar.</p>
+  <figure><div class="frame"><img src="img/atolye-gecmis.jpg" alt="Aşama geçmişi" width="1100" height="688"></div><figcaption><b>Şekil 9.2</b> Aşama geçmişi: hangi gün hangi aşamaya geçildi, kim işaretledi</figcaption></figure>
+  <p><span class="ui">Dönüş</span> sütunu atölyenin söz verdiği günü ve kalan günü gösterir (“2 gün var”). Söz verilen gün geçtiyse satır kırmızı “1 gün gecikti” uyarısı taşır; geciken atölye işleri Dashboard uyarılarında da listelenir.</p>
+
+  <h2>Atölyeden alma ve fire</h2>
+  <figure><div class="frame"><img src="img/atolye-donus.jpg" alt="Atölyeden alma penceresi" width="1100" height="688"></div><figcaption><b>Şekil 9.3</b> Atölyeden alma: 15,2 gr 22 ayar bilezik 15,08 gr geri geldi, fire 0,1 has (%0,78)</figcaption></figure>
+  <ol class="steps">
+    <li>İş dükkâna geldiğinde satırdaki <span class="ui">Atölyeden al</span>’a basın.</li>
+    <li>Parçayı tartın; <span class="ui">Gelen gram</span> ve <span class="ui">Gelen milyem</span>’i girin. Pencerede verilen has, gelen has ve <strong>fire</strong> anında görünür.</li>
+    <li>Ödenecek işçiliği <span class="ui">İşçilik (TL)</span>’a, atölye has işçilik alıyorsa <span class="ui">İşçilik (has, varsa)</span>’a yazın.</li>
+    <li><span class="ui">Atölyeden al</span>’a basın. Bağlı sipariş varsa “Hazır” olur ve müşteriye teslim edilmeyi bekler.</li>
+  </ol>
+  <table class="facts">
+    <tr><th>Hesap</th><th>Formül</th></tr>
+    <tr><td>Verilen / gelen has</td><td>Gram × milyem ÷ 1000</td></tr>
+    <tr><td>Fire</td><td>Verilen has − gelen has</td></tr>
+    <tr><td>Fire oranı</td><td>Fire ÷ verilen has × 100</td></tr>
+  </table>
+  <p>Yanlışlıkla atölyeden alındı olarak işaretlediyseniz <span class="ui">ALINANLAR</span> sekmesindeki <span class="ui">Geri al</span> ile işi yeniden atölyede yapabilirsiniz; gelen has ve fire silinir.</p>
+
+  <h2>Atölye özeti</h2>
+  <figure><div class="frame"><img src="img/atolye-ozet.jpg" alt="Atölye özeti" width="1100" height="688"></div><figcaption><b>Şekil 9.4</b> Atölye bazında açık iş, atölyedeki has, toplam fire, fire oranı ve işçilik</figcaption></figure>
+  <p>Üstteki kutular atölyedeki iş sayısını, alınmayı bekleyen hazır işleri, geciken işleri, atölyelerdeki toplam altını (has) ve bu ayın firesini gösterir. <span class="ui">ATÖLYE ÖZETİ</span> sekmesi her atölyenin fire oranını gösterir; atölyeyle anlaştığınız fire oranıyla karşılaştırarak hangi atölyenin fazla fire verdiğini görebilirsiniz.</p>
+
+  <div class="callout warn"><span class="ct">Bilerek basit tutulanlar</span><ul>
+    <li><strong>Atölyeye verilen altın stoktan düşülmez.</strong> Atölye ekranı işi ve has miktarını takip eder. Atölyeye altın verdiyseniz veya has işçilik ödediyseniz bunu Cari ekranında o atölyeye <em>has ödemesi</em> olarak girin (Bölüm 11); atölyeyle bakiyeniz orada izlenir.</li>
+    <li><strong>İşçilik kasaya kendiliğinden yazılmaz.</strong> Atölyeye ödediğiniz parayı Cari veya Kasa ekranından girin.</li>
+    <li>Bir atölye işini silerseniz aşama geçmişi de silinir; bağlı sipariş ve kasa kayıtları olduğu gibi kalır.</li>
+  </ul></div>
+</section>
+
+<!-- 10 -->
+<section class="chapter" id="kasa">
+  <p class="eyebrow">Bölüm 10</p>
+  <h1 class="ch">Kasa, döviz ve gün sonu</h1><hr class="rule">
+  <p class="lead">Kasa ekranı (<kbd>F4</kbd>) nakit TL, dolar, euro, POS ve banka hesaplarındaki parayı gün gün gösterir.</p>
+  <figure><div class="frame"><img src="img/kasa.jpg" alt="Kasa ekranı" width="1100" height="688"></div><figcaption><b>Şekil 10.1</b> Kasa ekranı: üst çubuk, para birimi toplamları, hesap kartları, süzgeç sekmeleri ve seçilen günün hareketleri</figcaption></figure>
+  <ul>
+    <li>Program ilk kurulduğunda <strong>Nakit TL, Nakit Dolar, Nakit Euro, POS</strong> ve <strong>Banka</strong> hesaplarıyla gelir.</li>
+    <li>Bir kayıt TL hesaplarından (Nakit TL, Banka, POS) elinizdekinden fazla para çıkaracaksa program “… eksiye düşecek. Yine de kaydedilsin mi?” diye sorar. Kayıt engellenmez; onaylarsanız yazılır.</li>
+    <li>Satış, alış, hurda, gümüş / bakır, cari tahsilat ve sipariş kaporası gibi kayda bağlı hareketler <strong>kendiliğinden</strong> kasaya yazılır; bunlar ilgili kayıttan düzeltilir veya silinir. Elle girilen hareketler ve transferler çöp kutusu simgesiyle silinebilir.</li>
+  </ul>
+  <div class="callout note"><span class="ct">Kasa ve has hesapları ayrıdır</span><p>Kasa yalnızca parayı izler. Has esaslı cari bakiyeleri, stok ve milyem kârı kasadaki hareketlerden etkilenmez.</p></div>
+
+  <h2>Kasa ekranını okumak</h2>
+  <p>Kasa ekranının temel mantığı üç cümledir. <strong>Her hesap ayrı bir cüzdandır:</strong> bakiye, o hesaba giren her şeyden çıkan her şey ve POS komisyonu düşülerek bulunur. <strong>Hareketlerin çoğu kendiliğinden yazılır:</strong> kasada elle girilen yalnızca gelir / gider, açılış bakiyesi ve transferdir. <strong>Aynı para iki kez yazılmaz:</strong> bir satışın parası satış kaydına bağlıdır; satış düzeltilir veya silinirse kasa da kendiliğinden düzelir.</p>
+
+  <h3>Üst çubuk</h3>
+  <table style="break-inside: avoid">
+    <tr><th>Öğe</th><th>Ne yapar</th></tr>
+    <tr><td><span class="ui">‹</span> ve <span class="ui">›</span></td><td>Bir önceki / bir sonraki güne geçer. Günün giriş ve çıkışları ile hareket tablosu o güne göre yenilenir.</td></tr>
+    <tr><td>Tarih kutusu</td><td>İstediğiniz günü takvimden seçer.</td></tr>
+    <tr><td><span class="ui">Bugün</span></td><td>Başka bir gündeyken görünür; tek tıkla bugüne döner.</td></tr>
+    <tr><td><em>Gün açık</em> / <em>Gün sonu alındı</em></td><td>O günün kasası kapatıldı mı? Sarı <em>Gün açık</em> etiketi gün sonu sayımının henüz yapılmadığını gösterir.</td></tr>
+    <tr><td><span class="ui">Gelir / Gider</span></td><td>Bir kayda bağlı olmayan parayı elle girer (fatura, kira, açılış bakiyesi).</td></tr>
+    <tr><td><span class="ui">Transfer</span></td><td>Kendi hesaplarınız arasında para taşır; bankadan döviz çekmek de buradan yapılır.</td></tr>
+    <tr><td><span class="ui">Döviz Al / Sat</span></td><td>Müşteriyle döviz alım satımı için Döviz Al / Sat ekranını açar.</td></tr>
+    <tr><td><span class="ui">Gün Sonu</span></td><td>Akşam kasa sayımı penceresini açar.</td></tr>
+    <tr><td><span class="ui">Hesaplar</span></td><td>Yalnızca yöneticide görünür; hesap ekler, pasif yapar, POS komisyon oranını girer.</td></tr>
+  </table>
+
+  <h3>Toplam kutuları ve hesap kartları</h3>
+  <p>En üstteki geniş kutular para birimi toplamlarıdır: <em>Toplam TL</em>, <em>Toplam Dolar</em>, <em>Toplam Euro</em>. Toplam TL, TL cinsinden tüm hesapların (Nakit TL + POS + Banka) toplamıdır. Altındaki <em>Bugün +… / −…</em> satırı seçilen günde o para biriminde giren ve çıkan toplamı gösterir. Bu satır iki TL hesabı arasındaki transferi hem giriş hem çıkış olarak sayar; transferin toplam TL’ye net etkisi sıfırdır.</p>
+  <table style="break-inside: avoid">
+    <tr><th>Kartın parçası</th><th>Anlamı</th></tr>
+    <tr><td>Başlık (Nakit TL, POS, Banka…)</td><td>Hesabın adı</td></tr>
+    <tr><td>Sağ üstteki küçük yazı (ör. <em>Nakit · TRY</em>)</td><td>Hesabın türü ve para birimi</td></tr>
+    <tr><td>Büyük rakam</td><td>Hesabın <strong>güncel</strong> bakiyesi. Eksiyse kırmızı yazılır.</td></tr>
+    <tr><td>Yeşil <em>+…</em></td><td>Seçilen günde bu hesaba giren</td></tr>
+    <tr><td>Kırmızı <em>−…</em></td><td>Seçilen günde bu hesaptan çıkan</td></tr>
+    <tr><td><em>Kom. …</em> (yalnız POS)</td><td>Seçilen günde bankanın kestiği komisyon</td></tr>
+    <tr><td>Sol kenar rengi</td><td>Hesap türü: nakit sarı, POS mavi, banka yeşil</td></tr>
+  </table>
+  <div class="callout tip"><span class="ct">Geçmiş günün akşam bakiyesi</span><p>Geçmiş bir güne gittiğinizde kartlardaki büyük rakam değişmez; her zaman hesabın bugünkü bakiyesidir. Seçtiğiniz günün akşamında kasada ne olması gerektiğini görmek için o günde <span class="ui">Gün Sonu</span>’nu açın: <em>Devir + Giriş − Komisyon − Çıkış</em> = <strong>Beklenen</strong>.</p></div>
+
+  <h3>Hareket tablosu</h3>
+  <p>Seçilen günün tüm para hareketleri listelenir. Başlığın yanındaki <span class="ui">CSV</span> düğmesi tabloyu Excel’e indirir.</p>
+  <table style="break-inside: avoid">
+    <tr><th>Sütun</th><th>Anlamı</th></tr>
+    <tr><td>Hesap</td><td>Paranın girdiği veya çıktığı hesap</td></tr>
+    <tr><td>Tür</td><td>Hareketin cinsi: Satış, Alış, Hurda alış, Döviz satış, Transfer, Gider, Devir…</td></tr>
+    <tr><td>Cari</td><td>İşlemin kişisi (müşteri, tedarikçi). Transferde boştur.</td></tr>
+    <tr><td>Açıklama</td><td>Ne olduğu; döviz hareketinde kur da yazılır</td></tr>
+    <tr><td>Giriş (yeşil) / Çıkış (kırmızı)</td><td>Hesaba giren / hesaptan çıkan tutar</td></tr>
+    <tr><td>Komisyon</td><td>POS’ta bankanın kestiği tutar. Hesaba geçen = giriş − komisyon.</td></tr>
+    <tr><td>Kaynak</td><td>Hareketi hangi ekranın yazdığı: Satış, Alış, Döviz, Transfer, Elle…</td></tr>
+    <tr><td>Kullanıcı</td><td>Kaydı giren personel</td></tr>
+    <tr><td>İşlemler</td><td>Çöp kutusu: yalnızca elle girilen hareketlerde ve transferlerde çıkar</td></tr>
+  </table>
+  <p><strong>Neden bazı satırlarda çöp kutusu yok?</strong> Satış, alış veya döviz işleminin parası o kayda bağlıdır. Kasadan tek başına silinseydi kayıt ile kasa birbirini tutmazdı. Bu satırlar kaydın kendi ekranından düzeltilir veya silinir (dövizde iptal edilir); kasa kendiliğinden düzelir. Transferde çöp kutusu iki satırı birlikte siler.</p>
+
+  <h2>Gelir / Gider (elle hareket)</h2>
+  <p>Fatura, kira gibi kasadan çıkan veya kasaya giren parayı <span class="ui">Gelir / Gider</span> düğmesiyle girin. <span class="ui">Tür</span> olarak <em>Gelir</em>, <em>Gider</em>, <em>Devir / açılış bakiyesi</em> veya <em>Diğer</em> seçilir; hesap, tutar, isteğe bağlı cari ve açıklama yazılıp <span class="ui">Kaydet</span>’e basılır. Programı ilk kullanmaya başladığınızda her hesabın elinizdeki tutarını <em>Devir / açılış bakiyesi</em> olarak girin. Giderler ekranından hesabı seçilerek girilen giderler kasaya kendiliğinden yazılır; onları burada tekrar girmeyin.</p>
+  <figure class="small"><div class="frame"><img src="img/gelir-gider.jpg" alt="Gelir gider penceresi" width="560" height="526"></div><figcaption><b>Şekil 10.2</b> Elle gelir / gider</figcaption></figure>
+
+  <h2>Transfer</h2>
+  <p>Nakitten bankaya yatırılan para veya POS’tan hesaba geçen tutar için <span class="ui">Transfer</span>’i kullanın: <span class="ui">Çıkış hesabı</span>, <span class="ui">Giriş hesabı</span> ve tutarı girin. Çıkış hesabı azalır, giriş hesabı aynı tutarda artar; toplam değişmez. Transfer iki satır yazar (bir çıkış, bir giriş) ve çöp kutusuyla silinince iki satır birlikte silinir.</p>
+  <h3>Bankadan döviz çekmek (bozdurma)</h3>
+  <p>Farklı para birimli hesaplar arasında <span class="ui">Giriş hesabına geçen tutar</span> alanı da açılır. Örneğin bankadan 10.000 $ çektiniz ve hesabınızdan 410.000 TL düştü: <span class="ui">Çıkış hesabı</span> Banka, <span class="ui">Giriş hesabı</span> Nakit Dolar, <span class="ui">Tutar</span> 410.000, <span class="ui">Giriş hesabına geçen tutar</span> 10.000. Program kuru kendisi hesaplar (410.000 ÷ 10.000 = 41,00) ve bu dolarların <strong>maliyeti</strong> olarak saklar. Sonraki döviz satışlarının kârı bu maliyete göre hesaplanır.</p>
+  <figure class="small"><div class="frame"><img src="img/kasa-transfer.jpg" alt="Hesaplar arası transfer penceresi" width="560" height="606"></div><figcaption><b>Şekil 10.3</b> Bankadan dolar çekmek: 410.000 TL çıkıyor, Nakit Dolar’a 10.000 $ giriyor</figcaption></figure>
+  <div class="callout note"><span class="ct">Banka bir cari değildir</span><p>Banka, dükkânınızın kendi hesabıdır. Bankadan para veya döviz çekmek bir alım satım değil, kendi cebinizden kendi cebinize aktarmadır: kimse kimseye borçlanmaz, cari oluşmaz, kâr oluşmaz. Raporlardaki <em>Döviz alış / satış</em> tablosunda bu dövizler müşteriden alınanlardan ayrı olarak <em>Transferle giren</em> sütununda görünür.</p></div>
+
+  <h2>Kasa hareketlerini süzmek</h2>
+  <p>Hareketler tablosunun üstündeki sekmelerle yalnızca <span class="ui">ALTIN / GÜMÜŞ</span>, <span class="ui">DÖVİZ AL / SAT</span>, <span class="ui">TRANSFER / BOZDURMA</span> veya <span class="ui">GELİR / GİDER</span> hareketlerini görebilirsiniz. Döviz işlemleri <em>Kaynak</em> sütununda “Döviz” olarak görünür.</p>
+  <figure><div class="frame"><img src="img/kasa-doviz.jpg" alt="Kasada döviz hareketleri" width="1100" height="688"></div><figcaption><b>Şekil 10.4</b> Kasa hareketleri, DÖVİZ AL / SAT süzgeci: her işlem bir TL ve bir döviz satırı yazar; iptal ters kayıtla görünür</figcaption></figure>
+
+  <h2>Döviz alış ve satış</h2>
+  <p>Döviz alıp satmak için menüdeki <span class="ui">Döviz Al / Sat</span> ekranını açın (Kasa ekranındaki ve Dashboard’daki <span class="ui">Döviz al / sat</span> düğmeleri de buraya gelir). Ayrı bir döviz kasası yoktur: dolar <strong>Nakit Dolar</strong>, euro <strong>Nakit Euro</strong> hesabına girer ve çıkar; TL karşılığı seçtiğiniz TL hesabına yazılır.</p>
+  <figure><div class="frame"><img src="img/doviz.jpg" alt="Döviz al sat ekranı" width="1100" height="688"></div><figcaption><b>Şekil 10.5</b> Döviz Al / Sat: üstte kasadaki döviz, ortalama maliyet, günün kârı ve cari döviz alacağı</figcaption></figure>
+  <ol class="steps">
+    <li>İşlemi seçin: <span class="ui">Döviz alıyoruz</span> (müşteri döviz getiriyor) veya <span class="ui">Döviz satıyoruz</span> (müşteriye döviz veriyoruz). Ardından <span class="ui">$ Dolar</span> veya <span class="ui">€ Euro</span>’yu seçin.</li>
+    <li><span class="ui">Miktar</span>’ı yazın veya <em>Hızlı</em> düğmelerinden birine (100, 200, 500…) tıklayın.</li>
+    <li><span class="ui">Kur</span> günün kurundan gelir: alışta <strong>alış</strong>, satışta <strong>satış</strong> kuru. Kutunun altında kurun nereden geldiği yazar (canlı kur veya elle girilen kur). Pazarlık edilen kuru elle yazabilirsiniz; elle yazdığınız kur değişmez. Canlı kur alınamazsa “kuru elle yazın” uyarısı çıkar.</li>
+    <li><em>TL karşılığı</em> miktar × kur olarak kendiliğinden hesaplanır.</li>
+    <li>Ödemeyi seçin. Varsayılan, tutarın tamamının <strong>Nakit TL</strong> ile ödenmesidir. <span class="ui">Kart (POS)</span> veya <span class="ui">Havale / EFT</span> düğmesiyle hesabı değiştirin; <span class="ui">+ Ödeme satırı ekle</span> ile tutarı birden çok hesaba bölün.</li>
+    <li>Müşteri parasının bir kısmını sonra ödeyecekse ödeme satırına yalnızca ödenen TL’yi yazın; tamamı sonra ödenecekse <span class="ui">Veresiye (cariye)</span>’ye tıklayın. Bu durumda <span class="ui">Kişi / Firma</span> zorunludur. İsterseniz telefon, T.C. / pasaport no ve not da yazın.</li>
+    <li><span class="ui">Kaydet</span> veya <span class="ui">Kaydet ve fiş yazdır</span>’a basın. Program kaydetmeden önce işlemin özetini (miktar, kur, TL, hangi kasaya ne yazılacağı, cariye kalan) gösterir; onaylayınca kayıt yapılır.</li>
+  </ol>
+  <table style="break-inside: avoid">
+    <tr><th>İşlem</th><th>Döviz kasası</th><th>TL kasası</th><th>Ödenmeyen kısım</th></tr>
+    <tr><td>Döviz alış</td><td>Artar (Nakit Dolar / Euro)</td><td>Azalır (seçilen TL hesabı)</td><td>Müşteriye döviz <strong>borcumuz</strong> olarak cariye yazılır</td></tr>
+    <tr><td>Döviz satış</td><td>Azalır</td><td>Artar (Nakit, POS veya Banka)</td><td>Müşterinin döviz <strong>borcu</strong> olarak cariye yazılır</td></tr>
+  </table>
+  <div class="callout note"><span class="ct">Kasada olmayan döviz satılamaz</span><p>Satışta istenen miktar Nakit Dolar / Nakit Euro bakiyesinden fazlaysa kayıt yapılmaz ve “kasada yeterli döviz yok” uyarısı çıkar. Formun altındaki <em>Kasada</em> bilgisi elinizdeki dövizi gösterir.</p></div>
+  <div class="callout tip"><span class="ct">Kur değişse de borç aynı kalır</span><p>Cariye kalan tutar <strong>döviz olarak</strong> tutulur: 500 $ borçlu olan müşteri, kur ne olursa olsun 500 $ borçludur. İşlemdeki kur kayıtta saklanır; sonradan kur değişse de geçmiş işlemin TL tutarı ve kârı değişmez.</p></div>
+  <p>Aynı forma iki kez basılması (çift tıklama, bağlantı tekrarı) tek kayıt oluşturur.</p>
+
+  <h3>Döviz tahsilat ve ödeme</h3>
+  <p>Müşterinin döviz borcunu tahsil etmek için <span class="ui">Döviz borcu tahsilatı</span>, sizin müşteriye olan döviz borcunuzu ödemek için <span class="ui">Döviz borcumuzu öde</span> sekmesini seçin. Para döviz olarak (Nakit Dolar / Euro) veya o günün kuruyla TL olarak alınıp verilebilir. Aynı işlemi Cari ekranında kişinin <span class="ui">⋮</span> menüsündeki <span class="ui">Döviz tahsilat / ödeme</span> ile de açabilirsiniz.</p>
+
+  <h3>Kayıtlar, fiş ve iptal</h3>
+  <figure><div class="frame"><img src="img/doviz-kayitlar.jpg" alt="Döviz kayıtları" width="1100" height="688"></div><figcaption><b>Şekil 10.6</b> Döviz kayıtları: ödeme, cariye kalan ve kâr; iptal edilen işlem üstü çizili ve gerekçesiyle</figcaption></figure>
+  <ul>
+    <li>Sekmeler: <span class="ui">TÜMÜ</span>, <span class="ui">ALIŞ</span>, <span class="ui">SATIŞ</span>, <span class="ui">TAHSİLAT / ÖDEME</span>, <span class="ui">KALANI OLANLAR</span>, <span class="ui">İPTAL EDİLENLER</span>. <span class="ui">CSV</span> düğmesi listeyi Excel’e alır.</li>
+    <li>Yazıcı simgesi işlemin bordrosunu (döviz alış / satış bordrosu) fiş yazıcısından basar. Bu fiş bilgi amaçlıdır.</li>
+    <li>Kalem simgesiyle yalnızca telefon, T.C. / pasaport no ve not düzeltilir. Miktar, kur ve ödeme değiştirilemez; yanlış girilen işlem <strong>iptal</strong> edilip yeniden girilir.</li>
+    <li><strong>İptal:</strong> kırmızı simgeye basın, gerekçeyi yazın ve <span class="ui">İptal et</span>’e basın. Kasaya işlenen her hareketin tersi bugünün tarihiyle yazılır, cari bakiye ve kâr bu işlemi artık saymaz. Kayıt silinmez; listede üstü çizili, gerekçesi, iptal eden ve zamanıyla kalır. “Formu bu bilgilerle doldur” işaretliyse form aynı bilgilerle açılır; düzeltip yeniden kaydedin.</li>
+    <li>Bir döviz alışının iptali kasadaki dövizi eksiye düşürecekse (o döviz satılmışsa) iptal yapılmaz; önce sonraki satışı iptal edin.</li>
+  </ul>
+
+  <h3>Kâr nasıl hesaplanır? (hareketli ağırlıklı ortalama maliyet)</h3>
+  <p>Döviz kârı, satış kuru ile günün alış kuru arasındaki farktan değil, elinizdeki dövizin <strong>gerçek alış maliyetinden</strong> hesaplanır. Her döviz alışında kasadaki dövizin ortalama maliyeti yeniden hesaplanır; satışta kâr, <em>satılan miktar × (satış kuru − o anki ortalama maliyet)</em> olur.</p>
+  <div class="callout tip"><span class="ct">Örnek</span><p>2.000 $’ı 40,90’dan, sonra 1.000 $’ı 41,10’dan aldınız. Ortalama maliyet (2.000 × 40,90 + 1.000 × 41,10) ÷ 3.000 = <strong>40,9667</strong> TL olur. 500 $’ı 41,45’ten sattığınızda kâr 500 × (41,45 − 40,9667) = <strong>241,67 TL</strong>’dir. Satış ortalamayı değiştirmez; kalan 2.500 $’ın maliyeti yine 40,9667’dir.</p></div>
+  <ul>
+    <li>Kurla girilen her döviz girişi ortalamaya katılır: döviz alışı ve satış / alış ekranlarında dövizle alınan ödemeler. Kasada kurla yapılan bozdurmada giren döviz ortalamaya katılır; kasadan çıkan her döviz ortalama maliyetle düşer. Aynı para birimindeki iki hesap arasında yapılan transfer ortalamayı değiştirmez.</li>
+    <li>Kursuz girilen açılış / devir bakiyesi ortalamaya katılmaz. İlk kullanımda dövizinizi doğru maliyetle görmek için devri döviz alışı olarak girebilirsiniz.</li>
+    <li>İptal edilen işlemler ortalamaya ve kâra hiç katılmaz.</li>
+    <li>Ekranın üstünde kasadaki döviz, ortalama maliyet ve günün alış / satış kuru; <em>Döviz kârı</em> kutusunda bugünkü ve toplam gerçekleşen kâr görünür.</li>
+  </ul>
+
+  <h2>Gün sonu</h2>
+  <figure><div class="frame"><img src="img/gun-sonu.jpg" alt="Gün sonu penceresi" width="980" height="494"></div><figcaption><b>Şekil 10.7</b> Gün sonu: Nakit TL’de 150 TL eksik sayıldı</figcaption></figure>
+  <ol class="steps">
+    <li>Kasa ekranında <span class="ui">Gün Sonu</span>’na (veya Dashboard’daki <span class="ui">Gün sonu</span> düğmesine) tıklayın.</li>
+    <li>Her hesap için <em>Devir, Giriş, Çıkış, Komisyon</em> ve <strong>Beklenen</strong> bakiye görünür. Kasadaki parayı sayıp <span class="ui">Sayılan</span> sütununa yazın. <span class="ui">Beklenenleri yaz</span> düğmesi tüm satırlara beklenen tutarı doldurur; sonra yalnızca farklı olanları düzeltin.</li>
+    <li><em>Fark</em> sütunu eksikleri kırmızı, fazlaları yeşil gösterir. Gerekirse bir not yazın.</li>
+    <li><span class="ui">Yazdır</span> ile gün sonu raporunu fiş yazıcısından alın, <span class="ui">Gün sonunu kapat</span> ile kaydedin.</li>
+  </ol>
+  <p>O gün döviz işlemi yapıldıysa pencerede ve basılan raporda her döviz için alınan / satılan miktar, TL tutarları, gerçekleşen kâr ve iptal sayısı ayrıca gösterilir.</p>
+  <p>Kapatılmış bir güne sonradan hareket girilirse gün sonu penceresinde o hesabın yanında “kapanıştan sonra değişti” uyarısı çıkar; sayımı yeniden girip <span class="ui">Sayımı güncelle</span>’ye basabilirsiniz.</p>
+
+  <h2>Kasa hesapları (yönetici)</h2>
+  <figure class="small"><div class="frame"><img src="img/kasa-hesaplar.jpg" alt="Kasa hesapları penceresi" width="560" height="732"></div><figcaption><b>Şekil 10.8</b> Kasa hesapları ve POS komisyon oranı</figcaption></figure>
+  <p>Yönetici, <span class="ui">Hesaplar</span> düğmesiyle yeni hesap ekler (ör. ikinci bir banka POS’u veya Sterlin kasası) ve kullanılmayan hesabı <span class="ui">Pasif yap</span> ile gizler. Sonradan eklediğiniz bir hesabı hiç kullanmadıysanız (deneme için açtığınız gibi) satırındaki <span class="ui">Sil</span> düğmesiyle tamamen silebilirsiniz. Hareketi olan hesap ve programla gelen beş hesap silinmez, pasif yapılır; böylece eski kayıtlar bozulmaz. POS hesabına <strong>komisyon oranı</strong> girerseniz kartla yapılan tahsilatlardan komisyon düşülür ve ayrıca gösterilir.</p>
+</section>
+
+<!-- 11 -->
+<section class="chapter" id="cari">
+  <p class="eyebrow">Bölüm 11</p>
+  <h1 class="ch">Cari hesaplar ve cari kartı</h1><hr class="rule">
+  <p class="lead">Cari ekranı (<kbd>F6</kbd>) müşteri, toptancı ve atölyelerle olan <strong>has bakiyenizi</strong> gösterir.</p>
+  <figure><div class="frame"><img src="img/cari.jpg" alt="Cari ekranı" width="1100" height="688"></div><figcaption><b>Şekil 11.1</b> Genel cari özeti</figcaption></figure>
+  <ul>
+    <li><strong>Net Has Bakiyesi:</strong> artı (yeşil) değer karşı taraftan <strong>alacağınız</strong>, eksi (kırmızı) değer karşı tarafa <strong>ödeyeceğiniz</strong> has gramıdır. 0, hesabın kapalı olduğunu gösterir.</li>
+    <li>Net bakiye = satış has − alış has − tahsilat + ödeme.</li>
+    <li>Sekmeler: <span class="ui">TÜMÜ</span>, <span class="ui">MÜŞTERİLER</span>, <span class="ui">TEDARİKÇİLER</span>, <span class="ui">ATÖLYE / TOPTANCI</span>, <span class="ui">ÖDEMELER</span>. Tablonun üstünde toplam <em>Alacağımız</em> ve <em>Ödeyeceğimiz</em> has görünür.</li>
+    <li>Satırdaki düğmeler: göz simgesi <strong>cari detayı</strong>, kart simgesi <strong>cari kartı</strong>, <span class="ui">⋮</span> ise işlem menüsünü açar.</li>
+  </ul>
+
+  <h2>Cari detayı</h2>
+  <figure><div class="frame"><img src="img/cari-detay.jpg" alt="Cari detay penceresi" width="1000" height="616"></div><figcaption><b>Şekil 11.2</b> Cari detayı ve işlem geçmişi</figcaption></figure>
+  <p>Detay penceresi carinin tüm satış, alış, hurda, tahsilat ve ödemelerini tarih sırasıyla listeler. <span class="ui">?</span> düğmesi bakiyenin nasıl hesaplandığını açıklar; satırdaki kalem simgesi asıl kaydı açar.</p>
+
+  <h2>Tahsilat ve ödeme girme</h2>
+  <div class="figrow">
+    <figure><div class="frame"><img src="img/cari-menu.jpg" alt="Cari işlemleri menüsü" width="420" height="314"></div><figcaption><b>Şekil 11.3</b> Cari işlemleri menüsü (⋮)</figcaption></figure>
+    <figure><div class="frame"><img src="img/cari-odeme.jpg" alt="Cari ödeme penceresi" width="680" height="744"></div><figcaption><b>Şekil 11.4</b> TL ile kısmi tahsilat</figcaption></figure>
+  </div>
+  <ol class="steps">
+    <li>Carinin satırındaki <span class="ui">⋮</span> düğmesine tıklayın ve <span class="ui">Ödeme Bilgilerini Değiştir</span>’i seçin.</li>
+    <li><span class="ui">İşlem Yönü</span>: müşteriden para veya altın alıyorsanız <em>Müşteriden Tahsilat</em>, toptancıya veya atölyeye veriyorsanız <em>Tedarikçiye Ödeme</em>.</li>
+    <li>Ödeme şeklini seçin: <span class="ui">Has ile Ödeme</span>, <span class="ui">Gram + Milyem</span>, <span class="ui">Borcu Tam Kapat</span> veya <span class="ui">TL / Döviz ile</span>. TL / döviz ile ödemede para kasaya yazılır ve girilen has fiyatıyla has’a çevrilir.</li>
+    <li><em>Hesaplanan Has</em> ve işlemden sonraki <em>Kalan Has</em> görünür. <span class="ui">Ödeme Ekle</span>’ye basın.</li>
+  </ol>
+  <p>Girilen ödemeler <span class="ui">ÖDEMELER</span> sekmesinde listelenir; buradan düzenlenir, silinir veya <strong>tahsilat / ödeme makbuzu</strong> yazdırılır.</p>
+  <div class="callout tip"><span class="ct">Atölyeye altın verme</span><p>Kartı açılmış, henüz işlemi olmayan bir atölyeye de has ödemesi yapabilirsiniz (ör. “Gram + Milyem” ile 40 gr 916). Atölyedeki altın o atölyenin cari bakiyesinde görünür.</p></div>
+
+  <h2>Cari kartı: telefon, vergi bilgisi, vade ve has limiti</h2>
+  <figure><div class="frame"><img src="img/cari-kart.jpg" alt="Cari kartı" width="980" height="566"></div><figcaption><b>Şekil 11.5</b> Toptancı firmanın cari kartı</figcaption></figure>
+  <p>Yeni cari için Cari ekranındaki <span class="ui">+ Yeni cari</span>’ye, mevcut cari için satırdaki kart simgesine tıklayın.</p>
+  <ul>
+    <li><strong>Kimlik:</strong> <em>Şahıs</em> veya <em>Şirket (tüzel)</em>; ad soyad veya firma ünvanı; cari türü (Müşteri, Toptancı, Atölye, Diğer); TC kimlik no veya vergi no, vergi dairesi; şirketlerde yetkili kişi.</li>
+    <li><strong>İletişim:</strong> telefon, 2. telefon, e-posta, il / ilçe, adres.</li>
+    <li><strong>Takip:</strong> <span class="ui">Vade (gün)</span> — bakiye açıkken son işlemden bu kadar gün geçince Dashboard’da uyarı verilir; boş bırakılırsa genel ayar (başlangıçta 30 gün) geçerlidir, <code>0</code> yazılırsa uyarı verilmez. <span class="ui">Has limiti (gr)</span> — müşterinin borcu bu miktarı aşınca uyarı verilir.</li>
+  </ul>
+  <p>Genel vade süresini yönetici, Dashboard’daki Uyarılar bölümünün <span class="ui">VADE AYARI</span> düğmesinden değiştirir. Cari adını kartta düzeltirseniz carinin tüm kayıtları yeni isme taşınır.</p>
+
+  <h2>Benzer isim uyarısı (mükerrer cari önleme)</h2>
+  <p>Aynı kişi için iki ayrı cari açılmaması için program isimleri karşılaştırır. Büyük/küçük harf ve boşluk farkı aynı cari sayılır. “Mustafa Karca” gibi tek harf hatalı veya yalnızca “Mustafa” gibi eksik bir isim yazdığınızda:</p>
+  <ul>
+    <li>Cari kartında isim alanının altında “Benzer kayıtlı cari: …” uyarısı görünür.</li>
+    <li>Satış, alış, hurda veya emanet kaydederken <strong>Benzer cari bulundu</strong> penceresi açılır: kayıtlı cariyi seçin ya da gerçekten yeni biriyse <span class="ui">Yeni cari olarak kaydet</span>’e basın.</li>
+  </ul>
+  <div class="figrow">
+    <figure><div class="frame"><img src="img/cari-yeni-benzer.jpg" alt="Yeni cari benzer isim uyarısı" width="980" height="524"></div><figcaption><b>Şekil 11.6</b> Yeni cari açarken benzer isim uyarısı</figcaption></figure>
+    <figure><div class="frame"><img src="img/benzer-cari.jpg" alt="Benzer cari bulundu penceresi" width="560" height="202"></div><figcaption><b>Şekil 11.7</b> Kayıt sırasında “Benzer cari bulundu”</figcaption></figure>
+  </div>
+  <div class="callout warn"><span class="ct">Kişiyi silme</span><p>⋮ menüsündeki <span class="ui">Kişiyi Sil</span>, o kişiye bağlı alış, satış, hurda ve ödeme kayıtlarını da siler. Emin değilseniz kullanmayın. Kişinin iptal edilmemiş döviz işlemi varsa silinmez; önce döviz işlemlerini iptal edin.</p></div>
+
+  <h2>Döviz bakiyesi</h2>
+  <p>Döviz alış / satışında ödenmeyen kısım ve döviz tahsilat / ödemeleri carinin has bakiyesinden <strong>ayrı</strong>, döviz cinsinden tutulur (Bölüm 10).</p>
+  <ul>
+    <li>Cari listesindeki <strong>Döviz bakiye</strong> sütunu kişinin döviz bakiyesini para birimiyle gösterir: <em>+500,00 $</em> kişi size 500 $ borçlu, <em>−200,00 €</em> sizin kişiye 200 € borcunuz var demektir. Kur değişse de bu miktar değişmez.</li>
+    <li>Cari detayının altındaki <strong>Döviz hesabı</strong> bölümü kişinin döviz işlemlerini (tarih, işlem, miktar, kur, TL, cariye kalan) listeler.</li>
+    <li>⋮ menüsündeki <span class="ui">Döviz tahsilat / ödeme</span> borcu kapatmak için Döviz Al / Sat ekranını o kişi seçili açar. Tahsilat dövizle (Nakit Dolar / Euro) veya o günün kuruyla TL olarak alınabilir.</li>
+    <li>Döviz işlemi iptal edilirse cari bakiyesi de kendiliğinden düzelir.</li>
+  </ul>
+  <figure><div class="frame"><img src="img/cari-detay-doviz.jpg" alt="Cari detayında döviz hesabı" width="1000" height="308"></div><figcaption><b>Şekil 11.8</b> Cari detayında döviz hesabı: müşteri 500 $ borçlu</figcaption></figure>
+</section>
+
+<!-- 12 -->
+<section class="chapter" id="gider">
+  <p class="eyebrow">Bölüm 12</p>
+  <h1 class="ch">Giderler</h1><hr class="rule">
+  <p class="lead">Giderler ekranı dükkânın kira, maaş, yemek gibi giderlerini tutar ve net kârınızı hesaplar. Gideri <strong>ödediğiniz TL tutarıyla</strong> girersiniz; program has karşılığını kendisi hesaplar.</p>
+  <figure><div class="frame"><img src="img/giderler.jpg" alt="Giderler ekranı" width="1100" height="688"></div><figcaption><b>Şekil 12.1</b> TL ile gider girişi ve Milyem Kârı Özeti</figcaption></figure>
+  <ol class="steps">
+    <li>Üstte <span class="ui">TL ile ödendi</span> seçili olsun. <span class="ui">Tarih</span>’i kontrol edin, <span class="ui">Ödenen tutar (TL)</span> alanına ödediğiniz parayı yazın (ör. <code>850</code>).</li>
+    <li><span class="ui">Has fiyatı</span> günün has alış fiyatıyla dolu gelir; gerekirse değiştirin. <span class="ui">Has karşılığı</span> kutusu, yazdıkça giderin kaç gram has ettiğini gösterir (850 ÷ 6.552,69 = 0,13 gr).</li>
+    <li><span class="ui">Ödendiği hesap</span>’ı seçin (yeni girişte <em>Nakit TL</em> seçili gelir). Para kasadan çıkmadıysa <em>Kasaya yazma</em>’yı seçin.</li>
+    <li><span class="ui">Kategori</span> alanına yazın veya önerilerden seçin (Yemek, Kira, Elektrik / su / doğalgaz, Çalışan ödemesi, Araç / yakıt…), isterseniz not yazıp <span class="ui">Kaydet</span>’e basın.</li>
+  </ol>
+  <p>Gideri altınla ödediyseniz (ör. ustaya prim olarak has verdiyseniz) <span class="ui">Altınla (has) ödendi</span> sekmesini seçip <span class="ui">Gider (has, gr)</span> alanına gramı yazın; bu kayıt kasaya yazılmaz.</p>
+  <div class="formula">Has karşılığı = Ödenen TL ÷ Has fiyatı &nbsp;·&nbsp; Kalan Net Kâr = Toplam milyem kârı (normal + hurda) − Toplam gider</div>
+  <p>Tabloda <strong>Ödenen (TL)</strong> ve <strong>Gider (has)</strong> sütunları birlikte görünür. Sağdaki <strong>Milyem Kârı Özeti</strong> tüm zamanların toplamını gösterir. Giderler stoğu değiştirmez.</p>
+  <div class="callout note"><span class="ct">Kasaya kendiliğinden düşer</span><p>Ödendiği hesabı seçtiğiniz gider, Kasa ekranında <em>Gider</em> kaynağıyla bir çıkış olarak görünür; ayrıca <span class="ui">Gelir / Gider</span> ile girmeyin. Gideri düzenlediğinizde kasa hareketi de güncellenir, sildiğinizde kasadan da silinir. Eski (has ile girilmiş) giderler olduğu gibi kalır.</p></div>
+</section>
+
+<!-- 13 -->
+<section class="chapter" id="stok">
+  <p class="eyebrow">Bölüm 13</p>
+  <h1 class="ch">Stok</h1><hr class="rule">
+  <p class="lead">Stok ekranı (<kbd>F7</kbd>) her cins ve ayar için alınan, satılan ve kalan gram ile has miktarını gösterir.</p>
+  <figure><div class="frame"><img src="img/stok.jpg" alt="Stok ekranı" width="1100" height="688"></div><figcaption><b>Şekil 13.1</b> Normal stok</figcaption></figure>
+  <ul>
+    <li><span class="ui">NORMAL STOK</span> ve <span class="ui">HURDA STOK</span> sekmeleri ayrı listelenir.</li>
+    <li><strong>Kalan Gram</strong> ve <strong>Kalan Has</strong> sütunları vurgulanır; tablonun üstünde toplam gram ve toplam has görünür.</li>
+    <li>Sarrafiyede <strong>Adet (≈)</strong> sütunu kalan gramdan hesaplanan yaklaşık adettir.</li>
+    <li>Kalan hası, malın <strong>alış milyemi</strong> üzerinden hesaplanır. Tamamı satılan satırlar listede gösterilmez; geçmiş kayıtlar silinmez.</li>
+    <li>Stok kontrolü gramla yapılır: stokta olandan fazla gram satılamaz.</li>
+    <li><span class="ui">DÖVİZ</span> sekmesi kasadaki dolar ve euroyu, ortalama alış maliyetini, maliyet değerini ve güncel alış kuruyla değerini gösterir. Döviz stoğu Nakit Dolar / Nakit Euro kasa hesaplarından gelir; ayrıca stok girişi yapılmaz.</li>
+  </ul>
+  <div class="callout tip"><span class="ct">İpucu</span><p>Stok tablosunu <span class="ui">CSV</span> düğmesiyle Excel’e alıp sayım yapabilirsiniz. TL değeriyle birlikte stok raporu için Raporlar ekranındaki “Stok değeri” tablosunu kullanın.</p></div>
+</section>
+
+<!-- 14 -->
+<section class="chapter" id="emanet">
+  <p class="eyebrow">Bölüm 14</p>
+  <h1 class="ch">Emanet</h1><hr class="rule">
+  <p class="lead">Emanet ekranı (<kbd>F8</kbd>) müşterinin size bıraktığı veya sizin başkasına bıraktığınız altın ve parayı takip eder. Emanetler <strong>stoğu, cariyi ve kasayı etkilemez</strong>.</p>
+  <figure><div class="frame"><img src="img/emanet.jpg" alt="Emanet ekranı" width="1100" height="688"></div><figcaption><b>Şekil 14.1</b> Emanet ekranı ve açık emanetler</figcaption></figure>
+  <ol class="steps">
+    <li>Formun üstünden <span class="ui">Altın emanet</span> veya <span class="ui">Para emanet</span>’i seçin.</li>
+    <li><span class="ui">Yön</span>: <em>Müşteriden alındı (bizde)</em> veya <em>Bizden verildi (karşıda)</em>.</li>
+    <li><span class="ui">Kişi</span> ve <span class="ui">Telefon</span>’u yazın.</li>
+    <li>Altında sarrafiye düğmeleri veya cinsi, ayar, adet, gram ve milyem girilir; has kendiliğinden hesaplanır. Parada tutar ve para birimi (TL, Dolar, Euro, Sterlin) girilir.</li>
+    <li><span class="ui">Emaneti kaydet</span>’e basın. Tablodaki yazıcı simgesiyle müşteriye <strong>emanet makbuzu</strong> verin.</li>
+  </ol>
+  <p>Emanet sahibine geri verildiğinde satırdaki <span class="ui">Teslim et</span>’e tıklayın; kayıt <span class="ui">TESLİM EDİLENLER</span> sekmesine geçer. Yanlışlıkla kapattıysanız <span class="ui">Geri aç</span> ile yeniden açabilirsiniz. Üstteki kutular açık emanet sayısını, müşteriden alınan has ve parayı ve sizin bıraktığınız hası gösterir.</p>
+</section>
+
+<!-- 15 -->
+<section class="chapter" id="etiket">
+  <p class="eyebrow">Bölüm 15</p>
+  <h1 class="ch">Etiket ve barkod yazdırma</h1><hr class="rule">
+  <p class="lead">Her parçaya barkodlu bir etiket verin; satışta barkodu okutarak ürünü saniyeler içinde forma getirin.</p>
+  <figure><div class="frame"><img src="img/etiket.jpg" alt="Etiket formu" width="1100" height="688"></div><figcaption><b>Şekil 15.1</b> Pırlantalı yüzük için etiket oluşturma</figcaption></figure>
+  <h2>Etiket oluşturma</h2>
+  <ol class="steps">
+    <li>Menüden <span class="ui">Etiket / Barkod</span>’u açın.</li>
+    <li><span class="ui">Cinsi</span>, <span class="ui">Ayar</span>, <span class="ui">Model / kod</span>, <span class="ui">Gram</span>, <span class="ui">Milyem</span> ve isterseniz <span class="ui">İşçilik (TL)</span> ile <span class="ui">Etiket fiyatı (TL)</span>’nı girin. Etiket fiyatı boşsa etikette işçilik yazar.</li>
+    <li>Taşlı ürünlerde <span class="ui">Taş</span> alanından <em>Pırlanta, Renkli taş, Zirkon, İnci</em> veya <em>Diğer</em>’i seçin; taş adedi, toplam karat, renk, berraklık, kesim ve sertifika numarasını girin.</li>
+    <li>Aynı üründen birden fazla parça varsa <span class="ui">Aynı etiketten kaç adet</span>’i yazın.</li>
+    <li><span class="ui">Etiket oluştur</span>’a basın. Barkod otomatik verilir (ör. <code>DT000123</code>). “Şimdi yazdırılsın mı” sorusuna <span class="ui">Yazdır</span> ile devam edebilirsiniz.</li>
+  </ol>
+  <figure><div class="frame"><img src="img/etiket-liste.jpg" alt="Etiket listesi" width="1100" height="688"></div><figcaption><b>Şekil 15.2</b> Stoktaki etiketler; seçip toplu yazdırma</figcaption></figure>
+  <h2>Etiket yazdırma</h2>
+  <p>Tek etiket için satırdaki yazıcı simgesine; birden çok etiket için satırları işaretleyip <span class="ui">SEÇİLENLERİ YAZDIR</span>’a tıklayın. Açılan pencerede etiket türünü seçin; ilk etiketin önizlemesi görünür. Seçtiğiniz tür bir sonraki sefer için hatırlanır.</p>
+  <table class="facts">
+    <tr><th>Etiket türü</th><th>Ölçü</th><th>Kullanım</th></tr>
+    <tr><td>Kelebek etiket</td><td>72 × 12 mm</td><td>Yüzük, bilezik gibi parçalara takılan kuyumcu etiketi</td></tr>
+    <tr><td>Geniş etiket</td><td>50 × 25 mm</td><td>Kutu veya poşet etiketi; üstte firma adı</td></tr>
+    <tr><td>A4 sayfa</td><td>3 × 8 = 24 etiket</td><td>Normal yazıcıda A4 etiket kâğıdı</td></tr>
+  </table>
+  <div class="figrow">
+    <figure><div class="frame"><img src="img/etiket-yazdir.jpg" alt="Etiket yazdır penceresi" width="560" height="392"></div><figcaption><b>Şekil 15.3</b> Etiket türü ve önizleme</figcaption></figure>
+    <figure><div class="frame"><img src="img/etiket-kelebek.jpg" alt="Kelebek etiket baskı önizlemesi" width="540" height="330"></div><figcaption><b>Şekil 15.4</b> Kelebek etiket çıktısı</figcaption></figure>
+  </div>
+  <figure><div class="frame"><img src="img/etiket-a4.jpg" alt="A4 etiket sayfası" width="900" height="423"></div><figcaption><b>Şekil 15.5</b> A4 sayfa düzeninde etiketler (baskı önizlemesi)</figcaption></figure>
+  <div class="callout tip"><span class="ct">Yazıcı ayarı</span><p>Etiket yazıcısının kâğıt boyutunu yazdırma penceresinde seçtiğiniz etiket türüyle aynı yapın. Barkod okuyucu, Satış ekranındaki barkod kutusuna okutur (Bölüm 4).</p></div>
+  <p>Etiketler <span class="ui">STOKTA</span>, <span class="ui">SATILANLAR</span> ve <span class="ui">TÜMÜ</span> sekmelerinde listelenir. Düzenleme ve silme yalnızca stoktaki etiketlerde yapılabilir.</p>
+</section>
+
+<!-- 16 -->
+<section class="chapter" id="rapor">
+  <p class="eyebrow">Bölüm 16</p>
+  <h1 class="ch">Dashboard ve raporlar</h1><hr class="rule">
+  <h2>Dashboard</h2>
+  <p>Dashboard (<kbd>F9</kbd>) dükkânın anlık durumunu tek ekranda gösterir:</p>
+  <ul>
+    <li><strong>Üst kutular:</strong> has altın fiyatı, dolar ve euro kuru, kasadaki nakit TL, bugün kasaya giren/çıkan para, açık emanet sayısı ve bugünkü döviz kârı (işlem sayısı ve kasadaki döviz ile).</li>
+    <li><strong>Hızlı işlemler:</strong> <span class="ui">Yeni satış</span>, <span class="ui">Yeni alış</span>, <span class="ui">Döviz al / sat</span>, <span class="ui">Kasa</span>, <span class="ui">Gün sonu</span>, <span class="ui">Emanet</span>, <span class="ui">Sipariş / tamir</span>.</li>
+    <li><strong>Performans:</strong> <em>7 gün, 30 gün, 90 gün, Bu ay</em> veya <em>Bu yıl</em> için ciro, brüt kâr, satılan gram, alış ve gider. Her kutuda önceki aynı uzunluktaki döneme göre yüzde değişim ve küçük bir eğri bulunur. <span class="ui">TL</span> / <span class="ui">Has</span> düğmeleri birimi değiştirir.</li>
+    <li><strong>Günlük seyir grafiği:</strong> satış, alış ve kâr çizgileri. Farenizi grafiğin üzerinde gezdirerek günün değerlerini görün; göstergedeki bir seriye tıklayarak o çizgiyi gizleyin. 90 günden uzun aralıklarda grafik haftalık gösterilir.</li>
+    <li><strong>En çok satan ürünler, Stok dağılımı, En iyi müşteriler</strong> çubuk grafikleri. <span class="ui">Tüm rapor</span> bağlantısı aynı dönemi Raporlar ekranında açar.</li>
+  </ul>
+  <figure><div class="frame"><img src="img/dashboard-uyarilar.jpg" alt="Dashboard uyarılar" width="1100" height="288"></div><figcaption><b>Şekil 16.1</b> Uyarılar: geciken tamir, yaklaşan teslim, has limitini aşan müşteriler</figcaption></figure>
+  <p><strong>Uyarılar</strong> bölümü teslim günü gelen veya geçen siparişleri, atölyenin söz verdiği günü geçen atölye işlerini, vadesi geçen carileri ve has limitini aşan müşterileri listeler. Bir uyarıya tıklayınca ilgili sipariş ekranı veya cari kartı açılır.</p>
+  <figure><div class="frame"><img src="img/dashboard-genel.jpg" alt="Dashboard genel durum" width="1100" height="913"></div><figcaption><b>Şekil 16.2</b> Genel durum: stok, cari, gider ve TL özeti</figcaption></figure>
+  <p>Sayfanın altındaki <strong>Genel durum</strong> bölümü tüm kayıtlara göre milyem kârını, normal ve hurda stoğu, cari alacak/borç toplamlarını, gider özetini, TL özetini ve stok kontrolünü gösterir.</p>
+
+  <h2>Raporlar</h2>
+  <figure><div class="frame"><img src="img/rapor.jpg" alt="Raporlar ekranı" width="1100" height="688"></div><figcaption><b>Şekil 16.3</b> Raporlar: “Bu ay” özeti ve günlük seyir</figcaption></figure>
+  <ol class="steps">
+    <li>Menüden <span class="ui">Raporlar</span>’ı açın.</li>
+    <li>Aralığı seçin: <em>Bugün, Dün, Bu hafta, Bu ay, Geçen ay, Son 30 gün, Bu yıl</em> veya sağdaki iki tarih kutusuyla <em>Özel</em> bir aralık.</li>
+    <li>Üstte satış cirosu, brüt kâr (ve milyem kârı), satılan gram/has, alış ve giderler görünür.</li>
+    <li>Aşağıdaki tablolar: <strong>Ürün bazında satış</strong>, <strong>En çok alan müşteriler</strong>, <strong>Tedarikçilerden alış</strong>, <strong>Personel satışları</strong>, <strong>Kasa hareketleri</strong>, <strong>Giderler</strong>, <strong>Cari yaşlandırma</strong> (0-30 / 31-60 / 61-90 / 90+ gün) ve <strong>Stok değeri</strong>.</li>
+    <li><strong>POS komisyonu</strong> kâr sayılmaz: üstteki <em>POS komisyonu</em> kutusu dönemde bankanın kestiği tutarı, <em>Net kâr</em> kutusu brüt kâr (ve döviz kârı) eksi komisyonu gösterir; giderler bu rakama dahil değildir. <strong>POS komisyonları</strong> tablosu komisyonu gün, hesap ve kaynak (satış, döviz satışı…) bazında, çekilen ve hesaba geçen tutarla listeler.</li>
+    <li>Döviz işlemi yapıldıysa üstte <strong>Döviz kârı (gerçekleşen)</strong> kutusu, aşağıda <strong>Döviz alış / satış</strong> tablosu (her döviz için alınan / satılan miktar, TL, kâr, iptal sayısı; bankadan çekilen döviz ayrıca <em>Transferle giren</em>, <em>Transfer kuru</em> ve <em>Transferle çıkan</em> sütunlarında) ve <strong>Eldeki döviz ve değerleme farkı</strong> tablosu çıkar. Değerleme farkı, kasadaki dövizi bugünkü alış kuruyla bozdursanız oluşacak kâr veya zarardır; henüz gerçekleşmediği için kâra eklenmez.</li>
+    <li>Her tabloyu <span class="ui">CSV</span> ile Excel’e indirin; sayfanın tamamını <span class="ui">Yazdır</span> ile kâğıda veya PDF’e alın.</li>
+  </ol>
+  <figure><div class="frame"><img src="img/rapor-tablolar.jpg" alt="Rapor tabloları" width="1100" height="688"></div><figcaption><b>Şekil 16.4</b> Tedarikçi, personel, kasa ve gider tabloları</figcaption></figure>
+  <figure><div class="frame"><img src="img/rapor-doviz.jpg" alt="Döviz alış satış raporu" width="1100" height="72"></div><figcaption><b>Şekil 16.5</b> Döviz alış / satış tablosu: müşteriye satılan 6.000 $ ve bankadan 41,00 kurla çekilen 10.000 $ ayrı sütunlarda</figcaption></figure>
+</section>
+
+<!-- 17 -->
+<section class="chapter" id="yedek">
+  <p class="eyebrow">Bölüm 17</p>
+  <h1 class="ch">Yedekleme ve geri yükleme</h1><hr class="rule">
+  <p class="lead">Kayıtlarınız tek bir bilgisayarda durduğu için yedekler çok önemlidir. Program yedeği kendisi alır; sizin göreviniz yedek klasörünü düzenli olarak bilgisayar dışına kopyalamaktır.</p>
+  <h2>Yedekler ne zaman alınır?</h2>
+  <ul>
+    <li><strong>Günlük otomatik:</strong> her gün programın ilk açılışında.</li>
+    <li><strong>Her açılışta (isteğe bağlı):</strong> Ayarlar’da <em>Otomatik yedekleme</em> “Her açılışta” seçilirse her girişte ayrıca yedek alınır. Bu tercih bir sonraki açılışta geçerli olur.</li>
+    <li><strong>Elle:</strong> dişli menüdeki <span class="ui">YEDEK AL</span> veya Yedekler penceresindeki <span class="ui">Şimdi yedek al</span>.</li>
+    <li><strong>Güvenlik yedeği:</strong> geri yüklemeden ve verileri sıfırlamadan hemen önce otomatik.</li>
+  </ul>
+  <p>Her yedek, programın içinde saklanmasının yanı sıra <span class="path">C:\DUNYATEK_BACKUP</span> klasörüne <code>.json</code> dosyası olarak da yazılır. Program içindeki yedekler 14 gün tutulur. Klasördeki 90 günden eski dosyalar silinir, ancak en yeni 30 dosyaya hiç dokunulmaz.</p>
+  <figure class="small"><div class="frame"><img src="img/yedekler.jpg" alt="Yedekler penceresi" width="720" height="570"></div><figcaption><b>Şekil 17.1</b> Yedekler penceresi: bilgisayardaki klasör ve programdaki yedekler</figcaption></figure>
+  <h2>Yedekler penceresi</h2>
+  <p>Dişli menüden <span class="ui">YEDEKLER VE GERİ YÜKLEME</span>’yi açın.</p>
+  <ul>
+    <li><strong>Bilgisayardaki yedek klasörü:</strong> <span class="path">C:\DUNYATEK_BACKUP</span> ve içindeki dosya sayısı; <span class="ui">Şimdi yedek al</span>, <span class="ui">Klasörü aç</span> (klasörü Windows Gezgini’nde açar) ve en yeni 30 dosyanın listesi.</li>
+    <li><strong>Programdaki yedekler (son 14 gün):</strong> her yedeğin tarihi, türü (Günlük otomatik, Elle alınan, Girişte, Geri yükleme öncesi, Sıfırlama öncesi) ve boyutu; <span class="ui">İndir</span> ve <span class="ui">Geri yükle</span> düğmeleri.</li>
+  </ul>
+  <h2>Yedekten geri yükleme (yalnızca yönetici)</h2>
+  <ol class="steps">
+    <li>Yönetici hesabıyla girin ve Yedekler penceresini açın.</li>
+    <li>Dönmek istediğiniz tarihin yanındaki <span class="ui">Geri yükle</span>’ye tıklayın. Başka bir yerdeki (ör. USB bellekteki) yedek için <span class="ui">Başka bir yedek dosyasından geri yükle…</span> bağlantısıyla <code>.json</code> dosyasını seçin.</li>
+    <li>“Şu anki veriler önce ayrıca yedeklenecek” onayını <span class="ui">Geri yükle</span> ile verin.</li>
+  </ol>
+  <p>Program önce mevcut durumu <strong>“Geri yükleme öncesi”</strong> adıyla yedekler, sonra seçilen yedeği yükler. Yanlış yedeği seçtiyseniz bu güvenlik yedeğine geri dönebilirsiniz.</p>
+  <div class="callout warn"><span class="ct">Yedeklerinizi bilgisayar dışına kopyalayın</span><p>Bilgisayar arızalanır, çalınır veya diski bozulursa <span class="path">C:\DUNYATEK_BACKUP</span> klasörü de kaybolur. Bu klasörü <strong>en az haftada bir USB belleğe veya bir bulut klasörüne (Google Drive, OneDrive vb.) kopyalayın</strong>. Başlat menüsündeki <em>Yedek klasörü</em> kısayolu klasörü doğrudan açar.</p></div>
+  <h2>Tüm verileri dışa aktarma</h2>
+  <p>Dişli menüdeki <span class="ui">TÜM VERİLERİ DIŞA AKTAR</span> tüm kayıtları okunabilir bir JSON dosyası olarak indirir (<code>kuyumcu_disa_aktarim_tarih.json</code>). Dosya hem okunabilir rapor hem de tam yedektir: verileri başka bir bilgisayara taşımak için yeni bilgisayarda Yedekler penceresindeki <span class="ui">Başka bir yedek dosyasından geri yükle…</span> ile bu dosyayı seçin. Yeni bilgisayardaki kayıtların yerine dosyadakiler gelir (öncesinde otomatik yedek alınır).</p>
+</section>
+
+<!-- 18 -->
+<section class="chapter" id="kullanici">
+  <p class="eyebrow">Bölüm 18</p>
+  <h1 class="ch">Kullanıcılar, roller ve parola</h1><hr class="rule">
+  <p class="lead">Dükkânda çalışan herkese ayrı bir kullanıcı açın. Böylece kasa hareketlerinde ve personel satışları raporunda işlemi kimin yaptığı görünür.</p>
+  <table class="facts">
+    <tr><th>Rol</th><th>Yapabilecekleri</th></tr>
+    <tr><td>Yönetici</td><td>Her şey. Ayrıca: kullanıcı ekleme ve yetki verme, firma ve fiş bilgilerini değiştirme, kasa hesabı ekleme ve komisyon oranı, genel vade ayarı, yedekten geri yükleme, verileri sıfırlama.</td></tr>
+    <tr><td>Personel</td><td>Günlük işler: satış, alış, hurda, sipariş, kasa hareketi, gün sonu, cari ödemesi, gider, emanet, etiket ve yedek alma.</td></tr>
+    <tr><td>İzleyici</td><td>Yalnızca görüntüler (ör. muhasebeci). Kayıt ekleyemez, değiştiremez; yalnızca kendi parolasını değiştirebilir.</td></tr>
+  </table>
+  <figure class="small"><div class="frame"><img src="img/hesap.jpg" alt="Hesap ve kullanıcılar penceresi" width="480" height="810"></div><figcaption><b>Şekil 18.1</b> Hesap ve kullanıcılar</figcaption></figure>
+  <h2>Kullanıcı ekleme (yönetici)</h2>
+  <ol class="steps">
+    <li>Dişli menüden <span class="ui">HESAP VE KULLANICILAR</span>’ı açın.</li>
+    <li>Pencerenin altındaki forma <span class="ui">Ad Soyad</span>, <span class="ui">E-posta</span>, <span class="ui">Parola</span> (en az 8 karakter) yazın ve <span class="ui">Rol</span>’ü seçin.</li>
+    <li><span class="ui">Kullanıcı ekle</span>’ye basın. Kişi bu e-posta ve parolayla giriş yapar.</li>
+  </ol>
+  <p><strong>Kullanıcılar</strong> listesinde bir kişinin rolünü açılır listeden değiştirebilir, işten ayrılan kişiyi <span class="ui">Pasif yap</span> ile girişe kapatabilirsiniz (<span class="ui">Aktif yap</span> ile geri açılır). Parolasını unutan kişiye <span class="ui">Parola</span> düğmesiyle yeni parola verilir. Yönetici kendi rolünü değiştiremez ve kendini pasif yapamaz.</p>
+  <h2>Parola değiştirme</h2>
+  <p>Her kullanıcı aynı pencerenin üstündeki <span class="ui">Mevcut parola</span> ve <span class="ui">Yeni parola</span> alanlarını doldurup <span class="ui">Parolayı değiştir</span>’e basarak kendi parolasını değiştirir.</p>
+</section>
+
+<!-- 19 -->
+<section class="chapter" id="sifirla">
+  <p class="eyebrow">Bölüm 19</p>
+  <h1 class="ch">Verileri sıfırlama</h1><hr class="rule">
+  <p class="lead">Programı denemek için girdiğiniz örnek kayıtları silip gerçek kullanıma temiz başlamak isterseniz verileri sıfırlayabilirsiniz. Bu işlemi yalnızca <strong>yönetici</strong> yapabilir.</p>
+  <div class="figrow">
+    <figure><div class="frame"><img src="img/ayarlar.jpg" alt="Ayarlar penceresi" width="480" height="698"></div><figcaption><b>Şekil 19.1</b> Ayarlar ve “Verileri sıfırla” bölümü</figcaption></figure>
+    <figure><div class="frame"><img src="img/sifirla.jpg" alt="Verileri sıfırla penceresi" width="560" height="412"></div><figcaption><b>Şekil 19.2</b> Onay için yönetici parolası ve SIFIRLA</figcaption></figure>
+  </div>
+  <ol class="steps">
+    <li>Dişli menüden <span class="ui">AYARLAR</span>’ı açın ve alttaki kırmızı <span class="ui">Verileri sıfırla</span> düğmesine tıklayın.</li>
+    <li><span class="ui">Yönetici parolası</span> alanına kendi parolanızı yazın.</li>
+    <li>Onay kutusuna büyük harflerle <code>SIFIRLA</code> yazın; düğme ancak bundan sonra etkinleşir.</li>
+    <li><span class="ui">Verileri sıfırla</span>’ya basın.</li>
+  </ol>
+  <table class="facts">
+    <tr><th>Silinenler</th><th>Korunanlar</th></tr>
+    <tr><td style="white-space:normal;font-weight:400;color:inherit">Satış, alış, hurda, gümüş ve bakır, cari ödemeleri ve cari kartları, giderler, kasa hareketleri, gün sonu, emanet, sipariş, atölye ve etiket kayıtları</td><td>Kullanıcılar, ayarlar, firma bilgileri, kasa hesap tanımları, yedekler ve işlem günlüğü</td></tr>
+  </table>
+  <div class="callout warn"><span class="ct">Geri dönüş yolu</span><p>Silmeden hemen önce otomatik olarak <strong>“Sıfırlama öncesi”</strong> yedeği alınır. Yanlışlıkla sıfırladıysanız Yedekler penceresinden bu yedeği geri yükleyin (Bölüm 17).</p></div>
+</section>
+
+<!-- 20 -->
+<section class="chapter" id="sss">
+  <p class="eyebrow">Bölüm 20</p>
+  <h1 class="ch">Sık sorulan sorular ve sorun giderme</h1><hr class="rule">
+  <div class="faq"><h3>Simgeye tıkladım, program açılmadı.</h3>
+    <p>Birkaç saniye bekleyip masaüstündeki <strong>Dunyatek_Kuyumcu_Portal</strong> simgesine tekrar tıklayın. Program zaten çalışıyorsa yalnızca pencere yeniden açılır; çalışmıyorsa yeniden başlatılır. Sorun sürerse bilgisayarı yeniden başlatın. Yine açılmazsa destek hattını arayın; destek ekibi <span class="path">C:\Dunyatek_Kuyumcu_Portal\Veri\sunucu.log</span> dosyasını isteyebilir.</p></div>
+  <div class="faq"><h3>Pencereyi kapattım; kayıtlarım kayboldu mu?</h3>
+    <p>Hayır. Her kayıt <span class="ui">Kaydet</span>’e bastığınız anda bilgisayara yazılır. Pencereyi kapatmak kayıtları etkilemez; simgeye tıklayınca kaldığınız yerden devam edersiniz.</p></div>
+  <div class="faq"><h3>Başka bir bilgisayardan veya telefondan programa girebilir miyim?</h3>
+    <p>Hayır. Kurulumlu sürüm güvenlik için yalnızca kurulduğu bilgisayardan açılır (<span class="path">http://localhost:47800</span>). Programı aynı bilgisayarda birden fazla kişi kendi kullanıcı adıyla kullanabilir.</p></div>
+  <div class="faq"><h3>İnternet kesildi; çalışmaya devam edebilir miyim?</h3>
+    <p>Evet. Program internetsiz çalışır. Yalnızca canlı has fiyatı ve kurlar gelmez; üst çubuktaki <span class="ui">HAS</span> düğmesinden fiyatı elle girin (Bölüm 3).</p></div>
+  <div class="faq"><h3>“Stok yetersiz” uyarısı alıyorum.</h3>
+    <p>Satmak istediğiniz cins ve ayarda yeterli gram yok. Önce Stok ekranında kalan gramı kontrol edin; mal stoğa girilmemişse önce <span class="ui">Alış</span> kaydını yapın. Barkodla satışta “önce alışını girin” uyarısı da aynı anlama gelir.</p></div>
+  <div class="faq"><h3>Yanlış bir kaydı düzeltmek istiyorum.</h3>
+    <p>İlgili ekranın tablosunda kaydın satırındaki kalem simgesine tıklayın, düzeltip <span class="ui">Güncelle</span>’ye basın. Kayda bağlı kasa ödemesi de birlikte güncellenir.</p></div>
+  <div class="faq"><h3>Bir müşteri iki ayrı cari olarak açılmış.</h3>
+    <p>Birini Cari ekranında kart simgesiyle açın ve adını diğer carinin adıyla aynı yapın. Program “tüm kayıtları birleştirsin mi” diye sorar; <span class="ui">Birleştir</span> derseniz iki carinin kayıtları tek isimde toplanır.</p></div>
+  <div class="faq"><h3>Bilgisayarım bozuldu; yedekten nasıl dönerim?</h3>
+    <ol>
+      <li>Yeni bilgisayara programı kurun (Bölüm 1) ve bir yönetici hesabı oluşturun.</li>
+      <li>USB bellekteki veya buluttaki yedek dosyalarınızı (<code>.json</code>) bu bilgisayara kopyalayın.</li>
+      <li>Dişli menü → <span class="ui">YEDEKLER VE GERİ YÜKLEME</span> → <span class="ui">Başka bir yedek dosyasından geri yükle…</span> ile en yeni yedek dosyasını seçin ve onaylayın.</li>
+    </ol>
+    <p>İsterseniz bu işlemi Dünyatek Bilişim destek ekibiyle birlikte yapabilirsiniz.</p></div>
+  <div class="faq"><h3>Programı yeni sürüme güncelledim; kayıtlarım duruyor mu?</h3>
+    <p>Evet. Yeni sürüm eskisinin üzerine kurulur; <span class="path">Veri</span> ve <span class="path">C:\DUNYATEK_BACKUP</span> klasörlerine dokunulmaz. Güncelleme veritabanında değişiklik gerektiriyorsa program ilk açılışta, değişiklikten önce veritabanının bir kopyasını <span class="path">C:\DUNYATEK_BACKUP</span> klasörüne <span class="path">guncelleme_oncesi_…sqlite</span> adıyla alır. Kullandığınız sürümü Ayarlar penceresinin altında görebilirsiniz.</p></div>
+  <div class="faq"><h3>“… eksiye düşecek. Yine de kaydedilsin mi?” sorusu çıkıyor.</h3>
+    <p>Bu kayıt Nakit TL, Banka veya POS hesabından elinizdekinden fazla para çıkarıyor. Hesapta para olduğu hâlde soru çıkıyorsa o hesaba giren bir tutar (açılış bakiyesi, tahsilat, transfer) girilmemiş olabilir; önce onu girin. Kredili banka hesabı kullanıyorsanız <span class="ui">Evet, kaydet</span> diyerek devam edebilirsiniz. <span class="ui">Vazgeç</span> derseniz kayıt yapılmaz.</p></div>
+  <div class="faq"><h3>Bankadan dolar çektim; banka cari mi oldu?</h3><p>Hayır. Banka dükkânın kendi hesabıdır. Bankadan döviz çekmeyi Kasa ekranında <span class="ui">Transfer</span> ile girin (Banka → Nakit Dolar, çıkan TL ve gelen dolar). Cari oluşmaz; program kuru dövizin maliyeti olarak saklar ve raporda <em>Transferle giren</em> sütununda gösterir.</p></div>
+  <div class="faq"><h3>Kasada geçmiş bir güne gittim ama kartlardaki bakiye değişmedi.</h3><p>Kartlardaki büyük rakam her zaman güncel bakiyedir; seçilen güne göre yalnızca o günün giriş, çıkış ve hareketleri değişir. O günün akşamındaki bakiyeyi görmek için o günde <span class="ui">Gün Sonu</span> penceresindeki <em>Beklenen</em> sütununa bakın.</p></div>
+  <div class="faq"><h3>Döviz işlemini yanlış girdim.</h3>
+    <p>Döviz Al / Sat ekranındaki listede işlemin satırındaki kırmızı simgeyle işlemi <strong>iptal</strong> edin ve gerekçeyi yazın. Kasa ters kayıtla geri alınır, cari ve kâr düzelir; kayıt silinmez, “iptal edildi” olarak kalır. Form aynı bilgilerle açılır; doğrusunu girip kaydedin (Bölüm 10).</p></div>
+  <div class="faq"><h3>“Kasada yeterli döviz yok” uyarısı alıyorum.</h3>
+    <p>Satmak istediğiniz döviz Nakit Dolar / Nakit Euro hesabında yok. Kasa ekranında hesabın bakiyesine bakın. Dövizi kasaya önceden girmediyseniz <span class="ui">Gelir / Gider</span> ile <em>Devir / açılış bakiyesi</em> olarak veya döviz alışı olarak girin.</p></div>
+  <div class="faq"><h3>Gümüş fiyatı gelmiyor veya yanlış görünüyor.</h3>
+    <p>Gümüş / Bakır ekranındaki <span class="ui">Fiyat gir</span> ile günün fiyatını elle yazın; elle girilen fiyat canlı fiyattan önce gelir. Canlı fiyata dönmek için kutuları boşaltıp kaydedin. Bakırın canlı fiyatı yoktur, her zaman elle girilir.</p></div>
+  <div class="faq"><h3>Atölyeye verdiğim altın stokta hâlâ görünüyor.</h3>
+    <p>Bu bilerek böyledir: Atölye ekranı işi ve has miktarını takip eder, stoktan düşmez. Atölyeyle hesabınızı Cari ekranında has ödemesi girerek tutun (Bölüm 11). Atölyedeki toplam has, Atölye ekranının üstündeki <em>Atölyedeki altın</em> kutusunda görünür.</p></div>
+  <div class="faq"><h3>Fiş veya etiket yazıcıdan düzgün çıkmıyor.</h3>
+    <p>Yazdırma penceresinde doğru yazıcıyı seçin ve kâğıt boyutunu fişte 80 mm’ye, etikette seçtiğiniz etiket türüne (72 × 12 mm, 50 × 25 mm veya A4) ayarlayın. Kenar boşluğunu “Yok” veya “En az” yapın.</p></div>
+  <div class="faq"><h3>Parolamı unuttum.</h3>
+    <p>Personel ve izleyici kullanıcıların parolası unutulduğunda yönetici, <span class="ui">Kullanıcılar</span> listesinde o kişinin satırındaki <span class="ui">Parola</span> düğmesine basıp yeni bir parola belirler; kişi bu parolayla giriş yapar. </p>
+    <p>Yönetici parolası unutulduysa:</p>
+    <ol class="steps">
+      <li>Giriş ekranında <span class="ui">Parolamı unuttum</span>’a tıklayın. Ekranda <strong>makine kodu</strong> ve <strong>istek kodu</strong> görünür.</li>
+      <li>Dünyatek Bilişim destek hattını arayıp bu iki kodu okuyun. İşyeri sahibi olduğunuz doğrulandıktan sonra size <code>DP1-</code> ile başlayan bir <strong>sıfırlama kodu</strong> verilir.</li>
+      <li>Kodu <span class="ui">Sıfırlama kodu</span> kutusuna yapıştırın, yönetici e-postanızı ve yeni parolanızı (iki kez) yazıp <span class="ui">Parolayı yenile</span>’ye basın. Ardından yeni parolayla giriş yapın.</li>
+    </ol>
+    <p>Sıfırlama kodu yalnızca o bilgisayarda ve bir kez çalışır; kullanıldıktan sonra ekranda yeni bir istek kodu çıkar. İstek kodu 24 saat sonra kendiliğinden yenilenir.</p></div>
+</section>
+
+<!-- 21 -->
+<section class="chapter" id="iletisim">
+  <p class="eyebrow">Bölüm 21</p>
+  <h1 class="ch">Teknik destek ve iletişim</h1><hr class="rule">
+  <div class="contact">
+    <div class="contact-head">
+      <img src="../logo-dt.png" alt="Dünyatek Bilişim logosu" width="72" height="72">
+      <div><h2>Teknik destek ve iletişim</h2><p>DÜNYATEK BİLİŞİM</p></div>
+    </div>
+    <p class="contact-intro">Dünyatek Bilişim, Dünyatek Kuyumcu Portalı için kurulum, eğitim, yedekten geri dönme ve sürüm güncellemesi konularında destek verir. Sorularınız ve talepleriniz için aşağıdaki kanallardan bize ulaşabilirsiniz.</p>
+    <dl class="contact-grid">
+      <div><dt>TELEFON</dt><dd>0342 361 01 18</dd></div>
+      <div><dt>MOBİL</dt><dd>0535 926 49 50</dd></div>
+      <div><dt>E-POSTA</dt><dd>info@dunyatek.com</dd></div>
+      <div><dt>WEB</dt><dd>www.dunyatek.com</dd></div>
+      <div class="wide"><dt>ADRES</dt><dd>Çamtepe Mah. Mahmut Tevfik Atay Blv. Gaziantep Teknopark A Blok Kat:1 No:114, 27100 Şahinbey / Gaziantep</dd></div>
+    </dl>
+    <p class="contact-foot">© 2026 Dünyatek Bilişim tarafından geliştirilmiştir.</p>
+  </div>
+  <div class="callout tip"><span class="ct">Destek ararken hazır bulundurun</span><ul>
+    <li>Program sürümü (Ayarlar penceresinin altında yazar)</li>
+    <li>Sorunun hangi ekranda ve hangi adımda olduğu, ekranda çıkan uyarı mesajı</li>
+    <li>Mümkünse ekranın fotoğrafı veya ekran görüntüsü</li>
+  </ul></div>
+</section>
+
+<p class="page-end">Dünyatek Kuyumcu Portalı · Kullanım Kılavuzu · Sürüm 1.1 · Ekim 2026</p>
+</main>
+</body>
+</html>

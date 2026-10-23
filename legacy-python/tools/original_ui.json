@@ -1,0 +1,281 @@
+{
+  "forms": {
+    "alis": [
+      [
+        "tarih",
+        "Tarih",
+        "date"
+      ],
+      [
+        "tedarikci",
+        "Tedarik\u00e7i",
+        "autocomplete",
+        "suppliers"
+      ],
+      [
+        "cinsi",
+        "Cinsi",
+        "autocomplete",
+        "products"
+      ],
+      [
+        "ayar",
+        "Ayar",
+        "text"
+      ],
+      [
+        "gram",
+        "Gram",
+        "decimal"
+      ],
+      [
+        "milyem",
+        "Al\u0131\u015f Milyem",
+        "decimal"
+      ],
+      [
+        "notlar",
+        "Not",
+        "textarea"
+      ]
+    ],
+    "satis": [
+      [
+        "purchase_id",
+        "",
+        "hidden"
+      ],
+      [
+        "alis_id",
+        "",
+        "hidden"
+      ],
+      [
+        "tarih",
+        "Tarih",
+        "date"
+      ],
+      [
+        "musteri",
+        "M\u00fc\u015fteri",
+        "autocomplete",
+        "customers"
+      ],
+      [
+        "cinsi",
+        "Cinsi",
+        "text",
+        null,
+        true
+      ],
+      [
+        "ayar",
+        "Ayar",
+        "text",
+        null,
+        true
+      ],
+      [
+        "alis_milyem",
+        "Al\u0131\u015f Milyem",
+        "decimal",
+        null,
+        true
+      ],
+      [
+        "gram",
+        "Sat\u0131\u015f Gram",
+        "decimal"
+      ],
+      [
+        "satis_milyem",
+        "Sat\u0131\u015f Milyem",
+        "decimal"
+      ],
+      [
+        "notlar",
+        "Not",
+        "textarea"
+      ]
+    ],
+    "hurda": [
+      [
+        "hurda_alis_id",
+        "",
+        "hidden"
+      ],
+      [
+        "tarih",
+        "Tarih",
+        "date"
+      ],
+      [
+        "islem_turu",
+        "",
+        "hidden"
+      ],
+      [
+        "kisi",
+        "Ki\u015fi / Firma",
+        "autocomplete",
+        "people"
+      ],
+      [
+        "cinsi",
+        "Cinsi",
+        "text"
+      ],
+      [
+        "ayar",
+        "Ayar",
+        "text"
+      ],
+      [
+        "gram",
+        "Gram",
+        "decimal"
+      ],
+      [
+        "milyem",
+        "Al\u0131\u015f Milyem",
+        "decimal"
+      ],
+      [
+        "notlar",
+        "Not",
+        "textarea"
+      ]
+    ]
+  },
+  "columns": {
+    "alis": [
+      "tarih",
+      "tedarikci",
+      "cinsi",
+      "ayar",
+      "gram",
+      "milyem",
+      "has",
+      "not"
+    ],
+    "satis": [
+      "tarih",
+      "musteri",
+      "cinsi",
+      "ayar",
+      "gram",
+      "alis_milyem",
+      "satis_milyem",
+      "milyem_farki",
+      "milyem_kari",
+      "not"
+    ],
+    "hurdaAlis": [
+      "tarih",
+      "kisi",
+      "cinsi",
+      "ayar",
+      "gram",
+      "milyem",
+      "has",
+      "not"
+    ],
+    "hurdaSatis": [
+      "tarih",
+      "kisi",
+      "cinsi",
+      "ayar",
+      "gram",
+      "alis_milyem",
+      "satis_milyem",
+      "milyem_farki",
+      "milyem_kari",
+      "kalan_gram",
+      "not"
+    ],
+    "stok": [
+      "cinsi",
+      "ayar",
+      "alis_gram",
+      "alis_has",
+      "satis_gram",
+      "satis_has",
+      "kalan_gram",
+      "kalan_has"
+    ],
+    "hurdaStok": [
+      "cinsi",
+      "ayar",
+      "hurda_alis_gram",
+      "hurda_alis_has",
+      "hurda_satis_gram",
+      "hurda_satis_has",
+      "kalan_gram",
+      "kalan_has"
+    ],
+    "musteriCari": [
+      "musteri_adi",
+      "toplam_satis_has",
+      "tahsil_edilen_has",
+      "toplam_alis_has",
+      "odedigimiz_has",
+      "net_bakiye_has",
+      "son_islem_tarihi"
+    ],
+    "tedarikciCari": [
+      "tedarikci_adi",
+      "toplam_alis_has",
+      "odedigimiz_has",
+      "odeyecegimiz_has",
+      "net_bakiye_has",
+      "son_islem_tarihi"
+    ],
+    "kisiCari": [
+      "isim",
+      "toplam_satis_has",
+      "toplam_alis_has",
+      "tahsil_edilen_has",
+      "odedigimiz_has",
+      "net_bakiye_has",
+      "son_islem_tarihi"
+    ],
+    "cariOdeme": [
+      "tarih",
+      "isim",
+      "yon",
+      "odeme_tipi",
+      "odenen_has",
+      "not"
+    ]
+  },
+  "views": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "G\u00fcncel stok, cari ve sat\u0131\u015f \u00f6zeti"
+    },
+    "alis": {
+      "title": "Al\u0131\u015f",
+      "subtitle": "Normal \u00fcr\u00fcn al\u0131\u015f kay\u0131tlar\u0131"
+    },
+    "satis": {
+      "title": "Sat\u0131\u015f",
+      "subtitle": "Al\u0131\u015ftan se\u00e7erek sat\u0131\u015f"
+    },
+    "hurda_alis": {
+      "title": "Hurda Al\u0131\u015f",
+      "subtitle": "Sadece hurda al\u0131\u015f kay\u0131tlar\u0131"
+    },
+    "hurda_satis": {
+      "title": "Hurda Sat\u0131\u015f",
+      "subtitle": "Hurda al\u0131\u015ftan se\u00e7erek sat\u0131\u015f"
+    },
+    "stok": {
+      "title": "Stok",
+      "subtitle": "Normal stok ve hurda stok ayr\u0131"
+    },
+    "cari": {
+      "title": "Cari",
+      "subtitle": "M\u00fc\u015fteri ve tedarik\u00e7i bakiyeleri"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dünyatek Kuyumcu Portalı</title>
+    <link rel="icon" type="image/png" href="/static/logo.svg" />
+    <script src="/static/theme.js"></script>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <button class="brand-mark" id="themeToggle" type="button" aria-pressed="false" aria-label="Koyu temaya ge&#231;">
+          <img src="/static/logo-dt.png" alt="Dünyatek Bilişim logosu" class="brand-logo" />
+        </button>
+        <div class="brand-copy">
+          <strong>DÜNYATEK</strong>
+          <small>Kuyumcu Portalı</small>
+        </div>
+      </div>
+      <nav>
+        <button class="nav active" data-view="dashboard">Dashboard <kbd>F9</kbd></button>
+        <p class="nav-group">İşlemler</p>
+        <button class="nav" data-view="satis">Satış <kbd>F2</kbd></button>
+        <button class="nav" data-view="alis">Alış <kbd>F3</kbd></button>
+        <button class="nav" data-view="hurda_alis">Hurda Alış</button>
+        <button class="nav" data-view="hurda_satis">Hurda Satış</button>
+        <button class="nav" data-view="metal">Gümüş / Bakır</button>
+        <button class="nav" data-view="doviz">Döviz Al / Sat</button>
+        <button class="nav" data-view="siparis">Sipariş / Tamir</button>
+        <button class="nav" data-view="atolye">Atölye</button>
+        <p class="nav-group">Finans</p>
+        <button class="nav" data-view="kasa">Kasa <kbd>F4</kbd></button>
+        <button class="nav" data-view="cari">Cari <kbd>F6</kbd></button>
+        <button class="nav" data-view="giderler">Giderler</button>
+        <p class="nav-group">Stok</p>
+        <button class="nav" data-view="stok">Stok <kbd>F7</kbd></button>
+        <button class="nav" data-view="emanet">Emanet <kbd>F8</kbd></button>
+        <button class="nav" data-view="etiket">Etiket / Barkod</button>
+        <p class="nav-group">Raporlar</p>
+        <button class="nav" data-view="rapor">Raporlar</button>
+      </nav>
+      <div class="sidebar-user">
+        <div class="sidebar-user-info">
+          <strong id="sidebarUserName">…</strong>
+          <small id="sidebarUserRole"></small>
+        </div>
+        <button id="sidebarLogout" class="sidebar-logout" type="button" title="Oturumu kapat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Çıkış
+        </button>
+      </div>
+    </aside>
+
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Güncel genel durum</p>
+        </div>
+        <div class="topbar-controls">
+          <div id="rateTicker" class="rate-ticker" aria-label="Döviz kurları"></div>
+          <button id="priceBtn" class="price-button" type="button">HAS FİYATI</button>
+          <details class="toolbar-menu" id="dataMenu">
+            <summary aria-label="Ayarlar, yedekleme ve hesap" title="Ayarlar, yedekleme ve hesap">
+              <svg class="gear-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </summary>
+            <div class="toolbar-menu-panel">
+              <button id="settingsBtn" class="top-export-button" type="button">AYARLAR</button>
+              <button id="backupBtn" class="top-export-button" type="button" title="Veritabanının güvenli bir kopyasını oluşturur.">YEDEK AL</button>
+              <button id="restoreBtn" class="top-export-button" type="button" title="Yedek listesi, bilgisayardaki DUNYATEK_BACKUP klasörü ve geri yükleme.">YEDEKLER VE GERİ YÜKLEME</button>
+              <button id="exportBtn" class="top-export-button" type="button" title="Yedek almak için tüm verileri JSON olarak indirir.">TÜM VERİLERİ DIŞA AKTAR</button>
+              <button id="firmaBtn" class="top-export-button" type="button" title="İşyeri adı, logosu ve fişlerde görünen firma bilgileri.">FİRMA, LOGO VE FİŞ BİLGİLERİ</button>
+              <button id="panoBtn" class="top-export-button" type="button" title="TV fiyat panosunda görünecek ürünler ve fiyatlar.">FİYAT PANOSU (TV) AYARLARI</button>
+              <button id="shortcutBtn" class="top-export-button" type="button">KLAVYE KISAYOLLARI</button>
+              <button id="manualBtn" class="top-export-button" type="button" title="Adım adım kullanım kılavuzu (yeni pencerede açılır).">KULLANIM KILAVUZU</button>
+              <button id="accountBtn" class="top-export-button" type="button" title="Parola değiştirme ve kullanıcı yönetimi.">HESAP VE KULLANICILAR</button>
+              <button id="logoutBtn" class="top-export-button" type="button">ÇIKIŞ YAP</button>
+            </div>
+          </details>
+          <button id="tvBtn" class="tv-button" type="button" title="Fiyat panosunu TV / ikinci ekran için ayrı pencerede açar." aria-label="Fiyat panosu (TV)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>TV</span></button>
+          <input id="search" type="search" placeholder="Ara..." autocomplete="off" />
+        </div>
+      </header>
+
+      <section id="content"></section>
+    </main>
+
+    <script src="/static/tarih.js"></script>
+    <script src="/static/app.js"></script>
+    <script src="/static/modules.js"></script>
+    <script src="/static/takip.js"></script>
+    <script src="/static/metal.js"></script>
+    <script src="/static/doviz.js"></script>
+    <script src="/static/atolye.js"></script>
+    <script src="/static/pano.js"></script>
+    <script src="/static/rapor.js"></script>
+    <script src="/static/grafik.js"></script>
+    <script src="/static/yedek.js"></script>
+  <script src="/static/lisans.js"></script>
+  </body>
+</html>

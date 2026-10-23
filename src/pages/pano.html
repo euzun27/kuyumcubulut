@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f1714" />
+  <title>Fiyat Panosu</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+  <style>
+    :root {
+      --bg: #0f1714; --bg-2: #16221d; --card: #1a2822; --line: #2c3d35;
+      --gold: #d4af5f; --gold-2: #f0d48f; --text: #f5efe0; --muted: #a8b3ad;
+      --up: #4fc27e; --down: #ef6f5e;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; overflow: hidden; background: radial-gradient(ellipse at 50% -20%, #22342b 0%, var(--bg) 62%); color: var(--text); font-family: "Segoe UI", Inter, Arial, sans-serif; cursor: default; }
+    body.idle { cursor: none; }
+    .board { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; gap: 1.6vh; padding: 2.6vh 3vw 2vh; }
+
+    header { display: flex; align-items: center; justify-content: space-between; gap: 2vw; padding-bottom: 1.6vh; border-bottom: 2px solid var(--gold); }
+    .brand { display: flex; align-items: center; gap: 1.6vw; min-width: 0; }
+    .brand img { height: 10vh; max-width: 22vw; object-fit: contain; }
+    .brand h1 { margin: 0; font-size: 5vh; font-weight: 600; letter-spacing: .06em; color: var(--gold-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand p { margin: .4vh 0 0; font-size: 2vh; color: var(--muted); letter-spacing: .04em; }
+    .clock { text-align: right; flex: none; }
+    .clock .time { font-size: 6vh; font-weight: 300; font-variant-numeric: tabular-nums; line-height: 1; }
+    .clock .date { margin-top: .6vh; font-size: 2.1vh; color: var(--muted); letter-spacing: .04em; }
+
+    main { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; gap: 1.6vh 2vw; min-height: 0; }
+    main.one { grid-template-columns: 1fr; }
+    .panel { display: flex; flex-direction: column; min-height: 0; background: linear-gradient(180deg, var(--card), var(--bg-2)); border: 1px solid var(--line); border-radius: 1.4vh; overflow: hidden; }
+    .panel.wide { grid-column: 1 / -1; flex-direction: row; }
+    .panel h2 { margin: 0; padding: 1.2vh 1.4vw; display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 1.9vh; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid var(--line); }
+    .panel h2 span:not(:first-child) { text-align: right; }
+    .rows { flex: 1; display: flex; flex-direction: column; }
+    .row { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 1.4vw; border-bottom: 1px solid #ffffff0d; min-height: 0; }
+    .row:last-child { border-bottom: 0; }
+    .row:nth-child(even) { background: #ffffff05; }
+    .name { font-size: 3.2vh; font-weight: 600; line-height: 1.1; }
+    .name small { display: block; font-size: 1.6vh; font-weight: 400; color: var(--muted); letter-spacing: .06em; }
+    .price { text-align: right; font-size: 3.6vh; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; transition: color .4s; }
+    .price.sell { color: var(--gold-2); }
+    .price i { display: inline-block; width: 2.6vh; font-style: normal; font-size: 2vh; vertical-align: middle; }
+    .price.up i::before { content: "▲"; color: var(--up); }
+    .price.down i::before { content: "▼"; color: var(--down); }
+    .price.flash-up { color: var(--up); }
+    .price.flash-down { color: var(--down); }
+    .panel.wide .rows { flex-direction: row; }
+    .panel.wide .row { flex: 1; grid-template-columns: 1fr auto auto; gap: 1.4vw; padding: 1.4vh 1.4vw; border-bottom: 0; border-right: 1px solid #ffffff0d; }
+    .panel.wide .row:last-child { border-right: 0; }
+    .panel.wide .price { font-size: 3vh; }
+    .panel.wide .price::before { content: attr(data-label); display: block; font-size: 1.4vh; font-weight: 600; letter-spacing: .14em; color: var(--muted); }
+
+    footer { display: flex; align-items: center; gap: 2vw; font-size: 1.8vh; color: var(--muted); }
+    .ticker { flex: 1; overflow: hidden; white-space: nowrap; color: var(--text); font-size: 2.4vh; }
+    .ticker span { display: inline-block; padding-left: 100%; animation: tick 28s linear infinite; }
+    .ticker:empty { visibility: hidden; }
+    @keyframes tick { to { transform: translateX(-100%); } }
+    .status { white-space: nowrap; }
+    .status b { color: var(--text); font-weight: 600; }
+    .dot { display: inline-block; width: 1vh; height: 1vh; margin-right: .6vw; border-radius: 50%; background: var(--up); vertical-align: middle; }
+    .dot.off { background: var(--gold); }
+
+    .controls { position: fixed; top: 1.4vh; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; transition: opacity .3s; }
+    body.idle .controls { opacity: 0; pointer-events: none; }
+    .controls button { padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: #0f1714e6; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+    .controls button:hover { border-color: var(--gold); }
+    .empty { display: grid; place-items: center; height: 100%; font-size: 3vh; color: var(--muted); }
+    @media (orientation: portrait) {
+      main { grid-template-columns: 1fr; }
+      .panel.wide { flex-direction: column; }
+      .panel.wide .rows { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { .ticker span { animation: none; padding-left: 0; } }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <header>
+      <div class="brand">
+        <img id="logo" alt="" hidden />
+        <div><h1 id="shop">Fiyat Panosu</h1><p id="shopInfo"></p></div>
+      </div>
+      <div class="clock"><div class="time" id="time">--:--</div><div class="date" id="date"></div></div>
+    </header>
+    <main id="main"><div class="empty">Fiyatlar yükleniyor…</div></main>
+    <footer>
+      <div class="ticker" id="ticker"></div>
+      <div class="status"><span class="dot" id="dot"></span><span id="status"></span></div>
+    </footer>
+  </div>
+  <div class="controls">
+    <button type="button" id="fullBtn">Tam ekran</button>
+    <button type="button" id="closeBtn">Kapat</button>
+  </div>
+  <script>
+    // Fiyat panosu: /api/pano her dakika okunur; fiyat değişince satırda ok ve renk görünür.
+    const GROUPS = [
+      { id: "altin", title: "Altın", codes: ["HAS", "GRAM", "B22", "A18", "A14"] },
+      { id: "sarrafiye", title: "Sarrafiye", codes: ["CEYREK", "YARIM", "TAM", "ATA", "GREMSE"] },
+      { id: "doviz", title: "Döviz ve gümüş", codes: ["USD", "EUR", "GUMUS"], wide: true },
+    ];
+    const UNIT = { gr: "gram", adet: "adet", kur: "" };
+    const previous = {};
+    const el = (tag, attrs = {}, ...kids) => { const n = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "text") n.textContent = v; else n.setAttribute(k, v); } n.append(...kids.filter(Boolean)); return n; };
+    const money = (v, birim) => v === null || v === undefined ? "—" : Number(v).toLocaleString("tr-TR", { minimumFractionDigits: birim === "adet" ? 0 : 2, maximumFractionDigits: birim === "adet" ? 0 : 2 });
+
+    function priceCell(row, key, label) {
+      const cell = el("div", { class: `price ${key === "satis" ? "sell" : ""}`, "data-label": label }, el("i"), document.createTextNode(` ${money(row[key], row.birim)}`));
+      const id = `${row.kod}.${key}`;
+      const before = previous[id]?.value;
+      const changed = before !== undefined && row[key] !== null && before !== row[key];
+      // Ok, son değişimin yönünü gösterir; değişim anında fiyat kısa süre renklenir.
+      const dir = changed ? (row[key] > before ? "up" : "down") : previous[id]?.dir;
+      if (dir) cell.classList.add(dir);
+      if (changed) { cell.classList.add(`flash-${dir}`); setTimeout(() => cell.classList.remove(`flash-${dir}`), 2500); }
+      previous[id] = { value: row[key], dir };
+      return cell;
+    }
+
+    function render(data) {
+      document.getElementById("shop").textContent = data.firma.ad;
+      document.title = `${data.firma.ad} · Fiyat Panosu`;
+      document.getElementById("shopInfo").textContent = [data.firma.telefon, data.firma.adres].filter(Boolean).join(" · ");
+      const logo = document.getElementById("logo");
+      if (data.firma.logo) { if (logo.hidden) { logo.src = `/api/firma/logo?v=${Date.now()}`; logo.hidden = false; } } else logo.hidden = true;
+      const ticker = document.getElementById("ticker");
+      // Yazı değişmedikçe yeniden kurulmaz; yoksa kayan yazı her yenilemede başa döner.
+      if (ticker.textContent !== (data.alt_yazi || "")) ticker.replaceChildren(...(data.alt_yazi ? [el("span", { text: data.alt_yazi })] : []));
+      const main = document.getElementById("main");
+      const panels = GROUPS.map((g) => {
+        const rows = data.satirlar.filter((r) => g.codes.includes(r.kod));
+        if (!rows.length) return null;
+        const list = el("div", { class: "rows" }, ...rows.map((r) => el("div", { class: "row" },
+          el("div", { class: "name" }, document.createTextNode(r.ad), UNIT[r.birim] ? el("small", { text: UNIT[r.birim] }) : null),
+          priceCell(r, "alis", "ALIŞ"), priceCell(r, "satis", "SATIŞ"))));
+        const head = g.wide ? null : el("h2", {}, el("span", { text: g.title }), el("span", { text: "Alış" }), el("span", { text: "Satış" }));
+        return el("section", { class: `panel ${g.wide ? "wide" : ""}` }, head, list);
+      }).filter(Boolean);
+      main.className = panels.filter((p) => !p.classList.contains("wide")).length < 2 ? "one" : "";
+      main.replaceChildren(...(panels.length ? panels : [el("div", { class: "empty", text: "Panoda gösterilecek satır seçilmemiş." })]));
+      const t = new Date();
+      document.getElementById("dot").className = `dot ${data.canli ? "" : "off"}`;
+      document.getElementById("status").replaceChildren(document.createTextNode(data.canli ? "Canlı piyasa · " : "Günün fiyatı · "), el("b", { text: `Güncelleme ${t.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` }));
+    }
+
+    async function load() {
+      try {
+        const res = await fetch("/api/pano", { headers: { accept: "application/json" } });
+        if (res.status === 401) { location.href = "/login"; return; }
+        const body = await res.json();
+        if (body.status === "ok") render(body.data);
+      } catch {
+        document.getElementById("dot").className = "dot off";
+        document.getElementById("status").textContent = "Bağlantı bekleniyor…";
+      }
+    }
+
+    function tick() {
+      const now = new Date();
+      document.getElementById("time").textContent = now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+      document.getElementById("date").textContent = now.toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    }
+
+    let idleTimer;
+    const wake = () => { document.body.classList.remove("idle"); clearTimeout(idleTimer); idleTimer = setTimeout(() => document.body.classList.add("idle"), 3000); };
+    document.addEventListener("mousemove", wake);
+    document.getElementById("fullBtn").onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.().catch(() => {}); };
+    document.addEventListener("fullscreenchange", () => { document.getElementById("fullBtn").textContent = document.fullscreenElement ? "Tam ekrandan çık" : "Tam ekran"; });
+    document.getElementById("closeBtn").onclick = () => window.close();
+    document.addEventListener("keydown", (e) => { if (e.key === "f" || e.key === "F") document.getElementById("fullBtn").click(); });
+
+    tick(); setInterval(tick, 1000);
+    load(); setInterval(load, 5 * 1000);
+    wake();
+  </script>
+</body>
+</html>
