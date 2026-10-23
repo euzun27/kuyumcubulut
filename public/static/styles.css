@@ -3527,6 +3527,11 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .status-pill.open { background: var(--amber-soft); color: var(--amber); }
 .status-pill.closed { background: var(--green-soft); color: var(--green); }
 .status-pill.warn { background: var(--red-soft); color: var(--red); margin-left: 6px; }
+.status-pill.stocked { margin-left: 6px; }
+.etiket-stok-box { display: grid; gap: 6px; }
+.etiket-stok-box .check-field { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 700; }
+.etiket-stok-box .check-field input { width: auto; min-height: 0; margin: 0; }
+.etiket-stok-box .field { max-width: 280px; }
 .row-closed td { opacity: .7; }
 .emanet-toggle { min-height: 32px; padding: 0 10px; font-size: 12px; }
 

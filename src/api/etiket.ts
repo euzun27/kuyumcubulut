@@ -8,7 +8,7 @@ import { Hono, type Context } from 'hono';
 import type { Env } from '../lib/db';
 import { all, first, tx, type Stmt } from '../lib/db';
 import { d, NUM_Q, MONEY_Q } from '../lib/decimal';
-import { HttpError, ValidationError, today } from '../lib/validate';
+import { HttpError, ValidationError, today, calcHas } from '../lib/validate';
 import { normalizeProduct } from '../lib/text';
 import { audit } from '../lib/auth';
 import { date, intId, text } from '../lib/kasa';
@@ -106,6 +106,29 @@ etiket.get('/kod/:kod', async (c) => {
   return c.json(ok(withCode(row)));
 });
 
+/** Etiketten stoğa alınan ürünlerin alış kaydındaki tedarikçi adı. */
+export const ACILIS_TEDARIKCI = 'AÇILIŞ STOĞU';
+
+/**
+ * Etiketteki parça için açılış stoğu alışı: ödemesi kapalıdır (TAM_KAPAT, kasa
+ * hareketi yok), böylece cari ve kasa değişmez; stok ve FIFO maliyeti oluşur.
+ * Maliyet olarak verilen has fiyatı (genelde günün alış fiyatı) yazılır.
+ */
+function stockStmt(v: { cinsi: unknown; ayar: unknown; gram: unknown; milyem: unknown }, hasFiyati: number, tarih: string, not: string): Stmt {
+  const has = calcHas(v.gram, v.milyem).toNumber();
+  const row = {
+    tarih, tedarikci: ACILIS_TEDARIKCI, cinsi: v.cinsi, ayar: v.ayar, adet: 1, gram: v.gram, milyem: v.milyem, has, has_fiyati: hasFiyati,
+    iscilik: 0, ek_masraf: 0, odenen: 0, notlar: not, odeme_tipi: 'TAM_KAPAT', odenen_has: has, odenen_adet: 0, odenen_gram: 0, odenen_milyem: 0,
+  };
+  const cols = Object.keys(row);
+  return { sql: `INSERT INTO alis (${cols.join(', ')}) VALUES (${cols.map(() => '?').join(', ')})`, args: Object.values(row) };
+}
+
+function stockOptions(c: Context<Env>, b: Record<string, unknown>) {
+  const hasFiyati = amount(b.has_fiyati, 'Maliyet has fiyatı', MONEY_Q);
+  return { hasFiyati, tarih: date(b.tarih as string | undefined, today(tz(c))) };
+}
+
 /** POST /api/etiket {items: [...], kopya?}: bir veya çok etiket (her biri bir parça). */
 etiket.post('/', async (c) => {
   const b = await body(c);
@@ -114,22 +137,57 @@ etiket.post('/', async (c) => {
   if (!Number.isInteger(kopya) || kopya < 1 || kopya > MAX_BATCH) throw new ValidationError(`Adet 1 ile ${MAX_BATCH} arasında olmalıdır.`);
   if (!raw.length || raw.length * kopya > MAX_BATCH) throw new ValidationError(`Tek seferde en fazla ${MAX_BATCH} etiket oluşturulur.`);
   const items = raw.map((r) => parseItem(c, (r ?? {}) as Record<string, unknown>));
+  // stoga_al: elindeki ürünü etiketleyen kuyumcu için her parçaya açılış stoğu alışı.
+  const stok = b.stoga_al ? stockOptions(c, b) : null;
+  if (stok && items.some((v) => !Number(v.gram) || !Number(v.milyem))) throw new ValidationError('Stoğa almak için gram ve milyem girin.');
   const stmts: Stmt[] = [];
   for (const v of items) {
-    const cols = Object.keys(v);
-    for (let i = 0; i < kopya; i++) stmts.push({ sql: `INSERT INTO etiketler (${cols.join(', ')}) VALUES (${cols.map(() => '?').join(', ')}) RETURNING *`, args: Object.values(v) });
+    const cols = Object.keys(v).filter((k) => !(stok && k === 'alis_id'));
+    const args = cols.map((k) => v[k as keyof typeof v]);
+    for (let i = 0; i < kopya; i++) {
+      if (stok) stmts.push(stockStmt(v, stok.hasFiyati, stok.tarih, 'Etiketten açılış stoğu'));
+      const allCols = stok ? [...cols, 'alis_id'] : cols;
+      stmts.push({ sql: `INSERT INTO etiketler (${allCols.join(', ')}) VALUES (${cols.map(() => '?').join(', ')}${stok ? ', (SELECT MAX(id) FROM alis)' : ''}) RETURNING *`, args });
+    }
   }
   const res = await tx(c.env.DB, stmts);
-  const rows = res.map((r) => withCode((r.results as any[])[0]));
-  await log(c, 'create', rows[0]?.id ?? null, `${rows.length} etiket: ${items[0].cinsi} ${items[0].ayar}`);
-  return c.json(ok(rows, `${rows.length} etiket oluşturuldu.`), 201);
+  const rows = res.filter((r) => (r.results as any[] | undefined)?.length).map((r) => withCode((r.results as any[])[0]));
+  await log(c, 'create', rows[0]?.id ?? null, `${rows.length} etiket: ${items[0].cinsi} ${items[0].ayar}${stok ? ' (stoğa alındı)' : ''}`);
+  return c.json(ok(rows, `${rows.length} etiket oluşturuldu${stok ? ' ve stoğa alındı' : ''}.`), 201);
+});
+
+/**
+ * POST /api/etiket/stoga-al {ids, has_fiyati, tarih?}: daha önce oluşturulmuş,
+ * satılmamış ve stoğa alınmamış etiketler için açılış stoğu alışı açar.
+ */
+etiket.post('/stoga-al', async (c) => {
+  const b = await body(c);
+  const ids = (Array.isArray(b.ids) ? b.ids : []).map(Number).filter((n) => Number.isInteger(n) && n > 0);
+  if (!ids.length) throw new ValidationError('Etiket seçin.');
+  if (ids.length > MAX_BATCH) throw new ValidationError(`Tek seferde en fazla ${MAX_BATCH} etiket stoğa alınır.`);
+  const stok = stockOptions(c, b);
+  const rows = await all(c.env.DB, `SELECT * FROM etiketler WHERE id IN (${ids.map(() => '?').join(', ')}) AND durum = 'STOKTA' AND alis_id IS NULL ORDER BY id`, ...ids);
+  if (!rows.length) throw new ValidationError('Seçilen etiketler zaten stoğa alınmış ya da satılmış.');
+  const missing = rows.filter((r) => !Number(r.gram) || !Number(r.milyem));
+  if (missing.length) throw new ValidationError(`${missing.map((r) => barcodeOf(Number(r.id))).join(', ')}: gram ve milyem olmadan stoğa alınamaz.`);
+  const stmts: Stmt[] = [];
+  for (const r of rows) {
+    stmts.push(stockStmt(r, stok.hasFiyati, stok.tarih, `Etiket ${barcodeOf(Number(r.id))}`));
+    stmts.push({ sql: `UPDATE etiketler SET alis_id = (SELECT MAX(id) FROM alis) WHERE id = ?`, args: [r.id] });
+  }
+  await tx(c.env.DB, stmts);
+  await log(c, 'update', Number(rows[0].id), `${rows.length} etiket stoğa alındı (açılış stoğu)`);
+  return c.json(ok({ adet: rows.length, atlanan: ids.length - rows.length }, `${rows.length} etiket stoğa alındı.`));
 });
 
 etiket.put('/:id', async (c) => {
   const id = intId(c.req.param('id'), 'Etiket');
-  const v = parseItem(c, await body(c));
-  const cols = Object.keys(v);
-  const [res] = await tx(c.env.DB, [{ sql: `UPDATE etiketler SET ${cols.map((k) => `${k} = ?`).join(', ')} WHERE id = ? RETURNING *`, args: [...Object.values(v), id] }]);
+  const b = await body(c);
+  const v = parseItem(c, b);
+  // Formda alış bağı yok; gönderilmediyse stoğa alınmış etiketin bağı korunur.
+  const cols = Object.keys(v).filter((k) => k !== 'alis_id' || b.alis_id !== undefined);
+  const args = cols.map((k) => v[k as keyof typeof v]);
+  const [res] = await tx(c.env.DB, [{ sql: `UPDATE etiketler SET ${cols.map((k) => `${k} = ?`).join(', ')} WHERE id = ? RETURNING *`, args: [...args, id] }]);
   const row = (res.results as any[])[0];
   if (!row) throw new HttpError(404, 'Etiket bulunamadı.');
   await log(c, 'update', id, `Etiket ${barcodeOf(id)}`);
