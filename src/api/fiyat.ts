@@ -1,6 +1,7 @@
 /**
  * Altın fiyatı: has altın TL/gr alış-satış fiyatı.
- * Canlı fiyat sırası: masaüstü sürümde Harem Altın canlı akışı (lib/harem.ts), sonra
+ * Canlı fiyat sırası: Harem Altın (masaüstünde sürekli akış, internet sürümünde istek
+ * geldiğinde tek seferlik okuma; lib/harem.ts), sonra
  * yönetici bir AltınAPI anahtarı girdiyse AltınAPI, sonra Truncgil Finans (30 saniye
  * önbellek); hiçbiri okunamazsa kullanıcının girdiği günün fiyatı kullanılır.
  * Fiyat yalnızca formları doldurmak için öneridir; kayıtlar girilen fiyatla saklanır.
@@ -14,7 +15,7 @@ import type { Env } from '../lib/db';
 import { first, run } from '../lib/db';
 import { d } from '../lib/decimal';
 import { HttpError, ValidationError, today } from '../lib/validate';
-import { haremSnapshot } from '../lib/harem';
+import { haremSnapshot, haremOnce, haremDurum } from '../lib/harem';
 
 const fiyat = new Hono<Env>();
 
@@ -193,6 +194,7 @@ export function haremLive(): Live | null {
 
 async function liveData(key: string | null): Promise<Live> {
   const g = globalThis as { __kuyumcu_fiyat__?: { at: number; data: Live; key?: string | null } };
+  if (!haremSnapshot()) await haremOnce();
   const harem = haremLive();
   if (harem) {
     // Harem'de olmayan kalemler (ör. GBP) önbellekteki son Truncgil verisinden tamamlanır.
@@ -250,16 +252,46 @@ async function manualPrice(c: { env: Env['Bindings'] }): Promise<Price | null> {
   }
 }
 
-/** Günün fiyatları: canlı varsa canlı, yoksa elle girilen (metallerde elle girilen önce gelir). */
+export type PriceAdjust = { alis: number; satis: number };
+
+/** Canlı altın fiyatına uygulanan yüzde farkı (ör. satış +1,5 → piyasa × 1,015). */
+export async function priceAdjust(c: { env: Env['Bindings'] }): Promise<PriceAdjust> {
+  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'fiyat_ayari'`);
+  try {
+    const v = JSON.parse(row?.value ?? '{}');
+    return { alis: Number(v.alis) || 0, satis: Number(v.satis) || 0 };
+  } catch {
+    return { alis: 0, satis: 0 };
+  }
+}
+
+/** Piyasa fiyatına yüzde farkını uygular (kuruşa yuvarlar). */
+export function adjustPair<T extends { alis: number; satis: number }>(p: T, a: PriceAdjust): T {
+  if (!a.alis && !a.satis) return p;
+  const f = (v: number, pct: number) => d(v).mul(d(100).add(d(pct))).div(100).q(2).toNumber();
+  return { ...p, alis: f(p.alis, a.alis), satis: f(p.satis, a.satis) };
+}
+
+/**
+ * Günün fiyatları: canlı varsa canlı, yoksa elle girilen (metallerde elle girilen önce gelir).
+ * Canlı has fiyatı ve altın ürünlerine ayarlardaki yüzde farkı uygulanır; elle girilen
+ * fiyat, döviz ve metaller olduğu gibi kalır.
+ */
 export async function currentPrices(c: { env: Env['Bindings'] }, liveToo = true) {
-  const live: Live = liveToo ? await liveData(await apiKey(c)) : { price: null, kurlar: {}, metaller: {} };
+  const raw: Live = liveToo ? await liveData(await apiKey(c)) : { price: null, kurlar: {}, metaller: {} };
+  const ayar = await priceAdjust(c);
+  const live: Live = {
+    ...raw,
+    price: raw.price && adjustPair(raw.price, ayar),
+    urunler: Object.fromEntries(Object.entries(raw.urunler ?? {}).map(([k, v]) => [k, adjustPair(v, ayar)])),
+  };
   const manual = await manualPrice(c);
   const manualKur = await manualRates(c);
   const manualMetal = await manualMetals(c);
   const kurlar = Object.fromEntries(RATE_KEYS.filter((k) => live.kurlar[k] || manualKur[k]).map((k) => [k, live.kurlar[k] ?? manualKur[k]]));
   // Elle girilen metal fiyatı canlıdan önce gelir: kuyumcu gümüşü kendi fiyatıyla alıp satar.
   const metaller = Object.fromEntries(METALS.filter((k) => manualMetal[k] || live.metaller[k]).map((k) => [k, manualMetal[k] ?? live.metaller[k]]));
-  return { fiyat: live.price ?? manual, canli: live.price, manuel: manual, kurlar, manuel_kurlar: manualKur, metaller, canli_metaller: live.metaller, manuel_metaller: manualMetal, urunler: live.urunler ?? {} };
+  return { fiyat: live.price ?? manual, canli: live.price, canli_ham: raw.price, fiyat_ayari: ayar, manuel: manual, kurlar, manuel_kurlar: manualKur, metaller, canli_metaller: live.metaller, manuel_metaller: manualMetal, urunler: live.urunler ?? {} };
 }
 
 /** GET /api/altin-fiyati: canlı fiyat, yoksa elle girilen fiyat. */
@@ -273,7 +305,31 @@ fiyat.get('/kaynak', async (c) => {
   if (c.get('user')?.role !== 'admin') throw new HttpError(403, 'Bu işlem için yönetici yetkisi gerekir.');
   const key = await apiKey(c);
   const live = await liveData(key);
-  return c.json({ status: 'ok', message: '', data: { anahtar_var: !!key, anahtar_son: key ? key.slice(-4) : null, saglayici: live.price?.saglayici ?? null } });
+  return c.json({ status: 'ok', message: '', data: { anahtar_var: !!key, anahtar_son: key ? key.slice(-4) : null, saglayici: live.price?.saglayici ?? null, harem: haremDurum() } });
+});
+
+/**
+ * PUT /api/altin-fiyati/ayar {alis, satis}: canlı altın fiyatına uygulanacak yüzde farkı (yönetici).
+ * Ör. satış 1,5 → piyasa satışı × 1,015; alış -0,5 → piyasa alışı × 0,995. 0 farkı kaldırır.
+ */
+fiyat.put('/ayar', async (c) => {
+  if (c.get('user')?.role !== 'admin') throw new HttpError(403, 'Bu işlem için yönetici yetkisi gerekir.');
+  const b = ((await c.req.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
+  const parse = (v: unknown, label: string) => {
+    if (v === undefined || v === null || v === '') return 0;
+    let n;
+    try {
+      n = d(v);
+    } catch {
+      throw new ValidationError(`${label} geçerli bir sayı olmalıdır.`);
+    }
+    if (n.lt(-50) || n.gt(50)) throw new ValidationError(`${label} -50 ile 50 arasında olmalıdır.`);
+    return n.q(2).toNumber();
+  };
+  const ayar = { alis: parse(b.alis, 'Alış farkı'), satis: parse(b.satis, 'Satış farkı') };
+  if (!ayar.alis && !ayar.satis) await run(c.env.DB, `DELETE FROM app_meta WHERE key = 'fiyat_ayari'`);
+  else await run(c.env.DB, `INSERT OR REPLACE INTO app_meta (key, value) VALUES ('fiyat_ayari', ?)`, JSON.stringify(ayar));
+  return c.json({ status: 'ok', message: 'Fiyat farkı kaydedildi.', data: ayar });
 });
 
 /** PUT /api/altin-fiyati/kaynak {anahtar}: AltınAPI anahtarını kaydeder; boş anahtar Truncgil'e döner. */

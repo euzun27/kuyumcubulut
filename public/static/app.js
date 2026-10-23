@@ -466,7 +466,8 @@ function priceSourceSection() {
   const show = async () => {
     try {
       const d = await api("/api/altin-fiyati/kaynak");
-      status.textContent = `Şu anki kaynak: ${d.saglayici || "canlı fiyat alınamıyor"}.${d.anahtar_var ? ` Kayıtlı anahtar ····${d.anahtar_son}.` : " Anahtar girilmedi."}`;
+      const harem = d.harem && !d.harem.ok && d.saglayici !== "Harem Altın" ? ` Harem Altın'a bağlanılamadı${d.harem.hata ? ` (${d.harem.hata})` : ""}.` : "";
+      status.textContent = `Şu anki kaynak: ${d.saglayici || "canlı fiyat alınamıyor"}.${harem}${d.anahtar_var ? ` Kayıtlı anahtar ····${d.anahtar_son}.` : " Anahtar girilmedi."}`;
       remove.hidden = !d.anahtar_var;
     } catch (error) { status.textContent = error.message; }
   };
@@ -482,6 +483,57 @@ function priceSourceSection() {
     h("p", { class: "hint", text: "Program önce Harem Altın'ın canlı akışını kullanır; akış gelmezse Truncgil Finans'a geçer. İsterseniz ikinci bir yedek kaynak olarak altinapi.com anahtarı girebilirsiniz (isteğe bağlı)." }),
     status, h("label", { class: "field" }, "AltınAPI anahtarı", key), h("div", { class: "form-bottom-actions" }, remove, save));
   show();
+  return section;
+}
+
+/**
+ * Fiyat farkı (yönetici): canlı has fiyatına ve altın ürünlerine yüzde eklenir veya
+ * düşülür. Formlar, ana ekran ve fiyat panosu farklı fiyatı gösterir; elle girilen
+ * fiyat, döviz ve metaller etkilenmez.
+ */
+function priceAdjustSection(onSaved) {
+  const section = h("section", { class: "price-source price-adjust" });
+  // Eksi işaretine izin verilir (alışta fiyat düşürmek için); diğer sayı alanları eksiyi siler.
+  const pct = (name) => {
+    const el = h("input", { name, inputMode: "text", placeholder: "0" });
+    el.addEventListener("input", () => { const v = el.value.replace(/[^0-9,.-]/g, ""); el.value = (v.startsWith("-") ? "-" : "") + v.replace(/-/g, ""); });
+    return el;
+  };
+  const alis = pct("ayar_alis"); const satis = pct("ayar_satis");
+  const preview = h("p", { class: "hint" });
+  const save = h("button", { type: "button", text: "Farkı kaydet" });
+  const reset = h("button", { type: "button", class: "secondary", text: "Farkı kaldır" });
+  let raw = null;
+  const num = (el) => Number(String(el.value || "0").replace(",", ".")) || 0;
+  const show = () => {
+    const a = num(alis), s = num(satis);
+    const parts = [`Alış ×${(1 + a / 100).toFixed(4).replace(".", ",")}`, `Satış ×${(1 + s / 100).toFixed(4).replace(".", ",")}`];
+    if (raw) parts.push(`Örnek: piyasa ${formatValue("has_fiyati", raw.alis)} / ${formatValue("has_fiyati", raw.satis)} ₺ → ${formatValue("has_fiyati", raw.alis * (1 + a / 100))} / ${formatValue("has_fiyati", raw.satis * (1 + s / 100))} ₺`);
+    preview.textContent = parts.join(" · ");
+  };
+  alis.addEventListener("input", show); satis.addEventListener("input", show);
+  const load = async () => {
+    try {
+      const data = await api("/api/altin-fiyati");
+      raw = data.canli_ham;
+      const v = (x) => (x ? String(x).replace(".", ",") : "");
+      alis.value = v(data.fiyat_ayari?.alis); satis.value = v(data.fiyat_ayari?.satis);
+      show();
+    } catch (error) { preview.textContent = error.message; }
+  };
+  const send = async (body) => {
+    save.disabled = reset.disabled = true;
+    try { await api("/api/altin-fiyati/ayar", { method: "PUT", body: JSON.stringify(body) }); await load(); await loadPrice(); if (onSaved) await onSaved(); showMessage("Fiyat farkı kaydedildi."); }
+    catch (error) { showMessage(error.message, true); }
+    finally { save.disabled = reset.disabled = false; }
+  };
+  save.onclick = () => send({ alis: num(alis), satis: num(satis) });
+  reset.onclick = () => send({ alis: 0, satis: 0 });
+  section.append(h("h3", { class: "account-subtitle", text: "Fiyat farkı (%)" }),
+    h("p", { class: "hint", text: "Canlı has fiyatına ve altın ürünlerine (çeyrek, bilezik...) uygulanır; formlar, ana ekran ve fiyat panosu bu fiyatı gösterir. Ör. satış 1,5 yazılırsa piyasa satışı %1,5 artar; alış -0,5 yazılırsa piyasa alışı %0,5 düşer. Elle girilen fiyat, döviz ve metaller değişmez." }),
+    h("div", { class: "price-rates" }, h("label", { class: "field" }, "Alış farkı (%)", alis), h("label", { class: "field" }, "Satış farkı (%)", satis)),
+    preview, h("div", { class: "form-bottom-actions" }, reset, save));
+  load();
   return section;
 }
 
@@ -508,7 +560,7 @@ async function openPriceDialog() {
   rateInputs.forEach(([cur, a, b]) => rateBox.append(field(`${cur} alış (TL)`, a), field(`${cur} satış (TL)`, b)));
   form.append(field("Alış (TL/gr has)", alis), field("Satış (TL/gr has)", satis), rateBox, hint, actions);
   box.append(title, intro, form);
-  if (isAdmin()) box.append(priceSourceSection());
+  if (isAdmin()) box.append(priceAdjustSection(() => fill()), priceSourceSection());
   overlay.appendChild(box); document.body.appendChild(overlay);
   const dismiss = () => overlay.remove();
   cancel.onclick = dismiss; overlay.onclick = (e) => { if (e.target === overlay) dismiss(); };
@@ -516,8 +568,10 @@ async function openPriceDialog() {
   const fill = async () => {
     const data = await api("/api/altin-fiyati");
     const live = data.canli; const manual = data.manuel;
+    const ayar = data.fiyat_ayari || {};
+    const farkli = live && data.canli_ham && (ayar.alis || ayar.satis);
     intro.textContent = live
-      ? `Canlı fiyat (${live.ad}${live.guncelleme ? `, ${live.guncelleme}` : ""}): alış ${formatValue("has_fiyati", live.alis)} ₺, satış ${formatValue("has_fiyati", live.satis)} ₺`
+      ? `Canlı fiyat (${live.saglayici || live.ad}${live.guncelleme ? `, ${live.guncelleme}` : ""}): alış ${formatValue("has_fiyati", live.alis)} ₺, satış ${formatValue("has_fiyati", live.satis)} ₺${farkli ? ` (piyasa ${formatValue("has_fiyati", data.canli_ham.alis)} / ${formatValue("has_fiyati", data.canli_ham.satis)} ₺, fark alış %${String(ayar.alis).replace(".", ",")} satış %${String(ayar.satis).replace(".", ",")})` : ""}`
       : manual ? "Canlı fiyat şu an alınamadı; elle girilen fiyat kullanılıyor." : "Canlı fiyat şu an alınamadı ve elle fiyat girilmedi.";
     if (live && manual) intro.textContent += ` · Elle girilen: alış ${formatValue("has_fiyati", manual.alis)} ₺, satış ${formatValue("has_fiyati", manual.satis)} ₺ (canlı fiyat kesilirse kullanılır)`;
     const show = (el, v) => { el.value = v ? String(v).replace(".", ",") : ""; };
