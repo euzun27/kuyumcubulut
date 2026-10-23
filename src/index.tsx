@@ -34,6 +34,18 @@ import indexPage from './pages/index.html?raw';
 import loginPage from './pages/login.html?raw';
 import panoPage from './pages/pano.html?raw';
 
+declare const __SURUM__: string | undefined;
+/**
+ * Yeni yayından sonra tarayıcının eski app.js / styles.css dosyalarını önbellekten
+ * kullanmaması için sayfalardaki dosya adlarına derleme sürümü eklenir.
+ */
+const SURUM = typeof __SURUM__ === 'string' ? __SURUM__ : 'dev';
+const surumlu = (html: string) => html.replace(/(\/static\/[\w.-]+\.(?:js|css))"/g, `$1?v=${SURUM}"`);
+const INDEX_HTML = surumlu(indexPage);
+const LOGIN_HTML = surumlu(loginPage);
+const PANO_HTML = surumlu(panoPage);
+const NO_CACHE = { 'cache-control': 'no-cache' };
+
 const app = new Hono<Env>();
 
 // Tarayıcı güvenlik başlıkları. Fiş, etiket ve TV panosu ayrı pencerede açıldığı için
@@ -137,16 +149,16 @@ app.notFound((c) => {
 app.get('/', async (c) => {
   const user = await getSessionUser(c.env.DB, getCookie(c, COOKIE_NAME));
   if (!user) return c.redirect('/login');
-  return c.html(indexPage);
+  return c.html(INDEX_HTML, 200, NO_CACHE);
 });
 
-app.get('/login', (c) => c.html(loginPage));
+app.get('/login', (c) => c.html(LOGIN_HTML, 200, NO_CACHE));
 
 /** Fiyat panosu: dükkândaki TV / ikinci ekran için tam ekran alış-satış fiyatları. */
 app.get('/pano', async (c) => {
   const user = await getSessionUser(c.env.DB, getCookie(c, COOKIE_NAME));
   if (!user) return c.redirect('/login');
-  return c.html(panoPage);
+  return c.html(PANO_HTML, 200, NO_CACHE);
 });
 
 export default app;
