@@ -107,6 +107,9 @@ test('Zebra: ZPL yazıcıya doğrudan gider, bulut sürümünde yoktur', async (
   assert.equal((await c.call('POST', '/api/yazici/ham', { yazici: 'ZDesigner ZD421-203dpi ZPL', veri: '' })).status, 422);
   assert.equal((await c.call('POST', '/api/yazici/ham', { yazici: 'ZDesigner ZD421-203dpi ZPL', veri: '^XA^FDBİLEZİK^FS^XZ' })).status, 200);
   assert.deepEqual(sent, [['ZDesigner ZD421-203dpi ZPL', '^XA^FDBİLEZİK^FS^XZ']]);
+  // Kelebek etikette barkod yalnızca rakamla (Code128-C) basılır; okutunca yine bulunur.
+  const tag = (await c.call('POST', '/api/etiket', { cinsi: 'YÜZÜK', gram: '2' })).body.data[0];
+  assert.equal((await c.call('GET', `/api/etiket/kod/${tag.barkod.slice(2)}`)).body.data.id, tag.id);
 
   const bulut = await client();
   assert.equal((await bulut.call('GET', '/api/yazicilar')).status, 404);

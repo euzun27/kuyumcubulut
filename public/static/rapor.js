@@ -99,8 +99,10 @@ async function printLabels(tags, format = "kelebek") {
   if (!tags.length) { showMessage("Yazdırılacak etiket seçin.", true); return; }
   const firma = await loadFirma();
   const f = LABEL_FORMATS[format] || LABEL_FORMATS.kelebek;
+  const ka = kelebekAlan(kelebekAyar());
   const css = {
-    kelebek: `@page { size: 72mm 12mm; margin: 0; } body { margin: 0; } .label { width: 72mm; height: 12mm; display: grid; grid-template-columns: 1fr 1fr; page-break-after: always; overflow: hidden; }
+    kelebek: `@page { size: 72mm 12mm; margin: 0; } body { margin: 0; } .label { width: 72mm; height: 12mm; position: relative; page-break-after: always; overflow: hidden; }
+      .wing { position: absolute; left: ${ka.x0}mm; top: ${ka.y0}mm; width: ${ka.kanat}mm; height: ${ka.yukseklik}mm; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
       .code { padding: 0.6mm 1.5mm; display: grid; } .code svg { width: 100%; height: 7mm; } .code span { font-size: 6.5pt; text-align: center; letter-spacing: .5px; }
       .info { padding: 0.6mm 1.5mm; font-size: 6.5pt; line-height: 1.18; } .shop { display: none; }`,
     genis: `@page { size: 50mm 25mm; margin: 0; } body { margin: 0; } .label { width: 50mm; height: 25mm; padding: 1.5mm 2mm; box-sizing: border-box; display: grid; grid-template-rows: auto 1fr auto; page-break-after: always; overflow: hidden; }
@@ -112,7 +114,7 @@ async function printLabels(tags, format = "kelebek") {
   }[format];
   const body = tags.map((t) => {
     const p = labelInner(t, firma);
-    return format === "kelebek" ? `<div class="label">${p.code}${p.info}</div>` : `<div class="label"><div class="shop">${p.shop}</div>${p.info}${p.code}</div>`;
+    return format === "kelebek" ? `<div class="label"><div class="wing">${p.code}${p.info}</div></div>` : `<div class="label"><div class="shop">${p.shop}</div>${p.info}${p.code}</div>`;
   }).join("");
   printDocument(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>${esc(f.ad)}</title><style>* { box-sizing: border-box; } body { font-family: Arial, sans-serif; color: #000; } svg.barcode rect { fill: #000; } ${css}</style></head><body>${body}</body></html>`, "width=900,height=760");
 }
@@ -124,19 +126,44 @@ async function printLabels(tags, format = "kelebek") {
 const zplText = (text, max = 40) => {
   // ₺ yazıcının yazı tipinde olmayabilir; "TL" yazılır.
   const s = String(text ?? "").replace(/₺/g, "TL").replace(/[\^~\\]/g, " ").replace(/\s+/g, " ").trim();
-  return s.length > max ? s.slice(0, max).trim() : s;
+  if (s.length <= max) return s;
+  // Sığmayan satırda önce " · " ile ayrılmış parçalar, sonra kelimeler sondan atılır.
+  for (const sep of [" · ", " "]) {
+    const parts = s.split(sep);
+    while (parts.length > 1 && parts.join(sep).length > max) parts.pop();
+    if (parts.join(sep).length <= max) return parts.join(sep);
+  }
+  return s.slice(0, max).trim();
 };
+
+/*
+ * Kelebek etiket: 72 mm şeridin bir ucunda ince kuyruk, yanında iki kanat.
+ * Yalnızca kanatlara (varsayılan 44 × 10 mm) basılır. Kuyruğun hangi tarafta
+ * kaldığı ve ince kaydırma pencereden ayarlanır.
+ */
+const KELEBEK_VARSAYILAN = { kuyruk: "sol", genislik: 44, yukseklik: 10, kaydir: 0 };
+
+function kelebekAyar() {
+  try { return { ...KELEBEK_VARSAYILAN, ...JSON.parse(localStorage.getItem("etiketKelebek") || "{}") }; } catch { return { ...KELEBEK_VARSAYILAN }; }
+}
+
+function kelebekAlan(k) {
+  const kanat = Math.min(72, Math.max(20, Number(k.genislik) || 44));
+  const yukseklik = Math.min(12, Math.max(6, Number(k.yukseklik) || 10));
+  const kaydir = Number(k.kaydir) || 0;
+  return { kanat, yukseklik, x0: Math.max(0, (k.kuyruk === "sag" ? 0 : 72 - kanat) + kaydir), y0: (12 - yukseklik) / 2 };
+}
 
 /**
  * Etiketleri ZPL'e çevirir. dpi: 203 (8 nokta/mm) veya 300 (12 nokta/mm).
  * Türkçe harfler için yazıcıdaki Unicode yazı tipi (Swiss 721) kullanılır.
  */
-function labelsZpl(tags, format, firma, dpi = 203, alan = labelFields()) {
+function labelsZpl(tags, format, firma, dpi = 203, alan = labelFields(), kelebek = kelebekAyar()) {
   const k = dpi >= 300 ? 12 : 8;
   const mm = (v) => Math.round(v * k);
   const module = dpi >= 300 ? 3 : 2;
   const codeWidth = 101 * module; // DT + 6 hane, Code128 (otomatik B/C)
-  const text = (x, y, size, width, value, align = "L") => `^FO${mm(x)},${mm(y)}^AZN,${mm(size)},${mm(size)}^FB${mm(width)},1,0,${align}^FD${value}^FS`;
+  const text = (x, y, size, width, value, align = "L") => `^FO${mm(x)},${mm(y)}^AZN,${mm(size)},${mm(size * 0.9)}^FB${mm(width)},1,0,${align}^FD${value}^FS`;
   return tags.map((t) => {
     const lines = labelLines(t, alan).map((l) => l.text);
     const yazi = alan.has("barkod_yazi");
@@ -146,9 +173,16 @@ function labelsZpl(tags, format, firma, dpi = 203, alan = labelFields()) {
       lines.forEach((l, i) => out.push(text(2, 4.2 + i * 2.9, 2.7, 46, zplText(l, 32))));
       out.push(`^FO${Math.max(0, Math.round((mm(50) - codeWidth) / 2))},${mm(16)}^BY${module}^BCN,${mm(5)},N,N,N,A^FD${t.barkod}^FS`, yazi ? text(1, 21.4, 2.4, 48, t.barkod, "C") : "");
     } else {
+      // Kelebek: ince kuyruğa basılmaz; barkod birinci kanada, yazılar ikinci kanada.
+      const { x0, y0, kanat, yukseklik } = kelebekAlan(kelebek);
+      const yarim = kanat / 2;
+      const kod = t.barkod.replace(/^DT/i, ""); // yalnızca rakam: Code128-C, dar kanada sığar
+      const kodGenislik = (11 * (Math.ceil(kod.length / 2) + 2) + 13) * module;
       out.push(`^PW${mm(72)}`, `^LL${mm(12)}`);
-      out.push(`^FO${Math.max(0, Math.round((mm(36) - codeWidth) / 2))},${mm(0.8)}^BY${module}^BCN,${mm(yazi ? 7 : 9.5)},N,N,N,A^FD${t.barkod}^FS`, yazi ? text(0, 8.6, 2.5, 36, t.barkod, "C") : "");
-      lines.slice(0, 4).forEach((l, i) => out.push(text(37, 0.6 + i * 2.75, 2.4, 34, zplText(l, 30))));
+      out.push(`^FO${mm(x0) + Math.max(0, Math.round((mm(yarim) - kodGenislik) / 2))},${mm(y0 + 0.3)}^BY${module}^BCN,${mm(yazi ? yukseklik - 3.8 : yukseklik - 0.6)},N,N,N,A^FD${kod}^FS`,
+        yazi ? text(x0, y0 + yukseklik - 3.2, 2.2, yarim, t.barkod, "C") : "");
+      const satir = Math.min(2.45, (yukseklik - 0.4) / 4);
+      lines.slice(0, 4).forEach((l, i) => out.push(text(x0 + yarim + 1, y0 + 0.2 + i * satir, 2.2, yarim - 1.5, zplText(l, 20))));
     }
     out.push("^PQ1", "^XZ");
     return out.filter(Boolean).join("\n");
@@ -178,11 +212,11 @@ async function zebraFields() {
   return { box, values: () => ({ yazici: yazici.value.trim(), dpi: Number(dpi.value) }), save: () => { savePref("etiketYazici", yazici.value.trim()); savePref("etiketDpi", dpi.value); } };
 }
 
-async function printLabelsZebra(tags, format, yazici, dpi, alan) {
+async function printLabelsZebra(tags, format, yazici, dpi, alan, kelebek) {
   if (!yazici) { showMessage("Etiket yazıcısını seçin.", true); return; }
   const firma = await loadFirma();
   try {
-    await api("/api/yazici/ham", { method: "POST", body: JSON.stringify({ yazici, veri: labelsZpl(tags, format, firma, dpi, alan) }) });
+    await api("/api/yazici/ham", { method: "POST", body: JSON.stringify({ yazici, veri: labelsZpl(tags, format, firma, dpi, alan, kelebek) }) });
     showMessage(`${tags.length} etiket ${yazici} yazıcısına gönderildi.`);
   } catch (error) { showMessage(error.message, true); }
 }
@@ -215,11 +249,31 @@ function openPrintLabels(tags) {
   const alanlar = h("fieldset", { class: "label-fields" }, h("legend", { text: "Etikette çıkacak bilgiler" }),
     ...LABEL_FIELDS.map(([key, ad]) => h("label", { class: "check-label" },
       h("input", { type: "checkbox", checked: alan.has(key), onchange: (e) => { e.target.checked ? alan.add(key) : alan.delete(key); draw(); } }), ` ${ad}`)));
+  const kelebek = kelebekAyar();
+  const kNum = (key, attrs) => {
+    const el = h("input", { type: "number", step: "0.5", value: String(kelebek[key]), ...attrs });
+    el.addEventListener("input", () => { kelebek[key] = Number(el.value) || 0; draw(); });
+    return el;
+  };
+  const kuyruk = h("select", { name: "kuyruk" }, new Option("Kuyruk solda (yazıcıdan çıkarken)", "sol"), new Option("Kuyruk sağda (yazıcıdan çıkarken)", "sag"));
+  kuyruk.value = kelebek.kuyruk;
+  kuyruk.addEventListener("change", () => { kelebek.kuyruk = kuyruk.value; draw(); });
+  const kelebekBox = h("div", { class: "kelebek-ayar" },
+    labeled("Kuyruk tarafı", kuyruk), labeled("Basılacak genişlik (mm)", kNum("genislik", { min: "20", max: "72" })),
+    labeled("Yükseklik (mm)", kNum("yukseklik", { min: "6", max: "12" })), labeled("Yatay kaydırma (mm)", kNum("kaydir", { min: "-10", max: "10" })),
+    h("p", { class: "hint", text: "Kuyruğa hiçbir şey basılmaz. Yazı kanattan taşarsa kaydırmayı artırıp azaltın (+ sağa, − sola)." }));
   const preview = h("div", { class: "label-preview" });
   const draw = () => {
+    kelebekBox.hidden = format.value !== "kelebek";
     const t = tags[0];
     const p = labelInner(t, firmaCache, alan);
     preview.className = `label-preview ${format.value}`;
+    if (format.value === "kelebek") {
+      const ka = kelebekAlan(kelebek);
+      const kuyruk = kelebek.kuyruk === "sag" ? `left:${(ka.x0 + ka.kanat) * 4}px;right:0` : `left:0;width:${ka.x0 * 4}px`;
+      preview.innerHTML = `<div class="tail" style="${kuyruk}"></div><div class="wing" style="left:${ka.x0 * 4}px;top:${ka.y0 * 4}px;width:${ka.kanat * 4}px;height:${ka.yukseklik * 4}px">${p.code}${p.info}</div>`;
+      return;
+    }
     preview.innerHTML = format.value === "kelebek" ? `${p.code}${p.info}` : `<div class="shop">${p.shop}</div>${p.info}${p.code}`;
   };
   format.addEventListener("change", draw);
@@ -227,15 +281,16 @@ function openPrintLabels(tags) {
   const go = h("button", { type: "button", text: "Yazdır", onclick: () => {
     savePref("etiketFormat", format.value);
     savePref("etiketAlanlar", JSON.stringify([...alan]));
+    savePref("etiketKelebek", JSON.stringify(kelebek));
     if (!yolAlan.hidden) savePref("etiketYol", yol.value);
     if (!yolAlan.hidden && yol.value === "zebra" && zebra) {
       const { yazici, dpi } = zebra.values();
       if (!yazici) { showMessage("Etiket yazıcısını seçin.", true); return; }
-      zebra.save(); close(); printLabelsZebra(tags, format.value, yazici, dpi, alan); return;
+      zebra.save(); close(); printLabelsZebra(tags, format.value, yazici, dpi, alan, kelebek); return;
     }
     close(); printLabels(tags, format.value);
   } });
-  box.append(h("div", { class: "settings-form" }, yolAlan, labeled("Etiket türü", format), zebraBox, alanlar, h("p", { class: "hint", text: "Önizleme (ilk etiket):" }), preview,
+  box.append(h("div", { class: "settings-form" }, yolAlan, labeled("Etiket türü", format), kelebekBox, h("p", { class: "hint", text: "Önizleme (ilk etiket):" }), preview, alanlar, zebraBox,
     h("p", { class: "hint", text: "Etiket yazıcısında kağıt boyutunu etiket türüyle aynı seçin. Barkod okuyucu satış ekranındaki barkod kutusuna okutur." }),
     h("div", { class: "form-bottom-actions" }, h("button", { type: "button", class: "secondary", text: "Vazgeç", onclick: close }), go)));
   go.focus();

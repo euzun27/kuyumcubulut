@@ -3641,9 +3641,15 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .label-preview .code span { display: block; font-size: 10px; text-align: center; }
 .label-preview .shop { font-size: 11px; font-weight: 700; }
 .label-preview .info { font-size: 11px; line-height: 1.25; }
-.label-preview.kelebek { width: 288px; height: 48px; grid-template-columns: 1fr 1fr; gap: 6px; padding: 3px 6px; align-items: center; }
-.label-preview.kelebek .code svg { height: 26px; }
-.label-preview.kelebek .info { font-size: 9px; line-height: 1.2; }
+.label-preview.kelebek { width: 288px; height: 48px; position: relative; display: block; }
+.label-preview.kelebek .tail { position: absolute; top: 18px; height: 12px; background: repeating-linear-gradient(45deg, #ddd 0 4px, #f4f4f4 4px 8px); border-radius: 6px; }
+.label-preview.kelebek .wing { position: absolute; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 1px 3px; box-sizing: border-box; align-items: center; outline: 1px solid #c9c9c9; border-radius: 4px; overflow: hidden; background: linear-gradient(90deg, transparent calc(50% - .5px), #ccc calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px)); }
+.kelebek-ayar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.kelebek-ayar .hint { grid-column: 1 / -1; }
+.kelebek-ayar .field { grid-column: auto; }
+.kelebek-ayar input { width: 100%; min-height: 40px; padding: 9px 11px; font-size: 13px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 7px; box-sizing: border-box; }
+.label-preview.kelebek .code svg { height: 24px; }
+.label-preview.kelebek .info { font-size: 7px; line-height: 1.2; white-space: nowrap; overflow: hidden; }
 .label-preview.kelebek .code span { font-size: 8px; line-height: 1; }
 .label-preview.genis { width: 200px; height: 100px; padding: 6px 8px; grid-template-rows: auto 1fr auto; }
 .label-preview.genis .code svg, .label-preview.a4 .code svg { height: 30px; }
