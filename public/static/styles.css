@@ -3628,6 +3628,13 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .barcode-cell { font-family: ui-monospace, monospace; font-weight: 600; white-space: nowrap; }
 .stone-box { grid-column: 1 / -1; border: 1px solid var(--line, #ddd); border-radius: 10px; padding: 10px 12px; }
 .stone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 8px; }
+.label-fields { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px 8px; margin: 4px 0 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+.label-fields legend { font-size: 12px; font-weight: 600; padding: 0 4px; }
+.label-fields .check-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.zebra-fields { display: grid; gap: 14px; }
+.zebra-fields input { width: 100%; min-height: 40px; padding: 9px 11px; font-size: 13px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 7px; box-sizing: border-box; }
+.zebra-row { display: flex; gap: 12px; align-items: center; }
+.zebra-row .hint { flex: 1; }
 .label-preview { margin: 6px 0 10px; background: #fff; color: #000; border: 1px dashed #aaa; font-family: Arial, sans-serif; overflow: hidden; display: grid; }
 .label-preview svg.barcode rect { fill: #000; }
 .label-preview .code svg { width: 100%; }
@@ -3636,6 +3643,8 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .label-preview .info { font-size: 11px; line-height: 1.25; }
 .label-preview.kelebek { width: 288px; height: 48px; grid-template-columns: 1fr 1fr; gap: 6px; padding: 3px 6px; align-items: center; }
 .label-preview.kelebek .code svg { height: 26px; }
+.label-preview.kelebek .info { font-size: 9px; line-height: 1.2; }
+.label-preview.kelebek .code span { font-size: 8px; line-height: 1; }
 .label-preview.genis { width: 200px; height: 100px; padding: 6px 8px; grid-template-rows: auto 1fr auto; }
 .label-preview.genis .code svg, .label-preview.a4 .code svg { height: 30px; }
 .label-preview.a4 { width: 230px; height: 128px; padding: 8px 12px; grid-template-rows: auto 1fr auto; }

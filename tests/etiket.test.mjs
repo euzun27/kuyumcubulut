@@ -3,9 +3,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { app, TestD1 } from './.build/harness.mjs';
 
-async function client() {
+async function client(LOCAL) {
   globalThis.__kuyumcu_day__ = undefined;
-  const env = { DB: new TestD1().migrate('migrations'), APP_TZ: 'Europe/Istanbul' };
+  const env = { DB: new TestD1().migrate('migrations'), APP_TZ: 'Europe/Istanbul', LOCAL };
   let cookie = '';
   const call = async (method, path, body) => {
     const res = await app.fetch(
@@ -96,4 +96,19 @@ test('rapor: aralıktaki satış, alış, ürün/müşteri dağılımı, kasa ve
   const aging = Object.fromEntries(r.yaslandirma.map((b) => [b.ad, [b.alacak_sayi, b.borc_sayi]]));
   assert.equal(Object.values(aging).reduce((t, [a]) => t + a, 0), 2); // Ayşe (son alım borç) ve Veli
   assert.equal(r.stok[0].kalan_gram, 84);
+});
+
+test('Zebra: ZPL yazıcıya doğrudan gider, bulut sürümünde yoktur', async () => {
+  const sent = [];
+  const local = { listPrinters: async () => ['ZDesigner ZD421-203dpi ZPL'], printRaw: async (yazici, veri) => { sent.push([yazici, veri]); } };
+  const c = await client(local);
+  assert.deepEqual((await c.call('GET', '/api/yazicilar')).body.data, ['ZDesigner ZD421-203dpi ZPL']);
+  assert.equal((await c.call('POST', '/api/yazici/ham', { yazici: '', veri: '^XA^XZ' })).status, 422);
+  assert.equal((await c.call('POST', '/api/yazici/ham', { yazici: 'ZDesigner ZD421-203dpi ZPL', veri: '' })).status, 422);
+  assert.equal((await c.call('POST', '/api/yazici/ham', { yazici: 'ZDesigner ZD421-203dpi ZPL', veri: '^XA^FDBİLEZİK^FS^XZ' })).status, 200);
+  assert.deepEqual(sent, [['ZDesigner ZD421-203dpi ZPL', '^XA^FDBİLEZİK^FS^XZ']]);
+
+  const bulut = await client();
+  assert.equal((await bulut.call('GET', '/api/yazicilar')).status, 404);
+  assert.equal((await bulut.call('POST', '/api/yazici/ham', { yazici: 'x', veri: '^XA^XZ' })).status, 404);
 });
