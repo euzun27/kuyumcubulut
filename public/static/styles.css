@@ -3526,6 +3526,7 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .status-pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .status-pill.open { background: var(--amber-soft); color: var(--amber); }
 .status-pill.closed { background: var(--green-soft); color: var(--green); }
+.status-pill.warn { background: var(--red-soft); color: var(--red); margin-left: 6px; }
 .row-closed td { opacity: .7; }
 .emanet-toggle { min-height: 32px; padding: 0 10px; font-size: 12px; }
 

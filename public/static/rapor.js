@@ -118,14 +118,16 @@ function openPrintLabels(tags) {
 /* ------------------------------------------------------------------ */
 
 extraViews.etiket = async () => {
-  const data = await api(`/api/etiket?durum=${state.etiketFilter}`);
+  // Etiketin "satılmadı" olması gerçek stokta olduğu anlamına gelmez; stok alış kayıtlarından gelir.
+  const [data, havuz] = await Promise.all([api(`/api/etiket?durum=${state.etiketFilter}`), api("/api/stok/normal/secenekler").catch(() => null)]);
+  const stokGram = (r) => (havuz || []).find((o) => normalize(o.cinsi) === normalize(r.cinsi) && normalize(o.ayar) === normalize(r.ayar))?.kalan_gram || 0;
   const root = h("div", { class: "emanet-root etiket-root" });
   const o = data.ozet;
   const tile = (label, value) => h("article", { class: "kasa-total" }, h("span", { text: label }), h("strong", { text: value }));
-  root.append(h("div", { class: "kasa-totals" }, tile("Stoktaki etiketli parça", String(o.stokta)), tile("Toplam gram", `${formatValue("gram", o.gram)} gr`),
+  root.append(h("div", { class: "kasa-totals" }, tile("Satılmamış etiketli parça", String(o.stokta)), tile("Toplam gram", `${formatValue("gram", o.gram)} gr`),
     tile("Pırlantalı parça", String(o.pirlanta)), tile("Toplam taş", `${formatTurkishNumber(o.karat, 2, 3)} ct`), tile("Etiket fiyatları", fmtMoney(o.fiyat))));
   if (currentUser?.role !== "viewer") root.append(renderEtiketForm());
-  root.append(renderTabs([["STOKTA", "STOKTA"], ["SATILDI", "SATILANLAR"], ["ALL", "TÜMÜ"]], state.etiketFilter, (v) => { state.etiketFilter = v; state.etiketSecili.clear(); render(); }));
+  root.append(renderTabs([["STOKTA", "SATILMAYANLAR"], ["SATILDI", "SATILANLAR"], ["ALL", "TÜMÜ"]], state.etiketFilter, (v) => { state.etiketFilter = v; state.etiketSecili.clear(); render(); }));
   const rows = filteredRows(data.kayitlar.map((r) => ({ ...r, tas_text: stoneText(r) })));
   const section = h("section", { class: "table-section" });
   const title = h("h2", { text: "Etiketler" });
@@ -146,7 +148,8 @@ extraViews.etiket = async () => {
       h("td", { class: "num", dataset: { label: "Gram" }, text: r.gram ? formatValue("gram", r.gram) : "" }),
       h("td", { dataset: { label: "Taş" } }, r.tas_text, r.sertifika ? h("small", { class: "cell-sub", text: r.sertifika }) : null),
       h("td", { class: "num", dataset: { label: "Fiyat" }, text: r.fiyat ? fmtMoney(r.fiyat) : r.iscilik ? `İşç. ${fmtMoney(r.iscilik)}` : "" }),
-      h("td", { dataset: { label: "Durum" } }, h("span", { class: `status-pill ${r.durum === "STOKTA" ? "open" : "closed"}`, text: r.durum === "STOKTA" ? "Stokta" : "Satıldı" })),
+      h("td", { dataset: { label: "Durum" } }, h("span", { class: `status-pill ${r.durum === "STOKTA" ? "open" : "closed"}`, text: r.durum === "STOKTA" ? "Satılmadı" : "Satıldı" }),
+        r.durum === "STOKTA" && havuz && stokGram(r) < Number(r.gram) ? h("span", { class: "status-pill warn", title: `Stokta ${r.cinsi} ${r.ayar}: ${formatValue("gram", stokGram(r))} gr. Satabilmek için önce alışını girin.`, text: "Stokta yok" }) : null),
       h("td", { class: "actions-cell", dataset: { label: "İşlemler" } },
         h("button", { type: "button", class: "icon-btn", title: "Etiket yazdır", "aria-label": "Etiket yazdır", html: printIcon(), onclick: () => openPrintLabels([r]) }),
         writable && r.durum === "STOKTA" ? h("button", { type: "button", class: "icon-btn icon-edit", title: "Düzenle", "aria-label": "Düzenle", html: iconSvg("edit"), onclick: () => { etiketEditing = r; render(); window.scrollTo({ top: 0, behavior: "smooth" }); } }) : null,
@@ -176,7 +179,7 @@ function renderEtiketForm() {
   const stoneBox = h("div", { class: "stone-box" }, h("span", { class: "siparis-kapora-title", text: "Taş / pırlanta bilgisi" }), h("div", { class: "stone-grid" }, ...stoneFields));
   form.append(h("div", { class: "sarrafiye-chips" }, h("span", { class: "sarrafiye-label", text: "Her etiket bir parçadır. Barkod otomatik verilir." })),
     labeled("Cinsi", cinsi), labeled("Ayar", ayar), labeled("Model / kod", model), labeled("Gram", gram), labeled("Milyem", milyem), labeled("İşçilik (TL)", iscilik),
-    labeled("Etiket fiyatı (TL)", fiyat), labeled("Taş", tasTipi), stoneBox, labeled("Not", notlar), edit ? null : labeled("Aynı etiketten kaç adet", kopya));
+    labeled("Etiket fiyatı (TL)", fiyat), labeled("Taş", tasTipi), stoneBox, labeled("Not", notlar), ...(edit ? [] : [labeled("Aynı etiketten kaç adet", kopya)]));
   attachAutocomplete(cinsi, "products");
   const sync = () => { stoneBox.hidden = !tasTipi.value; };
   tasTipi.addEventListener("change", sync);
