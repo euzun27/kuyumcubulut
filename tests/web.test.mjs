@@ -64,3 +64,19 @@ test('aynı IP adresinden 20 hatalı girişten sonra giriş kapanır', async () 
   assert.equal((await c.call('POST', '/api/auth/login', admin, ip)).status, 429);
   assert.equal((await c.call('POST', '/api/auth/login', admin, { 'cf-connecting-ip': '198.51.100.1' })).status, 200);
 });
+
+test('sayfa telefon düzeni ve uygulama simgesi dosyalarını yükler', async () => {
+  const c = client('http://localhost');
+  await c.call('POST', '/api/auth/register', admin);
+  const res = await app.fetch(new Request('http://localhost/', { headers: { cookie: (await loginCookie(c)) } }), c.env);
+  const html = await res.text();
+  assert.match(html, /\/static\/mobil\.js/);
+  assert.match(html, /manifest\.webmanifest/);
+  assert.match(html, /viewport-fit=cover/);
+  assert.equal(res.headers.get('x-frame-options'), 'SAMEORIGIN');
+});
+
+async function loginCookie(c) {
+  const res = await app.fetch(new Request('http://localhost/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: admin.email, password: admin.password }) }), c.env);
+  return res.headers.get('set-cookie').split(';')[0];
+}

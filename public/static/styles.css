@@ -3914,3 +3914,71 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .report-grid > .report-wide { grid-column: 1 / -1; }
 .doviz-form { row-gap: 26px; }
 @media (min-width: 1100px) { .today-tiles.report-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* ===================================================================
+   Telefon ve tablet düzeni (bulut sürümü): kısa başlık, yandan açılan
+   menü, telefonda alt çubuk. Masaüstü görünümü değişmez.
+   =================================================================== */
+.menu-toggle, .menu-backdrop, .bottom-nav { display: none; }
+
+@media (max-width: 1024px) {
+  .sidebar { padding: 8px 12px; }
+  .sidebar .brand { margin: 0; padding: 0; border: 0; display: flex; align-items: center; }
+  .sidebar .brand::after { display: none; }
+  .menu-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-left: auto; border: 1px solid rgba(255, 255, 255, .18); border-radius: 10px; background: transparent; color: #fff; cursor: pointer; }
+  .sidebar nav, .sidebar .sidebar-user { display: none; }
+  body.menu-open { overflow: hidden; }
+  body.menu-open .sidebar { z-index: 1001; }
+  body.menu-open .sidebar nav {
+    position: fixed; z-index: 1001; top: var(--mobile-head, 60px); left: 0; bottom: 0;
+    width: min(300px, 86vw); display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 12px 88px; overflow-y: auto; background: var(--nav); box-shadow: 12px 0 32px rgba(0, 0, 0, .25);
+  }
+  body.menu-open .sidebar .nav-group { display: block; margin: 12px 6px 4px; }
+  body.menu-open .sidebar .nav { flex: 0 0 auto; width: 100%; min-height: 44px; justify-content: space-between; padding: 10px 12px; font-size: 15px; }
+  body.menu-open .sidebar .sidebar-user {
+    position: fixed; z-index: 1002; left: 0; bottom: 0; width: min(300px, 86vw);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); background: var(--nav); border-top: 1px solid rgba(255, 255, 255, .12);
+  }
+  body.menu-open .menu-backdrop { display: block; position: fixed; z-index: 1000; inset: var(--mobile-head, 60px) 0 0 0; background: rgba(0, 0, 0, .45); }
+}
+
+@media (max-width: 680px) {
+  /* Üst çubuk: fiyat, ayarlar ve TV tek satırda, arama altta. */
+  .topbar-controls { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .topbar-controls .rate-ticker { flex: 1 1 100%; }
+  .topbar-controls .price-button { flex: 1 1 auto; min-height: 44px; }
+  .topbar-controls .toolbar-menu summary, .topbar-controls .tv-button { min-width: 44px; min-height: 44px; }
+  .topbar-controls .tv-button { width: auto; flex: 0 0 auto; }
+  .topbar-controls #search { flex: 1 1 100%; order: 10; }
+  .toolbar-menu-panel { position: fixed; top: auto; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); width: auto; max-width: none; max-height: 70vh; overflow-y: auto; }
+
+  /* Özet kartları telefonda iki sütun. */
+  .cards, .kasa-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kasa-totals > * { min-width: 0; }
+  .kasa-totals strong { font-size: 18px; overflow-wrap: anywhere; }
+
+  /* Dokunmaya uygun boyutlar; iOS'ta yazarken yakınlaştırmayı önlemek için 16 px. */
+  input, select, textarea { font-size: 16px; }
+  button, .page-tab, .nav { min-height: 44px; }
+  .icon-btn { min-width: 40px; min-height: 40px; }
+
+  /* Alt çubuk */
+  .app { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .bottom-nav {
+    position: fixed; z-index: 950; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--nav); border-top: 1px solid rgba(255, 255, 255, .1);
+  }
+  .bottom-nav button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 4px 2px; border: 0; border-radius: 10px; background: transparent; color: rgba(255, 255, 255, .7); font: 600 11px/1.1 inherit; cursor: pointer; }
+  .bottom-nav button.active { color: var(--gold); background: rgba(255, 255, 255, .08); }
+}
+
+@media (max-width: 420px) {
+  /* Kart görünümündeki tablolarda etiket solda, değer sağda kalsın. */
+  .table-wrap td { grid-template-columns: minmax(88px, 44%) minmax(0, 1fr); text-align: right; }
+  .actions-cell { grid-template-columns: minmax(88px, 44%) minmax(0, 1fr) !important; }
+  .actions-cell .icon-btn { justify-self: end; }
+}
+
+@media print { .bottom-nav, .menu-toggle, .menu-backdrop { display: none !important; } }

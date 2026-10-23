@@ -1,0 +1,14 @@
+{
+  "name": "Dünyatek Kuyumcu Portalı",
+  "short_name": "Dünyatek Kuyumcu",
+  "lang": "tr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f1ea",
+  "theme_color": "#2f4038",
+  "icons": [
+    { "src": "/static/logo-dt.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/static/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

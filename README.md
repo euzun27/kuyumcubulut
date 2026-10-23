@@ -1,32 +1,36 @@
-# Dünyatek Kuyumcu Portalı
+# Dünyatek Kuyumcu Portalı — Bulut (web) sürümü
 
-Dünyatek Bilişim kuyumcu takip portalı: alış, satış, hurda, stok (FIFO), cari,
-gider ve milyem kârı takibi. [esmanurakbas/kuyumcu](https://github.com/esmanurakbas/kuyumcu)
-(AKBAŞ Kuyumcu Takip) projesi temel alınmıştır.
+Dünyatek Kuyumcu Portalı'nın internetten kullanılan sürümü: tarayıcıdan
+**https://kuyumcu.dunyatek.com** adresiyle girilir, telefon ve tablette de
+kullanılır. Hesaplar, kasa, cari, raporlar ve kullanıcı yönetimi masaüstü
+sürümüyle (1.1.6) birebir aynıdır; bu repo
+[euzun27/dunyaaltin](https://github.com/euzun27/dunyaaltin) deposunun 1.1.6
+kodundan başlatıldı. Masaüstü (Windows kurulumlu) sürüm o depoda kalır.
 
 | Katman | Teknoloji |
 | --- | --- |
-| Arayüz | Vanilla JavaScript SPA + CSS (`public/static`, `src/pages`) |
+| Arayüz | Vanilla JavaScript SPA + CSS (`public/static`, `src/pages`), telefon/tablet uyumlu |
 | Uygulama | TypeScript + Hono (`src/`) |
 | Derleme | Vite |
 | Çalışma ortamı | Cloudflare Pages + Workers |
 | Veritabanı | Cloudflare D1 (SQLite) |
 | Canlı alan adı | https://kuyumcu.dunyatek.com |
 
-Altyapı DunyaOne (cari.dunyatek.com) ile aynıdır.
+Altyapı DunyaOne (cari.dunyatek.com) ile aynıdır. Yerel çalışma klasörü:
+`D:\Cloude_free\dunyatekkuyumcu_bulut`
+(`git clone https://github.com/euzun27/kuyumcubulut D:\Cloude_free\dunyatekkuyumcu_bulut`).
 
 ## Klasörler
 
 ```text
-src/index.tsx        uygulama girişi, oturum kontrolü, sayfalar
-src/api/kuyumcu.ts   alış, satış, hurda, stok, cari, gider, özet, yedek uçları
-src/api/auth.ts      giriş, ilk kurulum, kullanıcılar, parola
+src/index.tsx        uygulama girişi, oturum kontrolü, güvenlik başlıkları, sayfalar
+src/api/             alış, satış, hurda, stok, cari, kasa, döviz, atölye, rapor uçları
+src/api/auth.ts      giriş, ilk kurulum (kurulum anahtarı), kullanıcılar, parola
 src/lib/ledger.ts    hesap motoru (FIFO stok, milyem kârı, cari bakiye)
-src/lib/decimal.ts   Python Decimal ile birebir aynı kesin ondalık sayı
-migrations/          D1 şeması
-public/static/       arayüz (app.js, styles.css, logo)
-tests/               bulut sürümü testleri
-legacy-python/       eski masaüstü sürümü (karşılaştırma için referans)
+src/lib/decimal.ts   kesin ondalık sayı
+migrations/          D1 şeması (0001–0007)
+public/static/       arayüz (app.js, styles.css, mobil.js, kılavuz, logo)
+tests/               testler (node:sqlite üzerinde D1 benzeri veritabanı)
 ```
 
 ## Yerelde çalıştırma
@@ -39,80 +43,66 @@ npm run preview          # http://localhost:8788
 ```
 
 İlk açılışta giriş ekranı yönetici hesabı oluşturmayı ister. Sonraki
-kullanıcıları yönetici, üç nokta menüsündeki **Hesap ve kullanıcılar**
+kullanıcıları yönetici, dişli menüdeki **Hesap ve kullanıcılar**
 bölümünden ekler. Roller: yönetici, personel, izleyici (yalnızca okur).
+
+## Telefon ve tablet
+
+- 1024 px ve altında sol menü yerine üstte kısa başlık ve ☰ düğmesi vardır;
+  menü yandan açılır, kullanıcı adı ve Çıkış menünün altındadır.
+- Telefonda (680 px ve altı) altta sabit çubuk: Özet, Satış, Alış, Kasa, Menü.
+- Has fiyatı, ayarlar ve TV düğmeleri tek satırda; ayarlar menüsü alttan açılır.
+- Özet kartları iki sütun, tablolar kart görünümünde (etiket solda, değer sağda).
+- Dokunmaya uygun düğme boyları; yazarken iOS'un sayfayı yakınlaştırmaması için 16 px yazı.
+- Telefonda tarayıcı menüsünden **Ana ekrana ekle** ile uygulama gibi simgeyle açılır
+  (`public/static/manifest.webmanifest`).
+- Masaüstü görünümü değişmedi.
 
 ## Kullanım kılavuzu
 
 Müşteriler için resimli kılavuz `public/static/kilavuz/` altında: uygulamada
 dişli menüdeki **KULLANIM KILAVUZU** açar, PDF'i aynı klasörde
-(`Dunyatek_Kuyumcu_Portal_Kullanim_Kilavuzu.pdf`). Kurulumlu sürümde Başlat
-menüsünde de kısayolu vardır.
-
-## Bilgisayara kurulan sürüm (Windows)
-
-`npm run kurulum` tek dosyalık kurulum programını üretir:
-`desktop/cikti/Dunyatek_Kuyumcu_Portal_Kurulum_<sürüm>.exe` (NSIS 3 gerekir;
-Linux'ta `apt install nsis`, Windows'ta nsis.sourceforge.io). Her PR'da GitHub
-"Windows kurulumu" işi dosyayı derler, gerçek Windows'ta kurup dener ve
-indirilebilir olarak ekler.
-
-Kurulum ne yapar:
-- Programı `C:\Dunyatek_Kuyumcu_Portal` klasörüne kurar, masaüstüne ve Başlat
-  menüsüne logolu **Dunyatek_Kuyumcu_Portal** simgesi koyar.
-- Simge, programın yerel sunucusunu (`DunyatekSunucu.exe`, gömülü Node.js)
-  pencere göstermeden başlatır ve portalı Edge'de ayrı pencere olarak açar
-  (`http://localhost:47800`, yalnızca bu bilgisayardan erişilir). İnternet gerekmez.
-- Kayıtlar `C:\Dunyatek_Kuyumcu_Portal\Veri\kuyumcu.sqlite` dosyasındadır.
-- Her yedek (günlük otomatik, elle, geri yükleme ve sıfırlama öncesi) ayrıca
-  `C:\DUNYATEK_BACKUP` klasörüne `.json` olarak yazılır; Yedekler ekranında
-  bu dosyalar listelenir ve geri yüklenir. 90 günden eski dosyalar silinir, en
-  yeni 30 dosyaya dokunulmaz.
-- **Lisans:** program ilk açılıştan itibaren 15 gün deneme çalışır. Lisans
-  penceresi (dişli menü → LİSANS) bilgisayarın makine kodunu gösterir; Dünyatek
-  bu koda özel anahtarı `desktop/lisans-uretici.html` ile üretir (Edge/Chrome'da
-  açılır, özel anahtar dosyası `dunyatek-lisans-ozel-anahtar.json` gerekir;
-  bu dosya depoda yoktur ve paylaşılmamalıdır). Anahtar Ed25519 ile imzalıdır,
-  başka bilgisayarda çalışmaz. Deneme ya da lisans bitince program yalnızca
-  görüntüleme modunda çalışır (giriş, yedek ve lisans girişi açık), veriler silinmez.
-- **Unutulan parola:** personelin parolasını yönetici Kullanıcılar listesindeki
-  "Parola" düğmesiyle yeniler. Yönetici parolası için giriş ekranındaki
-  "Parolamı unuttum" makine kodunu ve tek kullanımlık bir istek kodunu
-  (24 saat geçerli) gösterir. Dünyatek aynı `lisans-uretici.html` sayfasının
-  "Parola sıfırlama kodu" bölümünde bu iki koddan imzalı bir `DP1-` kodu üretir;
-  kod yalnızca o bilgisayarda ve o istek için bir kez çalışır. Kod girilince
-  yazılan e-postanın parolası yenilenir, oturumları kapanır, işlem günlüğe yazılır.
-- Yeni sürüm aynı kurulumla üzerine kurulur; kayıtlar ve yedekler korunur.
-  Kaldırma da bu iki klasörü silmez.
+(`Dunyatek_Kuyumcu_Portal_Kullanim_Kilavuzu.pdf`).
 
 ## Cloudflare'de yayına alma (kuyumcu.dunyatek.com)
 
+Bir kez yapılır; Cloudflare hesabında dunyatek.com zaten kayıtlı olmalı.
+
 1. Cloudflare hesabına giriş: `npx wrangler login`
 2. Veritabanını oluştur: `npx wrangler d1 create kuyumcu-production`
-   Çıktıdaki `database_id` değerini `wrangler.jsonc` içine yaz.
+   Çıktıdaki `database_id` değerini `wrangler.jsonc` içine yaz ve commit et.
 3. Şemayı kur: `npm run db:migrate:remote`
-4. Pages projesini oluştur ve yayınla:
-   `npx wrangler pages project create kuyumcu --production-branch main`
-   `npm run deploy`
-5. Cloudflare panelinde **Workers & Pages → kuyumcu → Custom domains** altından
-   `kuyumcu.dunyatek.com` ekle (dunyatek.com Cloudflare'de olduğu için DNS
-   kaydı otomatik açılır).
-6. https://kuyumcu.dunyatek.com adresini aç ve yönetici hesabını oluştur.
+4. Pages projesini oluştur: `npx wrangler pages project create kuyumcu --production-branch main`
+5. **Kurulum anahtarı** (zorunlu): `npx wrangler pages secret put SETUP_KEY --project-name kuyumcu`
+   Uzun, tahmin edilemez bir değer girin ve saklayın. İnternetten ilk yönetici
+   hesabını yalnızca bu anahtarı bilen açabilir; anahtar tanımlı değilse HTTPS
+   üzerinden ilk kurulum kapalıdır.
+6. Yayınla: `npm run deploy`
+7. Cloudflare panelinde **Workers & Pages → kuyumcu → Custom domains** altından
+   `kuyumcu.dunyatek.com` ekle (DNS kaydı ve HTTPS sertifikası otomatik gelir).
+8. https://kuyumcu.dunyatek.com adresini aç; ad, e-posta, parola ve kurulum
+   anahtarıyla yönetici hesabını oluştur.
 
 GitHub bağlantısıyla otomatik yayın istenirse Pages projesinde derleme komutu
-`npm run build`, çıktı klasörü `dist` olarak ayarlanır.
+`npm run build`, çıktı klasörü `dist` olarak ayarlanır; `main`'e her birleşmede yayın yenilenir.
 
-## Eski masaüstü verisini aktarma
+### Güvenlik
 
-Masaüstü programdaki kayıtlar tek komutla D1'e taşınır (eski program en az bir
-kez açılmış olmalı):
+- Oturum çerezi HTTPS'te `Secure` + `HttpOnly`, 30 gün geçerli.
+- Aynı e-postaya 15 dakikada 5, aynı IP adresinden 20 hatalı girişten sonra
+  giriş 15 dakika kapanır (`audit_logs` kayıtlarından sayılır).
+- Tarayıcı güvenlik başlıkları (`hono/secure-headers`) her cevaba eklenir.
+- Personelin parolasını yönetici Kullanıcılar listesindeki **Parola** düğmesiyle
+  yeniler. Web sürümünde "Parolamı unuttum" kodu (DP1) yoktur; tek yönetici
+  parolasını unutursa ikinci bir yönetici hesabı tanımlı tutmak önerilir.
 
-```bash
-node scripts/sqlite-to-d1.mjs "C:\cloude_free\Dunya_altin\data\kuyumcu.db" aktarim.sql
-npx wrangler d1 execute kuyumcu-production --remote --file aktarim.sql
-```
+## Masaüstü verisini web'e taşıma
 
-Aktarım iş tablolarını değiştirir; kullanıcılar ve yedekler korunur.
+1. Masaüstü programda dişli menü → **TÜM VERİLERİ DIŞA AKTAR** ile JSON dosyasını indir
+   (veya `C:\DUNYATEK_BACKUP` klasöründeki en yeni yedeği al).
+2. Web sürümünde yönetici olarak gir, dişli menü → **YEDEKLER VE GERİ YÜKLEME** →
+   dosyadan geri yükle. Geri yüklemeden önce mevcut durum otomatik yedeklenir.
+3. Kasa, cari ve stok bakiyelerini masaüstündeki rakamlarla karşılaştır.
 
 ## Yedekleme
 
@@ -138,7 +128,7 @@ tutar = has × has fiyatı + işçilik. Satış kârı TL olarak (tutar − stok
 alış maliyeti) ve has olarak (gram × milyem farkı / 1000) ayrı gösterilir.
 
 Üst çubuktaki **HAS** düğmesi günün has fiyatını gösterir. Fiyat önce canlı
-kaynaktan okunur: masaüstü sürümde önce Harem Altın'ın canlı akışı
+kaynaktan okunur: masaüstü sürümde önce Harem Altın'ın canlı akışı (web sürümünde bu akış yoktur)
 (`wss://hrmsocketonly.haremaltin.com`, socket.io `price_changed`; `src/lib/harem.ts`,
 2 dakika veri gelmezse kullanılmaz), sonra yönetici has fiyatı penceresinde bir AltınAPI anahtarı
 (altinapi.com, Harem Altın ile aynı piyasa kodları: `ALTIN`, `USDTRY`, `CEYREK_YENI`…)
@@ -242,14 +232,10 @@ Ayarlar penceresinde (yalnızca yönetici) **Verileri sıfırla** düğmesi vard
 
 ```bash
 npm run typecheck
-npm test                 # giriş, roller, yedek, dışa aktarma
-npm run test:parity      # eski Python sürümüyle karşılaştırma
+npm test                 # hesaplar, kasa, döviz, roller, yedek, web güvenliği
 ```
 
-`test:parity`, eski sürümün testlerindeki ve rastgele üretilen senaryolardaki
-her API isteğini hem Python hem bulut sürümüne gönderip cevapları alan alan
-karşılaştırır (Python ve `legacy-python/requirements-dev.txt` gerekir;
-`FUZZ_SEEDS=60 FUZZ_STEPS=150` ile daha uzun çalışır).
+Eski Python sürümüyle karşılaştırma testi (`test:parity`) masaüstü deposunda kalır.
 
 ## İş kuralları
 
@@ -316,8 +302,7 @@ bilgisi SQLite icinde satisla birlikte tek transaction'da saklanir.
 
 Schema 5, mevcut tablolara stoktan satis isareti ve ayri dagilim tablosu ekler.
 Schema 4 kayitlari yeniden yazilmaz veya otomatik olarak FIFO'ya cevrilmez.
-Guncelleme oncesi veritabani yedeklenir. Kurulum ve guvenli guncelleme icin
-legacy-python/GUNCELLEME.txt dosyasini izleyin.
+Guncelleme oncesi veritabani yedeklenir.
 
 
 ### Minimal application preferences and manual has entry
