@@ -4,6 +4,8 @@ export type Bindings = {
   DB: D1Database;
   /** Dükkânın saat dilimi (bugünün tarihi ve günlük satış için). */
   APP_TZ?: string;
+  /** İnternet sürümünde ilk yönetici hesabını açmak için gereken anahtar (wrangler secret). */
+  SETUP_KEY?: string;
   /** Yalnızca masaüstü (kurulumlu) sürümde: bilgisayardaki yedek klasörü. */
   LOCAL?: LocalHost;
 };

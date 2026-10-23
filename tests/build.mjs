@@ -12,7 +12,7 @@ const raw = {
 };
 
 await build({
-  entryPoints: ['tests/server.ts', 'tests/harness.ts', { in: 'desktop/lisans.ts', out: 'lisans' }],
+  entryPoints: ['tests/server.ts', 'tests/harness.ts'],
   bundle: true,
   platform: 'node',
   format: 'esm',

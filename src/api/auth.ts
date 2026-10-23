@@ -70,8 +70,40 @@ async function userCount(c: Context<Env>) {
 /** GET /api/auth/status: giriş ekranı için (herkese açık). */
 auth.get('/status', async (c) => {
   const user = await getSessionUser(c.env.DB, getCookie(c, COOKIE_NAME));
-  return c.json(ok({ needs_setup: (await userCount(c)) === 0, user }));
+  return c.json(ok({ needs_setup: (await userCount(c)) === 0, setup_key: !!c.env.SETUP_KEY, user }));
 });
+
+/** Son 15 dakikada aynı e-postaya 5, aynı adresten (IP) 20 hatalı girişten sonra giriş geçici olarak kapanır. */
+const LOGIN_WINDOW = '-15 minutes';
+const LOGIN_MAX_PER_EMAIL = 5;
+const LOGIN_MAX_PER_IP = 20;
+
+async function checkLoginLimit(c: Context<Env>, mail: string) {
+  const db = c.env.DB;
+  const since = `datetime('now', '${LOGIN_WINDOW}')`;
+  const byMail = await first<{ n: number }>(db, `SELECT COUNT(*) AS n FROM audit_logs WHERE action = 'login_failed' AND description = ? AND created_at >= ${since}`, `Başarısız giriş: ${mail}`);
+  const addr = ip(c);
+  const byIp = addr ? await first<{ n: number }>(db, `SELECT COUNT(*) AS n FROM audit_logs WHERE action = 'login_failed' AND ip = ? AND created_at >= ${since}`, addr) : null;
+  if ((byMail?.n ?? 0) >= LOGIN_MAX_PER_EMAIL || (byIp?.n ?? 0) >= LOGIN_MAX_PER_IP) {
+    throw new HttpError(429, 'Çok fazla hatalı giriş denemesi. 15 dakika sonra tekrar deneyin.');
+  }
+}
+
+/**
+ * İnternete açık kurulumda ilk yönetici hesabını yalnızca kurulum anahtarını
+ * (SETUP_KEY) bilen açabilir; anahtar tanımlı değilse HTTPS üzerinden kayıt kapalıdır.
+ */
+function checkSetupKey(c: Context<Env>, b: Record<string, unknown>) {
+  const expected = c.env.SETUP_KEY;
+  if (!expected) {
+    if (isHttps(c) && !c.env.LOCAL) throw new HttpError(403, 'Kurulum anahtarı tanımlanmamış. Dünyatek Bilişim ile iletişime geçin.');
+    return;
+  }
+  const given = typeof b.setup_key === 'string' ? b.setup_key.trim() : '';
+  let diff = given.length ^ expected.length;
+  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ (given.charCodeAt(i) | 0);
+  if (diff !== 0) throw new HttpError(403, 'Kurulum anahtarı hatalı.');
+}
 
 /** POST /api/auth/login */
 auth.post('/login', async (c) => {
@@ -79,6 +111,7 @@ auth.post('/login', async (c) => {
   const b = await body(c);
   const mail = str(b, 'email', 'E-posta').toLowerCase();
   const pass = typeof b.password === 'string' ? b.password : '';
+  await checkLoginLimit(c, mail);
   const user = await first<any>(db, `SELECT * FROM users WHERE lower(email) = ? AND is_active = 1`, mail);
   // Kullanıcı yoksa da hash doğrulaması yaparak zamanlama farkını azalt.
   const valid = user ? await verifyPassword(pass, user.password_hash) : await verifyPassword(pass, 'pbkdf2$1000$AAAA$BBBB');
@@ -116,6 +149,7 @@ auth.post('/register', async (c) => {
   const db = c.env.DB;
   if ((await userCount(c)) > 0) throw new HttpError(403, 'Kurulum tamamlanmış. Yeni kullanıcıyı yönetici ekler.');
   const b = await body(c);
+  checkSetupKey(c, b);
   const name = str(b, 'name', 'Ad Soyad');
   const mail = email(b);
   const pass = password(b, 'password', 'Parola');
@@ -146,6 +180,7 @@ auth.get('/users', async (c) => {
 auth.post('/users', async (c) => {
   const admin = requireAdmin(c);
   const b = await body(c);
+  checkSetupKey(c, b);
   const name = str(b, 'name', 'Ad Soyad');
   const mail = email(b);
   const pass = password(b, 'password', 'Parola');

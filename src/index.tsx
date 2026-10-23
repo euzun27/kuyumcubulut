@@ -10,6 +10,7 @@
 
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
+import { secureHeaders } from 'hono/secure-headers';
 import type { Env } from './lib/db';
 import { COOKIE_NAME, getSessionUser, purgeExpiredSessions } from './lib/auth';
 import { ensureDailyBackup } from './lib/backup';
@@ -34,6 +35,10 @@ import loginPage from './pages/login.html?raw';
 import panoPage from './pages/pano.html?raw';
 
 const app = new Hono<Env>();
+
+// Tarayıcı güvenlik başlıkları. Fiş, etiket ve TV panosu ayrı pencerede açıldığı için
+// pencereler arası bağlantı (opener) kapatılmaz.
+app.use('*', secureHeaders({ crossOriginOpenerPolicy: false, crossOriginResourcePolicy: false }));
 
 const fail = (message: string, data: unknown = null) => ({ status: 'error', message, data });
 

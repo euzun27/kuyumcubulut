@@ -6,7 +6,7 @@
 
 import { serve } from '@hono/node-server';
 import app from '../src/index';
-import { SqliteD1 as TestD1 } from '../desktop/sqlite-d1';
+import { SqliteD1 as TestD1 } from './sqlite-d1';
 import { createSession, hashPassword } from '../src/lib/auth';
 
 const MIGRATIONS = process.env.MIGRATIONS_DIR || 'migrations';

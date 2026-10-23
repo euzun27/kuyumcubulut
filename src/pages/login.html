@@ -56,6 +56,7 @@
       <label>E-posta<input id="email" name="email" type="email" autocomplete="username" required /></label>
       <label>Parola<input id="password" name="password" type="password" autocomplete="current-password" required /></label>
       <label id="confirmRow" hidden>Parola (tekrar)<input id="confirm" name="confirm" type="password" autocomplete="new-password" /></label>
+      <label id="setupKeyRow" hidden>Kurulum anahtarı<input id="setupKey" name="setup_key" autocomplete="off" spellcheck="false" /></label>
       <button id="submit" type="submit">Giriş yap</button>
       <p id="error" role="alert" aria-live="polite"></p>
       <button id="forgot" class="link" type="button" hidden>Parolamı unuttum</button>
@@ -112,7 +113,7 @@
       if (setup && password !== $('confirm').value) { $('error').textContent = 'Parolalar aynı değil.'; return; }
       $('submit').disabled = true;
       try {
-        if (setup) await call('/api/auth/register', { name: $('name').value.trim(), email, password });
+        if (setup) await call('/api/auth/register', { name: $('name').value.trim(), email, password, setup_key: $('setupKey').value.trim() });
         else await call('/api/auth/login', { email, password });
         window.location.replace('/');
       } catch (error) {
@@ -156,7 +157,7 @@
 
     call('/api/auth/status').then((status) => {
       if (status.user) { window.location.replace('/'); return; }
-      if (status.needs_setup) showSetup();
+      if (status.needs_setup) { showSetup(); $('setupKeyRow').hidden = !status.setup_key; }
       else $('forgot').hidden = false;
       form.hidden = false;
       (setup ? $('name') : $('email')).focus();
