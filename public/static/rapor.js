@@ -101,8 +101,8 @@ async function printLabels(tags, format = "kelebek") {
   const f = LABEL_FORMATS[format] || LABEL_FORMATS.kelebek;
   const ka = kelebekAlan(kelebekAyar());
   const css = {
-    kelebek: `@page { size: 72mm 12mm; margin: 0; } body { margin: 0; } .label { width: 72mm; height: 12mm; position: relative; page-break-after: always; overflow: hidden; }
-      .wing { position: absolute; left: ${ka.x0}mm; top: ${ka.y0}mm; width: ${ka.kanat}mm; height: ${ka.yukseklik}mm; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+    kelebek: `@page { size: 72mm ${ka.yukseklik}mm; margin: 0; } body { margin: 0; } .label { width: 72mm; height: ${ka.yukseklik}mm; position: relative; page-break-after: always; overflow: hidden; }
+      .wing { position: absolute; left: ${ka.x0}mm; top: ${ka.y0 + ka.dikey}mm; width: ${ka.kanat}mm; height: ${ka.yukseklik}mm; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
       .code { padding: 0.6mm 1.5mm; display: grid; } .code svg { width: 100%; height: 7mm; } .code span { font-size: 6.5pt; text-align: center; letter-spacing: .5px; }
       .info { padding: 0.6mm 1.5mm; font-size: 6.5pt; line-height: 1.18; } .shop { display: none; }`,
     genis: `@page { size: 50mm 25mm; margin: 0; } body { margin: 0; } .label { width: 50mm; height: 25mm; padding: 1.5mm 2mm; box-sizing: border-box; display: grid; grid-template-rows: auto 1fr auto; page-break-after: always; overflow: hidden; }
@@ -141,7 +141,7 @@ const zplText = (text, max = 40) => {
  * Yalnızca kanatlara (varsayılan 44 × 10 mm) basılır. Kuyruğun hangi tarafta
  * kaldığı ve ince kaydırma pencereden ayarlanır.
  */
-const KELEBEK_VARSAYILAN = { kuyruk: "sol", genislik: 44, yukseklik: 10, kaydir: 0 };
+const KELEBEK_VARSAYILAN = { kuyruk: "sol", genislik: 44, yukseklik: 10, kaydir: 0, dikey: 0 };
 
 function kelebekAyar() {
   try { return { ...KELEBEK_VARSAYILAN, ...JSON.parse(localStorage.getItem("etiketKelebek") || "{}") }; } catch { return { ...KELEBEK_VARSAYILAN }; }
@@ -151,7 +151,9 @@ function kelebekAlan(k) {
   const kanat = Math.min(72, Math.max(20, Number(k.genislik) || 44));
   const yukseklik = Math.min(12, Math.max(6, Number(k.yukseklik) || 10));
   const kaydir = Number(k.kaydir) || 0;
-  return { kanat, yukseklik, x0: Math.max(0, (k.kuyruk === "sag" ? 0 : 72 - kanat) + kaydir), y0: (12 - yukseklik) / 2 };
+  // Etiket boyu kanat yüksekliğidir; yazıcı aradaki boşluğu (gap) kendisi atlar. Dikey kaydırma: + aşağı, − yukarı.
+  const dikey = Math.min(5, Math.max(-5, Number(k.dikey) || 0));
+  return { kanat, yukseklik, dikey, x0: Math.max(0, (k.kuyruk === "sag" ? 0 : 72 - kanat) + kaydir), y0: 0 };
 }
 
 /**
@@ -174,11 +176,11 @@ function labelsZpl(tags, format, firma, dpi = 203, alan = labelFields(), kelebek
       out.push(`^FO${Math.max(0, Math.round((mm(50) - codeWidth) / 2))},${mm(16)}^BY${module}^BCN,${mm(5)},N,N,N,A^FD${t.barkod}^FS`, yazi ? text(1, 21.4, 2.4, 48, t.barkod, "C") : "");
     } else {
       // Kelebek: ince kuyruğa basılmaz; barkod birinci kanada, yazılar ikinci kanada.
-      const { x0, y0, kanat, yukseklik } = kelebekAlan(kelebek);
+      const { x0, y0, kanat, yukseklik, dikey } = kelebekAlan(kelebek);
       const yarim = kanat / 2;
       const kod = t.barkod.replace(/^DT/i, ""); // yalnızca rakam: Code128-C, dar kanada sığar
       const kodGenislik = (11 * (Math.ceil(kod.length / 2) + 2) + 13) * module;
-      out.push(`^PW${mm(72)}`, `^LL${mm(12)}`);
+      out.push(`^PW${mm(72)}`, `^LL${mm(yukseklik)}`, `^LT${mm(dikey)}`);
       out.push(`^FO${mm(x0) + Math.max(0, Math.round((mm(yarim) - kodGenislik) / 2))},${mm(y0 + 0.3)}^BY${module}^BCN,${mm(yazi ? yukseklik - 3.8 : yukseklik - 0.6)},N,N,N,A^FD${kod}^FS`,
         yazi ? text(x0, y0 + yukseklik - 3.2, 2.2, yarim, t.barkod, "C") : "");
       const satir = Math.min(2.45, (yukseklik - 0.4) / 4);
@@ -260,8 +262,9 @@ function openPrintLabels(tags) {
   kuyruk.addEventListener("change", () => { kelebek.kuyruk = kuyruk.value; draw(); });
   const kelebekBox = h("div", { class: "kelebek-ayar" },
     labeled("Kuyruk tarafı", kuyruk), labeled("Basılacak genişlik (mm)", kNum("genislik", { min: "20", max: "72" })),
-    labeled("Yükseklik (mm)", kNum("yukseklik", { min: "6", max: "12" })), labeled("Yatay kaydırma (mm)", kNum("kaydir", { min: "-10", max: "10" })),
-    h("p", { class: "hint", text: "Kuyruğa hiçbir şey basılmaz. Yazı kanattan taşarsa kaydırmayı artırıp azaltın (+ sağa, − sola)." }));
+    labeled("Etiket yüksekliği (mm)", kNum("yukseklik", { min: "6", max: "12" })), labeled("Yatay kaydırma (mm)", kNum("kaydir", { min: "-10", max: "10" })),
+    labeled("Dikey kaydırma (mm)", kNum("dikey", { min: "-5", max: "5" })),
+    h("p", { class: "hint", text: "Kuyruğa hiçbir şey basılmaz. Yazı etikete oturmazsa önce aşağıdaki Kalibre et düğmesine basın; sonra kaydırmalarla ince ayar yapın (yatay: + sağa, − sola; dikey: + aşağı, − yukarı)." }));
   const preview = h("div", { class: "label-preview" });
   const draw = () => {
     kelebekBox.hidden = format.value !== "kelebek";
@@ -271,7 +274,7 @@ function openPrintLabels(tags) {
     if (format.value === "kelebek") {
       const ka = kelebekAlan(kelebek);
       const kuyruk = kelebek.kuyruk === "sag" ? `left:${(ka.x0 + ka.kanat) * 4}px;right:0` : `left:0;width:${ka.x0 * 4}px`;
-      preview.innerHTML = `<div class="tail" style="${kuyruk}"></div><div class="wing" style="left:${ka.x0 * 4}px;top:${ka.y0 * 4}px;width:${ka.kanat * 4}px;height:${ka.yukseklik * 4}px">${p.code}${p.info}</div>`;
+      preview.innerHTML = `<div class="tail" style="${kuyruk}"></div><div class="wing" style="left:${ka.x0 * 4}px;top:${(ka.y0 + ka.dikey) * 4 + 4}px;width:${ka.kanat * 4}px;height:${ka.yukseklik * 4}px">${p.code}${p.info}</div>`;
       return;
     }
     preview.innerHTML = format.value === "kelebek" ? `${p.code}${p.info}` : `<div class="shop">${p.shop}</div>${p.info}${p.code}`;
