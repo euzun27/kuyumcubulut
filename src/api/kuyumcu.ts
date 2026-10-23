@@ -690,6 +690,24 @@ api.post('/yerel-yedekler/klasoru-ac', (c) => {
   return c.json(ok(null));
 });
 
+/** GET /api/yazicilar: bilgisayara kurulu yazıcılar (etiket yazıcısını seçmek için). */
+api.get('/yazicilar', async (c) => c.json(ok(await localHost(c).listPrinters())));
+
+/**
+ * POST /api/yazici/ham {yazici, veri}: etiket yazıcısına komutları (ZPL) doğrudan
+ * gönderir. Tarayıcının yazdırma penceresi ve sayfa boyutu devreye girmez.
+ */
+api.post('/yazici/ham', async (c) => {
+  const local = localHost(c);
+  const b = await body(c);
+  const yazici = String(b.yazici ?? '').trim();
+  const veri = typeof b.veri === 'string' ? b.veri : '';
+  if (!yazici) throw new ValidationError('Etiket yazıcısını seçin.');
+  if (!veri || veri.length > 2_000_000) throw new ValidationError('Yazdırılacak veri yok.');
+  await local.printRaw(yazici, veri);
+  return c.json(ok(null, 'Etiketler yazıcıya gönderildi.'));
+});
+
 api.post('/restore-latest', async (c) => {
   requireAdmin(c, 'Geri yüklemeyi');
   const result = await restoreLatest(c.env.DB);

@@ -27,6 +27,7 @@ import { audit, setUserPassword } from '../src/lib/auth';
 import { HttpError, today } from '../src/lib/validate';
 import { anahtarCoz, durumHesapla, makineKodu, parolaKoduCoz, yazmaSerbest } from './lisans';
 import { SqliteD1 } from './sqlite-d1';
+import { listPrinters, printRaw } from './yazici';
 
 declare const __APP_VERSION__: string;
 const VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'geliştirme';
@@ -121,6 +122,15 @@ const local: LocalHost = {
   openBackupDir() {
     mkdirSync(BACKUP_DIR, { recursive: true });
     if (isWindows) spawn('explorer.exe', [BACKUP_DIR], { detached: true, stdio: 'ignore' }).unref();
+  },
+  listPrinters,
+  async printRaw(printer, data) {
+    try {
+      await printRaw(printer, data);
+    } catch (e) {
+      log('etiket yazdırılamadı', printer, e);
+      throw e;
+    }
   },
 };
 

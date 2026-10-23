@@ -61,14 +61,38 @@ function stoneText(t) {
   return parts.join(" ");
 }
 
-function labelInner(t, firma) {
-  const lines = [
-    `<b>${esc(`${t.cinsi} ${t.ayar}`.trim())}</b>${t.model ? ` ${esc(t.model)}` : ""}`,
-    t.gram ? `${esc(formatTurkishNumber(t.gram, 2, 3))} gr${Number(t.milyem) ? ` · ${esc(formatTurkishNumber(t.milyem, 0, 3))}` : ""}` : "",
-    stoneText(t) ? esc(stoneText(t)) : "",
-    Number(t.fiyat) ? `<b>${esc(fmtMoney(t.fiyat))}</b>` : Number(t.iscilik) ? `İşç. ${esc(fmtMoney(t.iscilik))}` : "",
-  ].filter(Boolean);
-  return { code: `<div class="code">${barcodeSvg(t.barkod)}<span>${esc(t.barkod)}</span></div>`, info: `<div class="info">${lines.map((l) => `<div>${l}</div>`).join("")}</div>`, shop: esc(firma?.ad || "") };
+/** Etikette çıkabilecek bilgiler; hangilerinin basılacağını kullanıcı yazdırma penceresinde seçer. */
+const LABEL_FIELDS = [
+  ["firma", "Firma adı (geniş / A4)"], ["urun", "Cinsi ve ayar"], ["model", "Model / kod"], ["gram", "Gram"], ["milyem", "Milyem"],
+  ["tas", "Taş / pırlanta"], ["fiyat", "Etiket fiyatı"], ["iscilik", "İşçilik"], ["barkod_yazi", "Barkod numarası (yazı)"],
+];
+const LABEL_FIELDS_DEFAULT = LABEL_FIELDS.map(([k]) => k);
+
+function labelFields() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("etiketAlanlar") || "null");
+    if (Array.isArray(saved)) return new Set(saved);
+  } catch { /* yok */ }
+  return new Set(LABEL_FIELDS_DEFAULT);
+}
+
+/** Etiket satırları: [{ text, bold }] (en fazla dört satır). */
+function labelLines(t, alan = labelFields()) {
+  const urun = [alan.has("urun") ? `${t.cinsi} ${t.ayar}`.trim() : "", alan.has("model") ? t.model : ""].filter(Boolean);
+  const agirlik = [alan.has("gram") && t.gram ? `${formatTurkishNumber(t.gram, 2, 3)} gr` : "", alan.has("milyem") && Number(t.milyem) ? formatTurkishNumber(t.milyem, 0, 3) : ""].filter(Boolean);
+  const para = [alan.has("fiyat") && Number(t.fiyat) ? fmtMoney(t.fiyat) : "", alan.has("iscilik") && Number(t.iscilik) ? `İşç. ${fmtMoney(t.iscilik)}` : ""].filter(Boolean);
+  return [
+    { text: urun.join(" "), bold: alan.has("urun") },
+    { text: agirlik.join(" · ") },
+    { text: alan.has("tas") ? stoneText(t) : "" },
+    { text: para.join(" · "), bold: alan.has("fiyat") && Number(t.fiyat) > 0 },
+  ].filter((l) => l.text);
+}
+
+function labelInner(t, firma, alan = labelFields()) {
+  const lines = labelLines(t, alan).map((l) => (l.bold ? `<b>${esc(l.text)}</b>` : esc(l.text)));
+  const yazi = alan.has("barkod_yazi") ? `<span>${esc(t.barkod)}</span>` : "";
+  return { code: `<div class="code">${barcodeSvg(t.barkod)}${yazi}</div>`, info: `<div class="info">${lines.map((l) => `<div>${l}</div>`).join("")}</div>`, shop: alan.has("firma") ? esc(firma?.ad || "") : "" };
 }
 
 async function printLabels(tags, format = "kelebek") {
@@ -93,21 +117,125 @@ async function printLabels(tags, format = "kelebek") {
   printDocument(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>${esc(f.ad)}</title><style>* { box-sizing: border-box; } body { font-family: Arial, sans-serif; color: #000; } svg.barcode rect { fill: #000; } ${css}</style></head><body>${body}</body></html>`, "width=900,height=760");
 }
 
+/* ------------------------------------------------------------------ */
+/* Zebra (ZPL) ile doğrudan yazdırma (yalnızca kurulumlu sürüm)        */
+/* ------------------------------------------------------------------ */
+
+const zplText = (text, max = 40) => {
+  // ₺ yazıcının yazı tipinde olmayabilir; "TL" yazılır.
+  const s = String(text ?? "").replace(/₺/g, "TL").replace(/[\^~\\]/g, " ").replace(/\s+/g, " ").trim();
+  return s.length > max ? s.slice(0, max).trim() : s;
+};
+
+/**
+ * Etiketleri ZPL'e çevirir. dpi: 203 (8 nokta/mm) veya 300 (12 nokta/mm).
+ * Türkçe harfler için yazıcıdaki Unicode yazı tipi (Swiss 721) kullanılır.
+ */
+function labelsZpl(tags, format, firma, dpi = 203, alan = labelFields()) {
+  const k = dpi >= 300 ? 12 : 8;
+  const mm = (v) => Math.round(v * k);
+  const module = dpi >= 300 ? 3 : 2;
+  const codeWidth = 101 * module; // DT + 6 hane, Code128 (otomatik B/C)
+  const text = (x, y, size, width, value, align = "L") => `^FO${mm(x)},${mm(y)}^AZN,${mm(size)},${mm(size)}^FB${mm(width)},1,0,${align}^FD${value}^FS`;
+  return tags.map((t) => {
+    const lines = labelLines(t, alan).map((l) => l.text);
+    const yazi = alan.has("barkod_yazi");
+    const out = ["^XA", "^CI28", "^CWZ,E:TT0003M_.TTF", "^LH0,0", "^PON"];
+    if (format === "genis") {
+      out.push(`^PW${mm(50)}`, `^LL${mm(25)}`, alan.has("firma") ? text(1, 1.2, 2.4, 48, zplText(firma?.ad, 34), "C") : "");
+      lines.forEach((l, i) => out.push(text(2, 4.2 + i * 2.9, 2.7, 46, zplText(l, 32))));
+      out.push(`^FO${Math.max(0, Math.round((mm(50) - codeWidth) / 2))},${mm(16)}^BY${module}^BCN,${mm(5)},N,N,N,A^FD${t.barkod}^FS`, yazi ? text(1, 21.4, 2.4, 48, t.barkod, "C") : "");
+    } else {
+      out.push(`^PW${mm(72)}`, `^LL${mm(12)}`);
+      out.push(`^FO${Math.max(0, Math.round((mm(36) - codeWidth) / 2))},${mm(0.8)}^BY${module}^BCN,${mm(yazi ? 7 : 9.5)},N,N,N,A^FD${t.barkod}^FS`, yazi ? text(0, 8.6, 2.5, 36, t.barkod, "C") : "");
+      lines.slice(0, 4).forEach((l, i) => out.push(text(37, 0.6 + i * 2.75, 2.4, 34, zplText(l, 30))));
+    }
+    out.push("^PQ1", "^XZ");
+    return out.filter(Boolean).join("\n");
+  }).join("\n");
+}
+
+let desktopOrtam = null;
+const ortamHazir = () => (desktopOrtam ??= api("/api/ortam").then((d) => !!d?.masaustu).catch(() => false));
+
+function storedPref(key, fallback) { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } }
+function savePref(key, value) { try { localStorage.setItem(key, value); } catch { /* yok */ } }
+
+/** Zebra seçenekleri: yazıcı (liste ya da IP), çözünürlük, kalibrasyon. */
+async function zebraFields() {
+  const printers = await api("/api/yazicilar").catch(() => []) || [];
+  const list = h("datalist", { id: "etiket-yazicilar" }, ...printers.map((p) => new Option(p, p)));
+  const guess = printers.find((p) => /zd421|zebra|zdesigner/i.test(p)) || "";
+  const yazici = h("input", { type: "text", name: "yazici", list: "etiket-yazicilar", autocomplete: "off", placeholder: "Yazıcı adı veya IP (ör. 192.168.1.50)", value: storedPref("etiketYazici", guess) });
+  const dpi = h("select", { name: "dpi" }, new Option("203 dpi (ZD421 standart)", "203"), new Option("300 dpi", "300"));
+  dpi.value = storedPref("etiketDpi", "203");
+  const kalibre = h("button", { type: "button", class: "secondary", text: "Kalibre et", title: "Yazıcı etiket boyunu yeniden ölçer (kırmızı ışık / kâğıt yok hatasında)", onclick: async () => {
+    if (!yazici.value.trim()) { showMessage("Önce yazıcıyı seçin.", true); return; }
+    try { await api("/api/yazici/ham", { method: "POST", body: JSON.stringify({ yazici: yazici.value.trim(), veri: "~JC" }) }); showMessage("Kalibrasyon başladı; yazıcı birkaç boş etiket ilerletebilir."); } catch (error) { showMessage(error.message, true); }
+  } });
+  const box = h("div", { class: "zebra-fields" }, list, labeled("Etiket yazıcısı", yazici), labeled("Çözünürlük", dpi),
+    h("div", { class: "zebra-row" }, h("p", { class: "hint", text: printers.length ? "Etiketler yazdırma penceresi açılmadan doğrudan yazıcıya gider. Ağdaki yazıcı için IP adresini yazabilirsiniz." : "Kurulu yazıcı bulunamadı. Zebra ZDesigner sürücüsünü kurun ya da yazıcının IP adresini yazın." }), kalibre));
+  return { box, values: () => ({ yazici: yazici.value.trim(), dpi: Number(dpi.value) }), save: () => { savePref("etiketYazici", yazici.value.trim()); savePref("etiketDpi", dpi.value); } };
+}
+
+async function printLabelsZebra(tags, format, yazici, dpi, alan) {
+  if (!yazici) { showMessage("Etiket yazıcısını seçin.", true); return; }
+  const firma = await loadFirma();
+  try {
+    await api("/api/yazici/ham", { method: "POST", body: JSON.stringify({ yazici, veri: labelsZpl(tags, format, firma, dpi, alan) }) });
+    showMessage(`${tags.length} etiket ${yazici} yazıcısına gönderildi.`);
+  } catch (error) { showMessage(error.message, true); }
+}
+
 function openPrintLabels(tags) {
   const { box, close } = openModal(`${tags.length} etiket yazdır`, "kasa-modal");
   const format = h("select", { name: "format" }, ...Object.entries(LABEL_FORMATS).map(([v, f]) => new Option(f.ad, v)));
   try { format.value = localStorage.getItem("etiketFormat") || "kelebek"; } catch { /* yok */ }
+  const yol = h("select", { name: "yol" }, new Option("Zebra / etiket yazıcısına doğrudan (önerilen)", "zebra"), new Option("Yazdırma penceresiyle", "pencere"));
+  const yolAlan = labeled("Yazdırma şekli", yol);
+  yolAlan.hidden = true;
+  let zebra = null;
+  const zebraBox = h("div");
+  const syncYol = () => {
+    const direct = !yolAlan.hidden && yol.value === "zebra";
+    if (direct && format.value === "a4") format.value = "kelebek";
+    [...format.options].forEach((o) => { o.disabled = direct && o.value === "a4"; });
+    zebraBox.hidden = !direct;
+  };
+  yol.addEventListener("change", syncYol);
+  ortamHazir().then(async (masaustu) => {
+    if (!masaustu) return;
+    zebra = await zebraFields();
+    zebraBox.append(zebra.box);
+    yol.value = storedPref("etiketYol", "zebra");
+    yolAlan.hidden = false;
+    syncYol(); draw();
+  });
+  const alan = labelFields();
+  const alanlar = h("fieldset", { class: "label-fields" }, h("legend", { text: "Etikette çıkacak bilgiler" }),
+    ...LABEL_FIELDS.map(([key, ad]) => h("label", { class: "check-label" },
+      h("input", { type: "checkbox", checked: alan.has(key), onchange: (e) => { e.target.checked ? alan.add(key) : alan.delete(key); draw(); } }), ` ${ad}`)));
   const preview = h("div", { class: "label-preview" });
   const draw = () => {
     const t = tags[0];
-    const p = labelInner(t, firmaCache);
+    const p = labelInner(t, firmaCache, alan);
     preview.className = `label-preview ${format.value}`;
     preview.innerHTML = format.value === "kelebek" ? `${p.code}${p.info}` : `<div class="shop">${p.shop}</div>${p.info}${p.code}`;
   };
   format.addEventListener("change", draw);
   loadFirma().then(draw);
-  const go = h("button", { type: "button", text: "Yazdır", onclick: () => { try { localStorage.setItem("etiketFormat", format.value); } catch { /* yok */ } close(); printLabels(tags, format.value); } });
-  box.append(h("div", { class: "settings-form" }, labeled("Etiket türü", format), h("p", { class: "hint", text: "Önizleme (ilk etiket):" }), preview,
+  const go = h("button", { type: "button", text: "Yazdır", onclick: () => {
+    savePref("etiketFormat", format.value);
+    savePref("etiketAlanlar", JSON.stringify([...alan]));
+    if (!yolAlan.hidden) savePref("etiketYol", yol.value);
+    if (!yolAlan.hidden && yol.value === "zebra" && zebra) {
+      const { yazici, dpi } = zebra.values();
+      if (!yazici) { showMessage("Etiket yazıcısını seçin.", true); return; }
+      zebra.save(); close(); printLabelsZebra(tags, format.value, yazici, dpi, alan); return;
+    }
+    close(); printLabels(tags, format.value);
+  } });
+  box.append(h("div", { class: "settings-form" }, yolAlan, labeled("Etiket türü", format), zebraBox, alanlar, h("p", { class: "hint", text: "Önizleme (ilk etiket):" }), preview,
     h("p", { class: "hint", text: "Etiket yazıcısında kağıt boyutunu etiket türüyle aynı seçin. Barkod okuyucu satış ekranındaki barkod kutusuna okutur." }),
     h("div", { class: "form-bottom-actions" }, h("button", { type: "button", class: "secondary", text: "Vazgeç", onclick: close }), go)));
   go.focus();
