@@ -2372,8 +2372,9 @@ api("/api/session").then((session) => {
   if (session.today) state.serverToday = session.today;
   if (currentUser?.role === "viewer") document.body.classList.add("role-viewer");
   loadPrice().then(() => { if (state.view === "dashboard") render(); });
-  // Piyasa anlık değişir: üst çubuktaki fiyat ve kurlar 5 saniyede bir yenilenir (sunucu dışarıya en fazla 30 saniyede bir sorar).
-  setInterval(() => { if (!document.hidden) loadPrice(); }, 5 * 1000);
+  // Üst çubuktaki fiyat ve kurlar 10 saniyede bir yenilenir; sunucu Harem'i 15 saniyede bir,
+  // diğer kaynakları 30 saniyede bir arka planda okur, istek dış kaynağı beklemez.
+  setInterval(() => { if (!document.hidden) loadPrice(); }, 10 * 1000);
   Promise.all([refreshSuggestions(), loadKasaAccounts()]).then(render);
 }).catch((error) => showMessage(error.message, true));
 

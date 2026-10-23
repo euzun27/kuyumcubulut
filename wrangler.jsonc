@@ -4,6 +4,9 @@
   "compatibility_date": "2026-09-08",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": ["nodejs_compat"],
+  // Sunucu kodu veritabanına yakın çalışsın: her ekran birkaç sorgu yaptığı için
+  // dükkândan uzak veritabanına her sorguda gidip gelmek yerine tek gidiş-dönüş olur.
+  "placement": { "mode": "smart" },
   "vars": {
     "APP_TZ": "Europe/Istanbul"
   },

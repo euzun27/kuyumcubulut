@@ -69,15 +69,22 @@ app.use('/api/*', async (c, next) => {
   const day = today(c.env.APP_TZ || 'Europe/Istanbul');
   if (g.__kuyumcu_day__ !== day) {
     g.__kuyumcu_day__ = day;
-    try {
-      await purgeExpiredSessions(c.env.DB);
-      // Günlük yedek her zaman alınır; "her açılışta" tercihi ayrıca girişte yedek alır.
-      await ensureDailyBackup(c.env.DB, day);
-      await upgradeNames(c.env.DB);
-    } catch (e) {
-      console.error('açılış bakımı hatası', e);
-      g.__kuyumcu_day__ = undefined;
-    }
+    const work = (async () => {
+      try {
+        await purgeExpiredSessions(c.env.DB);
+        // Günlük yedek her zaman alınır; "her açılışta" tercihi ayrıca girişte yedek alır.
+        await ensureDailyBackup(c.env.DB, day);
+        await upgradeNames(c.env.DB);
+      } catch (e) {
+        console.error('açılış bakımı hatası', e);
+        g.__kuyumcu_day__ = undefined;
+      }
+    })();
+    // Bulutta sunucu sık yeniden başladığından bakım isteği bekletmeden arka planda
+    // yapılır; yürütme bağlamı olmayan ortamda (masaüstü, testler) beklenir.
+    let deferred = false;
+    try { c.executionCtx.waitUntil(work); deferred = true; } catch { /* bağlam yok */ }
+    if (!deferred) await work;
   }
   await next();
 });
