@@ -40,7 +40,8 @@ test('etiket oluşturma, barkodla bulma, pırlanta alanları ve doğrulama', asy
   assert.deepEqual([a.cinsi, a.gram, a.karat, a.renk, a.berraklik, a.tas_tipi], ['YÜZÜK', 2.35, 0.25, 'G', 'VS1', 'PIRLANTA']);
   for (const code of [a.barkod, a.barkod.toLowerCase(), String(a.id)]) assert.equal((await c.call('GET', `/api/etiket/kod/${code}`)).body.data.id, a.id);
   assert.equal((await c.call('GET', '/api/etiket/kod/DT999999')).status, 404);
-  assert.equal((await c.call('GET', '/api/etiket/kod/xyz')).status, 400);
+  // DT biçiminde olmayan kod eski / farklı firma barkodu olabilir: bulunamazsa 404.
+  assert.equal((await c.call('GET', '/api/etiket/kod/xyz')).status, 404);
   const list = (await c.call('GET', '/api/etiket')).body.data;
   assert.deepEqual([list.ozet.stokta, list.ozet.gram, list.ozet.karat, list.ozet.pirlanta], [2, 4.7, 0.5, 2]);
   assert.equal((await c.call('PUT', `/api/etiket/${b.id}`, { cinsi: 'YÜZÜK', ayar: '14', gram: '2,4' })).body.data.gram, 2.4);

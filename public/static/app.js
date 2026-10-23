@@ -161,7 +161,8 @@ async function api(path, options = {}) {
     404: "Sunucu endpointi bulunamad\u0131.",
     405: "Sunucu bu i\u015flem metodunu desteklemiyor. Uygulamay\u0131 yeniden ba\u015flat\u0131n ve endpointleri kontrol edin.",
   };
-  if (!response.ok || body.status === "error") throw new Error(statusMessages[response.status] || serverMessage || "\u0130\u015flem yap\u0131lamad\u0131.");
+  // Sunucunun kendi mesajı varsa (ör. "Bu barkoda ait etiket yok") o gösterilir.
+  if (!response.ok || body.status === "error") throw new Error((body.status === "error" && serverMessage) || statusMessages[response.status] || serverMessage || "\u0130\u015flem yap\u0131lamad\u0131.");
   return body.data;
 }
 

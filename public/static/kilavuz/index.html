@@ -323,7 +323,7 @@ table.facts td:first-child { font-weight: 600; color: var(--green); white-space:
     <tr><td>—</td><td>Dashboard <kbd>F9</kbd></td></tr>
     <tr><td>İşlemler</td><td>Satış <kbd>F2</kbd>, Alış <kbd>F3</kbd>, Hurda Alış, Hurda Satış, Gümüş / Bakır, Döviz Al / Sat, Sipariş / Tamir, Atölye</td></tr>
     <tr><td>Finans</td><td>Kasa <kbd>F4</kbd>, Cari <kbd>F6</kbd>, Giderler</td></tr>
-    <tr><td>Stok</td><td>Stok <kbd>F7</kbd>, Emanet <kbd>F8</kbd>, Etiket / Barkod</td></tr>
+    <tr><td>Stok</td><td>Stok <kbd>F7</kbd>, Emanet <kbd>F8</kbd>, Etiket / Barkod, Stok Sayımı</td></tr>
     <tr><td>Raporlar</td><td>Raporlar</td></tr>
   </table>
   <p>Menünün altında oturum açan kişinin adı ve rolü (Yönetici, Personel veya İzleyici) ile <span class="ui">Çıkış</span> düğmesi yer alır. <strong>Sipariş / Tamir</strong> satırında kırmızı bir sayı görürseniz teslim günü bugün, yarın olan veya geçmiş iş var demektir.</p>
@@ -969,6 +969,13 @@ table.facts td:first-child { font-weight: 600; color: var(--green); white-space:
   <figure><div class="frame"><img src="img/etiket-a4.jpg" alt="A4 etiket sayfası" width="900" height="423"></div><figcaption><b>Şekil 15.5</b> A4 sayfa düzeninde etiketler (baskı önizlemesi)</figcaption></figure>
   <div class="callout tip"><span class="ct">Yazıcı ayarı</span><p>Etiket yazıcısının kâğıt boyutunu yazdırma penceresinde seçtiğiniz etiket türüyle aynı yapın. Barkod okuyucu, Satış ekranındaki barkod kutusuna okutur (Bölüm 4).</p></div>
   <p>Etiketler <span class="ui">STOKTA</span>, <span class="ui">SATILANLAR</span> ve <span class="ui">TÜMÜ</span> sekmelerinde listelenir. Düzenleme ve silme yalnızca stoktaki etiketlerde yapılabilir.</p>
+  <h2>Stok sayımı</h2>
+  <p>Sol menüde <span class="ui">Stok Sayımı</span>’na tıklayın, sayım türünü seçip <span class="ui">Sayımı başlat</span>’a basın. Ürünleri barkod okuyucuyla tek tek okutun.</p>
+  <ul>
+    <li><strong>Açılış sayımı:</strong> Programa geçerken eldeki ürünler için. <span class="ui">Sayımı bitir ve stoğa al</span> deyince sayılan her parça <span class="ui">AÇILIŞ STOĞU</span> adına, ödemesi kapalı bir alışla, girdiğiniz maliyet has fiyatından stoğa girer. Cari ve kasa değişmez. Daha önce stoğa girmiş etiketler tekrar girmez.</li>
+    <li><strong>Kontrol sayımı:</strong> Stoğa dokunmaz. Sayılan gram ve has sistemdeki stokla karşılaştırılır; sayılmayan etiketler listelenir.</li>
+  </ul>
+  <p>Eski programın ya da başka bir firmanın etiketi okutulursa ürün bilgisi (cinsi, ayar, gram, milyem) sorulur. Eski barkod saklanır; satışta bu barkod okutulunca da ürün bulunur. İsterseniz <span class="ui">Bizim etiketi de yazdır</span> ile yeni etiket basabilirsiniz. Barkodsuz ürünler için <span class="ui">Barkodsuz ürün ekle</span>’yi kullanın. Yanlış okutulan ürünü satırdaki çöp simgesiyle sayımdan çıkarın.</p>
 </section>
 
 <!-- 16 -->

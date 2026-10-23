@@ -8,7 +8,7 @@ export const BUSINESS_TABLES = ['alis', 'satis', 'hurda', 'cari_odeme', 'giderle
 export type BusinessTable = (typeof BUSINESS_TABLES)[number];
 
 /** Bulut sürümünün ek tabloları; eski yedeklerde yoksa geri yüklemede olduğu gibi kalır. Sıra: önce hesaplar. */
-export const KASA_TABLES = ['kasa_hesaplari', 'kasa_hareketleri', 'gun_sonu', 'emanetler', 'cari_kartlari', 'siparisler', 'etiketler', 'metal_islemleri', 'atolye_isleri', 'atolye_asamalari', 'doviz_islemleri'] as const;
+export const KASA_TABLES = ['kasa_hesaplari', 'kasa_hareketleri', 'gun_sonu', 'emanetler', 'cari_kartlari', 'siparisler', 'etiketler', 'metal_islemleri', 'atolye_isleri', 'atolye_asamalari', 'doviz_islemleri', 'sayimlar', 'sayim_kalemleri'] as const;
 export type KasaTable = (typeof KASA_TABLES)[number];
 
 export const COLUMNS: Record<BusinessTable | KasaTable, string[]> = {
@@ -19,7 +19,9 @@ export const COLUMNS: Record<BusinessTable | KasaTable, string[]> = {
   cari_kartlari: ['id', 'anahtar', 'isim', 'tur', 'kisi_tipi', 'telefon', 'telefon2', 'eposta', 'adres', 'il', 'vergi_dairesi', 'vergi_no', 'yetkili', 'vade_gun', 'limit_has', 'notlar', 'created_at', 'updated_at'],
   siparisler: ['id', 'tarih', 'tur', 'musteri', 'telefon', 'urun', 'cinsi', 'ayar', 'gram', 'tutar', 'teslim_tarihi', 'durum', 'atolye', 'teslim_edildi', 'notlar', 'created_at'],
   etiketler: ['id', 'tarih', 'alis_id', 'cinsi', 'ayar', 'model', 'gram', 'milyem', 'iscilik', 'fiyat', 'tas_tipi', 'tas_adet', 'karat', 'renk', 'berraklik', 'kesim',
-    'sertifika', 'notlar', 'durum', 'satis_id', 'created_at'],
+    'sertifika', 'notlar', 'durum', 'satis_id', 'eski_barkod', 'created_at'],
+  sayimlar: ['id', 'tarih', 'tur', 'has_fiyati', 'durum', 'notlar', 'kullanici', 'kapanis', 'created_at'],
+  sayim_kalemleri: ['id', 'sayim_id', 'etiket_id', 'yeni_etiket', 'created_at'],
   metal_islemleri: ['id', 'tarih', 'islem_turu', 'metal', 'kisi', 'cinsi', 'ayar', 'adet', 'gram', 'milyem', 'saf_gram', 'birim_fiyat', 'iscilik', 'tutar', 'notlar', 'created_at'],
   atolye_isleri: ['id', 'tarih', 'atolye', 'tur', 'is_tanimi', 'siparis_id', 'metal', 'verilen_gram', 'verilen_milyem', 'verilen_has', 'gelen_gram', 'gelen_milyem', 'gelen_has',
     'fire_has', 'iscilik_tl', 'iscilik_has', 'asama', 'durum', 'soz_tarihi', 'donus_tarihi', 'notlar', 'created_at'],

@@ -132,8 +132,7 @@ extraViews.etiket = async () => {
   const section = h("section", { class: "table-section" });
   const title = h("h2", { text: "Etiketler" });
   const printSel = h("button", { type: "button", class: "csv-btn", text: "SEÇİLENLERİ YAZDIR", onclick: () => openPrintLabels(rows.filter((r) => state.etiketSecili.has(r.id))) });
-  const stockSel = h("button", { type: "button", class: "csv-btn", text: "SEÇİLENLERİ STOĞA AL", onclick: () => stockLabels(rows.filter((r) => state.etiketSecili.has(r.id))) });
-  if (rows.length) title.append(printSel, ...(currentUser?.role !== "viewer" && state.etiketFilter !== "SATILDI" ? [stockSel] : []), h("button", { type: "button", class: "csv-btn", text: "CSV", onclick: () => downloadCsv("etiketler", [["Barkod", "barkod"], ["Tarih", "tarih"], ["Cinsi", "cinsi"], ["Ayar", "ayar"], ["Model", "model"], ["Gram", "gram"], ["Milyem", "milyem"], ["İşçilik", "iscilik"], ["Fiyat", "fiyat"], ["Taş", "tas_text"], ["Sertifika", "sertifika"], ["Durum", "durum"]], rows) }));
+  if (rows.length) title.append(printSel, h("button", { type: "button", class: "csv-btn", text: "CSV", onclick: () => downloadCsv("etiketler", [["Barkod", "barkod"], ["Tarih", "tarih"], ["Cinsi", "cinsi"], ["Ayar", "ayar"], ["Model", "model"], ["Gram", "gram"], ["Milyem", "milyem"], ["İşçilik", "iscilik"], ["Fiyat", "fiyat"], ["Taş", "tas_text"], ["Sertifika", "sertifika"], ["Durum", "durum"]], rows) }));
   section.append(title);
   const wrap = h("div", { class: "table-wrap" });
   if (!rows.length) wrap.append(h("div", { class: "empty", text: "Etiket yok. Yukarıdaki formdan parça etiketi oluşturun." }));
@@ -144,13 +143,13 @@ extraViews.etiket = async () => {
     const body = h("tbody");
     rows.forEach((r) => body.append(h("tr", { class: r.durum === "SATILDI" ? "row-closed" : "" },
       h("td", {}, h("input", { type: "checkbox", "aria-label": `${r.barkod} seç`, checked: state.etiketSecili.has(r.id), onchange: (e) => { e.target.checked ? state.etiketSecili.add(r.id) : state.etiketSecili.delete(r.id); } })),
-      h("td", { dataset: { label: "Barkod" } }, h("span", { class: "barcode-cell", html: barcodeSvg(r.barkod, 26) }), h("small", { class: "cell-sub", text: r.barkod })),
+      h("td", { dataset: { label: "Barkod" } }, h("span", { class: "barcode-cell", html: barcodeSvg(r.barkod, 26) }), h("small", { class: "cell-sub", text: r.eski_barkod ? `${r.barkod} · eski: ${r.eski_barkod}` : r.barkod })),
       h("td", { dataset: { label: "Ürün" } }, `${r.cinsi} ${r.ayar}`.trim(), h("small", { class: "cell-sub", text: [r.model, r.tarih].filter(Boolean).join(" · ") })),
       h("td", { class: "num", dataset: { label: "Gram" }, text: r.gram ? formatValue("gram", r.gram) : "" }),
       h("td", { dataset: { label: "Taş" } }, r.tas_text, r.sertifika ? h("small", { class: "cell-sub", text: r.sertifika }) : null),
       h("td", { class: "num", dataset: { label: "Fiyat" }, text: r.fiyat ? fmtMoney(r.fiyat) : r.iscilik ? `İşç. ${fmtMoney(r.iscilik)}` : "" }),
       h("td", { dataset: { label: "Durum" } }, h("span", { class: `status-pill ${r.durum === "STOKTA" ? "open" : "closed"}`, text: r.durum === "STOKTA" ? "Satılmadı" : "Satıldı" }),
-        r.alis_id ? h("span", { class: "status-pill closed stocked", title: "Etiketten açılış stoğu olarak alındı", text: "Stoğa alındı" }) : null,
+        r.alis_id ? h("span", { class: "status-pill closed stocked", title: "Alış kaydına bağlı (stokta)", text: "Stoğa alındı" }) : null,
         r.durum === "STOKTA" && havuz && stokGram(r) < Number(r.gram) ? h("span", { class: "status-pill warn", title: `Stokta ${r.cinsi} ${r.ayar}: ${formatValue("gram", stokGram(r))} gr. Satabilmek için önce alışını girin.`, text: "Stokta yok" }) : null),
       h("td", { class: "actions-cell", dataset: { label: "İşlemler" } },
         h("button", { type: "button", class: "icon-btn", title: "Etiket yazdır", "aria-label": "Etiket yazdır", html: printIcon(), onclick: () => openPrintLabels([r]) }),
@@ -161,22 +160,6 @@ extraViews.etiket = async () => {
   section.append(wrap); root.append(section);
   return root;
 };
-
-/** Seçilen, satılmamış ve stoğa alınmamış etiketleri açılış stoğu olarak stoğa alır. */
-async function stockLabels(selected) {
-  const list = selected.filter((r) => r.durum === "STOKTA" && !r.alis_id);
-  if (!list.length) { showMessage(selected.length ? "Seçilen etiketler zaten stoğa alınmış ya da satılmış." : "Önce stoğa alınacak etiketleri seçin.", true); return; }
-  // Maliyet: formdaki "Maliyet has fiyatı" doluysa o, değilse günün alış has fiyatı.
-  const typed = readAmount(document.querySelector('[name="maliyet_has_fiyati"]')?.value || "");
-  const price = typed > 0 ? typed : state.price?.alis;
-  if (!price) { showMessage("Maliyet için günün has fiyatını ya da formdaki maliyet has fiyatını girin.", true); return; }
-  const gram = list.reduce((t, r) => t + Number(r.gram || 0), 0);
-  if (!(await showConfirm(`${list.length} etiket (${formatValue("gram", gram)} gr) stoğa alınsın mı? Her biri için "AÇILIŞ STOĞU" adına ödemesi kapalı alış açılır; maliyet has fiyatı ${fmtMoney(price)}. Cari ve kasa değişmez.`, "Stoğa al", "İptal"))) return;
-  try {
-    const r = await api("/api/etiket/stoga-al", { method: "POST", body: JSON.stringify({ ids: list.map((x) => x.id), has_fiyati: String(price) }) });
-    showMessage(`${r.adet} etiket stoğa alındı.`); state.etiketSecili.clear(); render();
-  } catch (error) { showMessage(error.message, true); }
-}
 
 function renderEtiketForm() {
   const edit = etiketEditing;
@@ -198,25 +181,6 @@ function renderEtiketForm() {
   form.append(h("div", { class: "sarrafiye-chips" }, h("span", { class: "sarrafiye-label", text: "Her etiket bir parçadır. Barkod otomatik verilir." })),
     labeled("Cinsi", cinsi), labeled("Ayar", ayar), labeled("Model / kod", model), labeled("Gram", gram), labeled("Milyem", milyem), labeled("İşçilik (TL)", iscilik),
     labeled("Etiket fiyatı (TL)", fiyat), labeled("Taş", tasTipi), stoneBox, labeled("Not", notlar), ...(edit ? [] : [labeled("Aynı etiketten kaç adet", kopya)]));
-  // Elindeki ürünü etiketleyen (programa yeni geçen) kuyumcu için: etiketle birlikte stoğa al.
-  let stogaAl = null; let maliyet = null;
-  if (!edit) {
-    let remembered = false;
-    try { remembered = localStorage.getItem("etiketStogaAl") === "1"; } catch { /* varsayılan kapalı */ }
-    stogaAl = h("input", { type: "checkbox", name: "stoga_al", checked: remembered });
-    maliyet = decimalInput("maliyet_has_fiyati", "Günün alış fiyatı");
-    const lastCost = state.etiketMaliyet || state.price?.alis;
-    if (lastCost) maliyet.value = String(lastCost).replace(".", ",");
-    maliyet.addEventListener("input", () => { state.etiketMaliyet = readAmount(maliyet.value) || null; });
-    const maliyetField = labeled("Maliyet has fiyatı (TL/gr)", maliyet);
-    const syncStok = () => { maliyetField.hidden = !stogaAl.checked; try { localStorage.setItem("etiketStogaAl", stogaAl.checked ? "1" : "0"); } catch { /* yalnız bu oturum */ } };
-    stogaAl.addEventListener("change", syncStok);
-    form.append(h("div", { class: "stone-box etiket-stok-box" },
-      h("label", { class: "check-field" }, stogaAl, " Stoğa da al (elimdeki ürün)"),
-      h("small", { class: "hint", text: "Her parça için \"AÇILIŞ STOĞU\" adına ödemesi kapalı bir alış kaydı açılır: stok oluşur, cari ve kasa değişmez. Gram ve milyem zorunludur." }),
-      maliyetField));
-    syncStok();
-  }
   attachAutocomplete(cinsi, "products");
   const sync = () => { stoneBox.hidden = !tasTipi.value; };
   tasTipi.addEventListener("change", sync);
@@ -239,9 +203,8 @@ function renderEtiketForm() {
     try {
       if (edit) { await api(`/api/etiket/${edit.id}`, { method: "PUT", body: JSON.stringify(item) }); showMessage("Etiket güncellendi."); }
       else {
-        const stok = stogaAl?.checked ? { stoga_al: true, has_fiyati: String(readAmount(maliyet.value)) } : {};
-        const made = await api("/api/etiket", { method: "POST", body: JSON.stringify({ items: [item], kopya: Number(kopya.value || 1), ...stok }) });
-        showMessage(`${made.length} etiket oluşturuldu${stok.stoga_al ? " ve stoğa alındı" : ""}.`);
+        const made = await api("/api/etiket", { method: "POST", body: JSON.stringify({ items: [item], kopya: Number(kopya.value || 1) }) });
+        showMessage(`${made.length} etiket oluşturuldu.`);
         if (await showConfirm(`${made.length} etiket şimdi yazdırılsın mı`, "Yazdır", "Sonra")) openPrintLabels(made);
       }
       etiketEditing = null; render();

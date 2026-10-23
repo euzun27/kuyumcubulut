@@ -3528,10 +3528,6 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .status-pill.closed { background: var(--green-soft); color: var(--green); }
 .status-pill.warn { background: var(--red-soft); color: var(--red); margin-left: 6px; }
 .status-pill.stocked { margin-left: 6px; }
-.etiket-stok-box { display: grid; gap: 6px; }
-.etiket-stok-box .check-field { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 700; }
-.etiket-stok-box .check-field input { width: auto; min-height: 0; margin: 0; }
-.etiket-stok-box .field { max-width: 280px; }
 .row-closed td { opacity: .7; }
 .emanet-toggle { min-height: 32px; padding: 0 10px; font-size: 12px; }
 
@@ -4017,3 +4013,15 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .ekstre-devir td { background: var(--panel-strong); font-weight: 600; }
 @media (max-width: 700px) { .ekstre-title { text-align: left; } .ekstre-picker select { min-width: 0; width: 100%; } }
 @media print { .ekstre-doc { margin: 0; } .ekstre-table { font-size: 11px; } }
+
+/* Stok sayımı */
+.sayim-doc { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.sayim-doc > * { min-width: 0; grid-column: 1 / -1; }
+.sayim-doc .barcode-bar { margin-bottom: 0; }
+.sayim-scan .barcode-input { flex: 1 1 320px; font-size: 17px; min-height: 46px; }
+.sayim-info { margin: 0; grid-column: 1 / -1; }
+.sayim-price { align-items: end; flex-wrap: wrap; }
+.sayim-price .field { max-width: 260px; }
+.sayim-price input { min-height: 40px; width: 100%; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
+.sayim-print { grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center; gap: 8px; }
+.sayim-print input { width: auto; min-height: 0; margin: 0; }
