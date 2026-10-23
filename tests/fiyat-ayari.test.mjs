@@ -13,15 +13,16 @@ function liveCache() {
 async function client() {
   const env = { DB: new TestD1().migrate('migrations'), APP_TZ: 'Europe/Istanbul' };
   let cookie = '';
+  const self = { donmus: false };
   const call = async (method, path, body) => {
-    liveCache();
+    if (!self.donmus) liveCache();
     const res = await app.fetch(new Request(`http://localhost${path}`, { method, headers: { 'content-type': 'application/json', cookie }, body: body === undefined ? undefined : JSON.stringify(body) }), env);
     const set = res.headers.get('set-cookie');
     if (set) cookie = set.split(';')[0];
     return { status: res.status, body: await res.json() };
   };
   await call('POST', '/api/auth/register', { name: 'Yönetici', email: 'a@d.com', password: 'gizli-parola' });
-  return { call, logout: () => (cookie = '') };
+  return Object.assign(self, { call, logout: () => (cookie = '') });
 }
 
 test('fiyat farkı canlı has fiyatına ve ürünlere uygulanır, döviz değişmez', async () => {
@@ -57,4 +58,16 @@ test('fiyat farkını yalnızca yönetici değiştirir ve sınır dışı değer
   c.logout();
   await c.call('POST', '/api/auth/login', { email: 'p@d.com', password: 'gizli-parola' });
   assert.equal((await c.call('PUT', '/api/altin-fiyati/ayar', { satis: 1 })).status, 403);
+});
+
+test('fiyat isteği dış kaynağı beklemez: bayat önbellek hemen döner, yenileme arkada yapılır', async () => {
+  const c = await client();
+  c.donmus = true;
+  liveCache();
+  globalThis.__kuyumcu_fiyat__.at = Date.now() - 5 * 60 * 1000; // 30 sn'den eski, 10 dk'dan genç
+  const started = Date.now();
+  const res = await c.call('GET', '/api/altin-fiyati');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.data.fiyat.satis, 6358);
+  assert.ok(Date.now() - started < 1000, 'dış kaynak beklenmemeli');
 });

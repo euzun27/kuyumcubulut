@@ -192,34 +192,82 @@ export function haremLive(): Live | null {
   return snap ? fromCodes(snap.data, 'Harem Altın', snap.tarih) : null;
 }
 
-async function liveData(key: string | null): Promise<Live> {
-  const g = globalThis as { __kuyumcu_fiyat__?: { at: number; data: Live; key?: string | null } };
-  if (!haremSnapshot()) await haremOnce();
+type Cache = { at: number; data: Live; key?: string | null };
+const STALE_MS = 10 * 60 * 1000;
+
+/** İsteği bekletmeden işi arka planda bitirir (Workers'ta waitUntil; testlerde söz kendiliğinden çalışır). */
+type Ctx = { env: Env['Bindings']; executionCtx?: { waitUntil(p: Promise<unknown>): void } };
+function background(c: Ctx | undefined, p: Promise<unknown>) {
+  try { c?.executionCtx?.waitUntil(p); } catch { /* yürütme bağlamı yok */ }
+}
+
+let refreshing: Promise<Live> | null = null;
+
+/** AltınAPI / Truncgil'den okuyup önbelleğe yazar; aynı anda gelen istekler tek okumayı paylaşır. */
+function refreshLive(key: string | null): Promise<Live> {
+  const g = globalThis as { __kuyumcu_fiyat__?: Cache };
+  refreshing ??= (async () => {
+    const paid = key ? await altinApiData(key) : null;
+    const truncgil = paid && Object.keys(paid.kurlar).length ? null : await truncgilData();
+    // Ücretli kaynakta bulunmayan kur, gümüş veya ürün varsa Truncgil'den tamamlanır.
+    const old = g.__kuyumcu_fiyat__;
+    // Kaynaklar okunamadıysa eski veri tazelenmiş gibi gösterilmez; 10 dakika sonra düşer.
+    if (!paid && !truncgil && old?.data.price) return old.data;
+    const data: Live = paid
+      ? { ...paid, kurlar: { ...truncgil?.kurlar, ...paid.kurlar }, metaller: { ...truncgil?.metaller, ...paid.metaller }, urunler: { ...truncgil?.urunler, ...paid.urunler } }
+      : truncgil ?? { price: null, kurlar: {}, metaller: {}, urunler: {} };
+    g.__kuyumcu_fiyat__ = { at: Date.now(), data, key };
+    return data;
+  })().finally(() => { refreshing = null; });
+  return refreshing;
+}
+
+/**
+ * Canlı fiyat. Hız için dış kaynak beklenmez: önbellekte veri varsa hemen o döner,
+ * yenileme arka planda yapılır (Harem 15 sn, diğerleri 30 sn). Yalnızca hiç veri
+ * yokken (ör. sunucu yeni açıldığında) Truncgil/AltınAPI cevabı beklenir.
+ */
+async function liveData(key: string | null, c?: Ctx): Promise<Live> {
+  const g = globalThis as { __kuyumcu_fiyat__?: Cache };
+  background(c, haremOnce());
+  const cached = g.__kuyumcu_fiyat__;
+  const sameKey = cached && (cached.key === undefined || cached.key === key);
   const harem = haremLive();
   if (harem) {
+    if (!sameKey || Date.now() - cached!.at >= CACHE_MS) background(c, refreshLive(key));
     // Harem'de olmayan kalemler (ör. GBP) önbellekteki son Truncgil verisinden tamamlanır.
-    const old = g.__kuyumcu_fiyat__?.data;
+    const old = cached?.data;
     return { ...harem, kurlar: { ...old?.kurlar, ...harem.kurlar }, metaller: { ...old?.metaller, ...harem.metaller }, urunler: { ...old?.urunler, ...harem.urunler } };
   }
-  const cached = g.__kuyumcu_fiyat__;
-  if (cached && Date.now() - cached.at < CACHE_MS && (cached.key === undefined || cached.key === key)) return cached.data;
-  const paid = key ? await altinApiData(key) : null;
-  const truncgil = paid && Object.keys(paid.kurlar).length ? null : await truncgilData();
-  // Ücretli kaynakta bulunmayan kur, gümüş veya ürün varsa Truncgil'den tamamlanır.
-  const data: Live = paid
-    ? { ...paid, kurlar: { ...truncgil?.kurlar, ...paid.kurlar }, metaller: { ...truncgil?.metaller, ...paid.metaller }, urunler: { ...truncgil?.urunler, ...paid.urunler } }
-    : truncgil ?? { price: null, kurlar: {}, metaller: {}, urunler: {} };
-  g.__kuyumcu_fiyat__ = { at: Date.now(), data, key };
-  return data;
+  if (sameKey && Date.now() - cached!.at < CACHE_MS) return cached!.data;
+  if (sameKey && Date.now() - cached!.at < STALE_MS) { background(c, refreshLive(key)); return cached!.data; }
+  return refreshLive(key);
+}
+
+/**
+ * app_meta'daki fiyat ayarları tek sorguda okunur (her biri ayrı sorgu olunca fiyat
+ * isteği veritabanına beş kez gidip gelirdi). İstek başına bir kez okunur; yazan uçlar
+ * yazdıktan sonra okur.
+ */
+const META_KEYS = ['fiyat_api_anahtari', 'doviz_kurlari_manuel', 'metal_fiyat_manuel', 'has_fiyati_manuel', 'fiyat_ayari'];
+const metaMemo = new WeakMap<object, Promise<Map<string, string>>>();
+function meta(c: { env: Env['Bindings'] }, name: string): Promise<{ value: string } | null> {
+  let p = metaMemo.get(c);
+  if (!p) {
+    p = c.env.DB.prepare(`SELECT key, value FROM app_meta WHERE key IN (${META_KEYS.map(() => '?').join(', ')})`).bind(...META_KEYS).all<{ key: string; value: string }>()
+      .then((r) => new Map((r.results ?? []).map((x) => [x.key, x.value])));
+    metaMemo.set(c, p);
+  }
+  return p.then((m) => (m.has(name) ? { value: m.get(name)! } : null));
 }
 
 async function apiKey(c: { env: Env['Bindings'] }): Promise<string | null> {
-  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'fiyat_api_anahtari'`);
+  const row = await meta(c, 'fiyat_api_anahtari');
   return row?.value || null;
 }
 
 async function manualRates(c: { env: Env['Bindings'] }): Promise<Record<string, Rate>> {
-  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'doviz_kurlari_manuel'`);
+  const row = await meta(c, 'doviz_kurlari_manuel');
   if (!row) return {};
   try {
     const v = JSON.parse(row.value) as Record<string, { alis: number; satis: number }>;
@@ -231,7 +279,7 @@ async function manualRates(c: { env: Env['Bindings'] }): Promise<Record<string, 
 
 /** Elle girilen gümüş (TL/gr) ve bakır (TL/kg) fiyatları. */
 async function manualMetals(c: { env: Env['Bindings'] }): Promise<Record<string, Rate>> {
-  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'metal_fiyat_manuel'`);
+  const row = await meta(c, 'metal_fiyat_manuel');
   if (!row) return {};
   try {
     const v = JSON.parse(row.value) as Record<string, { alis: number; satis: number }>;
@@ -242,7 +290,7 @@ async function manualMetals(c: { env: Env['Bindings'] }): Promise<Record<string,
 }
 
 async function manualPrice(c: { env: Env['Bindings'] }): Promise<Price | null> {
-  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'has_fiyati_manuel'`);
+  const row = await meta(c, 'has_fiyati_manuel');
   if (!row) return null;
   try {
     const v = JSON.parse(row.value);
@@ -256,7 +304,7 @@ export type PriceAdjust = { alis: number; satis: number };
 
 /** Canlı altın fiyatına uygulanan yüzde farkı (ör. satış +1,5 → piyasa × 1,015). */
 export async function priceAdjust(c: { env: Env['Bindings'] }): Promise<PriceAdjust> {
-  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'fiyat_ayari'`);
+  const row = await meta(c, 'fiyat_ayari');
   try {
     const v = JSON.parse(row?.value ?? '{}');
     return { alis: Number(v.alis) || 0, satis: Number(v.satis) || 0 };
@@ -277,8 +325,8 @@ export function adjustPair<T extends { alis: number; satis: number }>(p: T, a: P
  * Canlı has fiyatı ve altın ürünlerine ayarlardaki yüzde farkı uygulanır; elle girilen
  * fiyat, döviz ve metaller olduğu gibi kalır.
  */
-export async function currentPrices(c: { env: Env['Bindings'] }, liveToo = true) {
-  const raw: Live = liveToo ? await liveData(await apiKey(c)) : { price: null, kurlar: {}, metaller: {} };
+export async function currentPrices(c: Ctx, liveToo = true) {
+  const raw: Live = liveToo ? await liveData(await apiKey(c), c) : { price: null, kurlar: {}, metaller: {} };
   const ayar = await priceAdjust(c);
   const live: Live = {
     ...raw,
@@ -304,7 +352,7 @@ fiyat.get('/', async (c) => {
 fiyat.get('/kaynak', async (c) => {
   if (c.get('user')?.role !== 'admin') throw new HttpError(403, 'Bu işlem için yönetici yetkisi gerekir.');
   const key = await apiKey(c);
-  const live = await liveData(key);
+  const live = await liveData(key, c);
   return c.json({ status: 'ok', message: '', data: { anahtar_var: !!key, anahtar_son: key ? key.slice(-4) : null, saglayici: live.price?.saglayici ?? null, harem: haremDurum() } });
 });
 
