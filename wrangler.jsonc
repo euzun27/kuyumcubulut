@@ -11,7 +11,7 @@
     {
       "binding": "DB",
       "database_name": "kuyumcu-production",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "fb9f72e8-ef25-4793-8d12-04d96721d1b9",
       "migrations_dir": "migrations"
     }
   ]

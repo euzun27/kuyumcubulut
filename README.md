@@ -1,7 +1,7 @@
 # Dünyatek Kuyumcu Portalı — Bulut (web) sürümü
 
 Dünyatek Kuyumcu Portalı'nın internetten kullanılan sürümü: tarayıcıdan
-**https://kuyumcu.dunyatek.com** adresiyle girilir, telefon ve tablette de
+**https://panel.kuyumcuportali.com** adresiyle girilir, telefon ve tablette de
 kullanılır. Hesaplar, kasa, cari, raporlar ve kullanıcı yönetimi masaüstü
 sürümüyle (1.1.6) birebir aynıdır; bu repo
 [euzun27/dunyaaltin](https://github.com/euzun27/dunyaaltin) deposunun 1.1.6
@@ -14,7 +14,7 @@ kodundan başlatıldı. Masaüstü (Windows kurulumlu) sürüm o depoda kalır.
 | Derleme | Vite |
 | Çalışma ortamı | Cloudflare Pages + Workers |
 | Veritabanı | Cloudflare D1 (SQLite) |
-| Canlı alan adı | https://kuyumcu.dunyatek.com |
+| Canlı alan adı | https://panel.kuyumcuportali.com |
 
 Altyapı DunyaOne (cari.dunyatek.com) ile aynıdır. Yerel çalışma klasörü:
 `D:\Cloude_free\dunyatekkuyumcu_bulut`
@@ -64,23 +64,24 @@ Müşteriler için resimli kılavuz `public/static/kilavuz/` altında: uygulamad
 dişli menüdeki **KULLANIM KILAVUZU** açar, PDF'i aynı klasörde
 (`Dunyatek_Kuyumcu_Portal_Kullanim_Kilavuzu.pdf`).
 
-## Cloudflare'de yayına alma (kuyumcu.dunyatek.com)
+## Cloudflare'de yayına alma (panel.kuyumcuportali.com)
 
-Bir kez yapılır; Cloudflare hesabında dunyatek.com zaten kayıtlı olmalı.
+Bir kez yapılır; Cloudflare hesabında kuyumcuportali.com zaten kayıtlı olmalı.
 
 1. Cloudflare hesabına giriş: `npx wrangler login`
 2. Veritabanını oluştur: `npx wrangler d1 create kuyumcu-production`
    Çıktıdaki `database_id` değerini `wrangler.jsonc` içine yaz ve commit et.
 3. Şemayı kur: `npm run db:migrate:remote`
-4. Pages projesini oluştur: `npx wrangler pages project create kuyumcu --production-branch main`
+4. Pages projesini oluştur: `npx wrangler pages project create kuyumcu --production-branch main --force`
+   (`--force` olmadan yeni wrangler Workers projesi açmaya çalışıp hata verir.)
 5. **Kurulum anahtarı** (zorunlu): `npx wrangler pages secret put SETUP_KEY --project-name kuyumcu`
    Uzun, tahmin edilemez bir değer girin ve saklayın. İnternetten ilk yönetici
    hesabını yalnızca bu anahtarı bilen açabilir; anahtar tanımlı değilse HTTPS
    üzerinden ilk kurulum kapalıdır.
 6. Yayınla: `npm run deploy`
 7. Cloudflare panelinde **Workers & Pages → kuyumcu → Custom domains** altından
-   `kuyumcu.dunyatek.com` ekle (DNS kaydı ve HTTPS sertifikası otomatik gelir).
-8. https://kuyumcu.dunyatek.com adresini aç; ad, e-posta, parola ve kurulum
+   `panel.kuyumcuportali.com` ekle (DNS kaydı ve HTTPS sertifikası otomatik gelir).
+8. https://panel.kuyumcuportali.com adresini aç; ad, e-posta, parola ve kurulum
    anahtarıyla yönetici hesabını oluştur.
 
 GitHub bağlantısıyla otomatik yayın istenirse Pages projesinde derleme komutu
