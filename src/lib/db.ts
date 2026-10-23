@@ -16,6 +16,10 @@ export type LocalHost = {
   listBackupFiles(): Promise<{ name: string; size: number; modified: string }[]>;
   readBackupFile(name: string): Promise<string>;
   openBackupDir(): void;
+  /** Windows'a kurulu yazıcıların adları. */
+  listPrinters(): Promise<string[]>;
+  /** Veriyi yazıcıya olduğu gibi (RAW, ör. Zebra ZPL) gönderir; yazıcı adı veya IP[:port]. */
+  printRaw(printer: string, data: string): Promise<void>;
 };
 
 export type SessionUser = {

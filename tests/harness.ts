@@ -4,3 +4,4 @@ export { SqliteD1 as TestD1 } from '../desktop/sqlite-d1';
 export { parseLivePrice, parseLiveRates, parseLiveSilver, parseLiveProducts, parseAltinApi } from '../src/api/fiyat';
 
 export { haremMesaj, haremSnapshot, startHaremStream } from '../src/lib/harem';
+export { printRaw } from '../desktop/yazici';
