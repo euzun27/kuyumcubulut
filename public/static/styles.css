@@ -3982,3 +3982,15 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 }
 
 @media print { .bottom-nav, .menu-toggle, .menu-backdrop { display: none !important; } }
+
+/* İşçilik birimi: TL | Milyem */
+.iscilik-head { display: flex; align-items: center; gap: 8px; }
+.unit-toggle { display: inline-flex; gap: 0; }
+.unit-toggle button { padding: 0 8px; min-height: 0; height: 18px; line-height: 16px; font-size: 11px; border-radius: 0; }
+.unit-toggle button:first-child { border-radius: 6px 0 0 6px; }
+.unit-toggle button:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
+.unit-toggle button.active { background: var(--green); color: var(--panel); border-color: var(--green); }
+.iscilik-row { display: flex; gap: 6px; }
+.iscilik-row > input { flex: 1; min-width: 0; }
+.iscilik-row > input[hidden] { display: none; }
+.iscilik-hint { display: block; margin-top: 2px; }

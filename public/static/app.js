@@ -693,6 +693,67 @@ function fieldElement(name, type, source, readonly) {
   return input;
 }
 
+/**
+ * İşçilik birimi: TL ya da milyem. Milyemde iki kutu birlikte görünür ve birbirini
+ * günceller: milyem yazılırsa gram × milyem / 1000 has, has fiyatıyla TL'ye çevrilir;
+ * pazarlıkta TL tutarı elle değiştirilirse milyem geri hesaplanır. Kayıt yine TL
+ * tutarıyla saklanır. Son seçim bu bilgisayarda hatırlanır; düzenlemede kayıt TL
+ * olduğu için TL açılır.
+ */
+const ISCILIK_BIRIM_KEY = "iscilik_birim";
+function attachIscilikUnit(form, isEditing, onChange) {
+  const tl = form.elements.iscilik;
+  const wrap = form.querySelector('[data-field="iscilik"]');
+  if (!tl || !wrap) return;
+  let mode = "TL";
+  if (!isEditing) { try { mode = localStorage.getItem(ISCILIK_BIRIM_KEY) === "MILYEM" ? "MILYEM" : "TL"; } catch { /* varsayılan TL */ } }
+  // Son elle yazılan kutu esas alınır; gram ya da has fiyatı değişince öteki yeniden hesaplanır.
+  let source = "milyem";
+  const milyem = document.createElement("input");
+  milyem.type = "text"; milyem.name = "iscilik_milyem"; milyem.inputMode = "decimal"; milyem.placeholder = "Milyem";
+  milyem.setAttribute("aria-label", "İşçilik (milyem)");
+  attachDecimalGuard(milyem);
+  const hint = document.createElement("small"); hint.className = "hint iscilik-hint";
+  const toggle = document.createElement("span"); toggle.className = "unit-toggle";
+  const btn = (value, text) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = text; b.dataset.unit = value;
+    b.onclick = () => setMode(value, true);
+    return b;
+  };
+  toggle.append(btn("TL", "TL"), btn("MILYEM", "Milyem"));
+  const head = document.createElement("span"); head.className = "iscilik-head";
+  head.append("İşçilik", toggle);
+  wrap.firstChild.replaceWith(head);
+  const row = document.createElement("span"); row.className = "iscilik-row";
+  tl.replaceWith(row); row.append(milyem, tl); row.after(hint);
+  // Düğmeler etiketin içinde: etikete tıklamak düğmeye değil kutuya gitsin.
+  tl.id ||= `iscilik-${Math.random().toString(36).slice(2)}`; milyem.id = `${tl.id}-m`;
+  const text = (v, digits) => (v ? String(Math.round(v * 10 ** digits) / 10 ** digits).replace(".", ",") : "");
+  const sync = () => {
+    if (mode !== "MILYEM") { hint.textContent = ""; return; }
+    const gram = parseNum(form.elements.gram?.value);
+    const fiyat = parseNum(form.elements.has_fiyati?.value);
+    if (source === "milyem") tl.value = text(gram * parseNum(milyem.value) / 1000 * fiyat, 2);
+    else milyem.value = gram && fiyat ? text(parseNum(tl.value) / fiyat / gram * 1000, 2) : "";
+    const has = gram * parseNum(milyem.value) / 1000;
+    hint.textContent = has ? `${formatTurkishNumber(has, 0, 3)} has = ${formatValue("toplam_tutar", parseNum(tl.value))} \u20ba` : "";
+  };
+  function setMode(value, user) {
+    mode = value;
+    if (user) { try { localStorage.setItem(ISCILIK_BIRIM_KEY, value); } catch { /* yalnız bu oturum */ } }
+    toggle.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.unit === mode));
+    milyem.hidden = mode !== "MILYEM";
+    tl.placeholder = mode === "MILYEM" ? "TL" : "";
+    wrap.htmlFor = mode === "MILYEM" ? milyem.id : tl.id;
+    if (mode === "MILYEM") source = tl.value.trim() ? "tl" : "milyem";
+    onChange();
+  }
+  milyem.addEventListener("input", () => { source = "milyem"; onChange(); });
+  tl.addEventListener("input", () => { source = "tl"; }, true);
+  form._syncIscilik = sync;
+  setMode(mode, false);
+}
+
 function calcHas(form) {
   if (form.elements.has_override?.value.trim()) return parseNum(form.elements.has_override.value);
   const milyem = form.elements.satis_milyem ? parseNum(form.elements.satis_milyem.value) : parseNum(form.elements.milyem?.value);
@@ -983,6 +1044,7 @@ function openTransactionPaymentModal(form) {
     // Otomatik düğmesi yalnızca elle has yazılmışken iş yapar.
     automatic.disabled = !manualHas.value.trim();
     updateStockMilyem(form);
+    form._syncIscilik?.();
     preview.querySelector("[data-has]").textContent = formatValue("has", calcHas(form));
     preview.querySelector("[data-gram]").textContent = formatValue("gram", parseNum(form.elements.gram.value));
     const tutar = calcHas(form) * parseNum(form.elements.has_fiyati?.value) + parseNum(form.elements.iscilik?.value);
@@ -995,6 +1057,7 @@ function openTransactionPaymentModal(form) {
     attachDecimalGuard(input);
     input.addEventListener("input", updatePreview);
   });
+  attachIscilikUnit(form, isEditing, updatePreview);
   // Yeni kayıtta has fiyatı canlı fiyatı izler (alışta alış, satışta satış fiyatı);
   // kullanıcı elle değiştirirse yazdığı değer korunur.
   const isSaleForm = type === "satis" || (type === "hurda" && hurdaMode === "SATIS");
@@ -1042,9 +1105,11 @@ function openTransactionPaymentModal(form) {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    form._syncIscilik?.();
     syncTransactionPayment(form);
     const data = Object.fromEntries(new FormData(form).entries());
     if (!data.has_override?.trim()) delete data.has_override;
+    delete data.iscilik_milyem;
     if (form._kasa) data.kasa = form._kasa.map((k) => ({ hesap_id: k.hesap_id, tutar: String(k.tutar), kur: k.kur ? String(k.kur) : null }));
     if (type === "alis") { data.ek_masraf = 0; data.odenen = 0; }
     if (type === "satis") {
