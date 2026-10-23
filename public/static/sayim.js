@@ -86,11 +86,9 @@ async function renderSayim(s) {
 
   if (open) {
     // Barkod okutma: okuyucu metni yazıp Enter gönderir.
-    const input = h("input", { class: "barcode-input", placeholder: "Barkodu okutun (bizim ya da eski / farklı firma etiketi) ve Enter", autocomplete: "off", "aria-label": "Barkod" });
+    const input = h("input", { class: "barcode-input", placeholder: "Barkodu okutun ya da yazın (bizim ya da eski / farklı firma etiketi)", autocomplete: "off", "aria-label": "Barkod" });
     const status = h("span", { class: `barcode-status ${state.sayimMesaj ? (state.sayimMesaj.ok ? "ok" : "err") : ""}`, text: state.sayimMesaj?.text || "" });
-    input.addEventListener("keydown", async (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
+    const scan = async () => {
       const kod = input.value.trim();
       if (!kod) return;
       input.disabled = true;
@@ -100,9 +98,12 @@ async function renderSayim(s) {
         else { state.sayimForm = null; state.sayimMesaj = { ok: true, text: `${r.etiket.barkod}${r.etiket.eski_barkod ? ` (${r.etiket.eski_barkod})` : ""} ${r.etiket.cinsi} ${r.etiket.ayar} · ${sayimGram(r.etiket.gram)} gr sayıldı${acilis && r.etiket.alis_id ? " (zaten stokta)" : ""}.` }; }
       } catch (error) { state.sayimMesaj = { ok: false, text: error.message }; }
       render();
-    });
+    };
+    input.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); scan(); } });
+    const okut = h("button", { type: "button", class: "sayim-okut", text: "Okut", onclick: scan });
     const manual = h("button", { type: "button", class: "secondary", text: "Barkodsuz ürün ekle", onclick: () => { state.sayimForm = { eski_barkod: "" }; state.sayimMesaj = null; render(); } });
-    box.append(h("div", { class: "barcode-bar sayim-scan no-print" }, h("span", { class: "barcode-icon", html: barcodeSvg("DT", 18) }), input, manual, status));
+    box.append(h("div", { class: "barcode-bar sayim-scan no-print" }, h("span", { class: "barcode-icon", html: barcodeSvg("DT", 18) }), input, okut, manual, status),
+      h("small", { class: "hint sayim-hint no-print", text: "Okuyucu kodu kendisi gönderir. Elle yazdıysanız Enter'a ya da Okut'a basın. Kod kayıtlı değilse cinsi, ayar, gram ve milyem için form açılır." }));
     if (state.sayimForm) box.append(renderSayimItemForm(s));
     else setTimeout(() => input.focus(), 0);
     if (acilis) box.append(renderSayimPrice(s));
