@@ -1,8 +1,8 @@
 # Dünyatek Kuyumcu Portalı
 
 Dünyatek Bilişim kuyumcu takip portalı: alış, satış, hurda, stok (FIFO), cari,
-gider ve milyem kârı takibi. [esmanurakbas/kuyumcu](https://github.com/esmanurakbas/kuyumcu)
-(AKBAŞ Kuyumcu Takip) projesi temel alınmıştır.
+gider ve milyem kârı takibi. Erdal UZUN tarafından geliştirilmiştir.
+(Dunyatek  Kuyumcu Portal) projesi temel alınmıştır.
 
 | Katman | Teknoloji |
 | --- | --- |
