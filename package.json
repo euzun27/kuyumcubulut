@@ -10,7 +10,7 @@
     "db:migrate:local": "wrangler d1 migrations apply kuyumcu-production --local",
     "db:migrate:remote": "wrangler d1 migrations apply kuyumcu-production --remote",
     "typecheck": "tsc --noEmit",
-    "test": "node tests/build.mjs && node --test tests/app.test.mjs tests/kasa.test.mjs tests/takip.test.mjs tests/etiket.test.mjs tests/metal.test.mjs tests/pano.test.mjs tests/fiyat-ayari.test.mjs tests/gider.test.mjs tests/harem.test.mjs tests/doviz.test.mjs tests/uctan-uca.test.mjs tests/web.test.mjs"
+    "test": "node tests/build.mjs && node --test tests/app.test.mjs tests/kasa.test.mjs tests/takip.test.mjs tests/etiket.test.mjs tests/metal.test.mjs tests/pano.test.mjs tests/fiyat-ayari.test.mjs tests/gider.test.mjs tests/harem.test.mjs tests/doviz.test.mjs tests/ekstre.test.mjs tests/uctan-uca.test.mjs tests/web.test.mjs"
   },
   "dependencies": {
     "hono": "^4.13.13"

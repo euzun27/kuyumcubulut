@@ -697,6 +697,78 @@ export class Ledger {
     return this.cariCache;
   }
 
+  /* ------------------------------ ekstre --------------------------------- */
+
+  /**
+   * Bir carinin has hareketleri tarih sırasıyla. İşaretler cari ekranıyla aynıdır:
+   * artı = kişi bize borçlu (biz alacaklıyız), eksi = biz kişiye borçluyuz.
+   * `tutar` işlemin TL tutarıdır, bilgi içindir; bakiye has üzerinden yürür.
+   */
+  cariMovements(name: unknown): Row[] {
+    const key = normalizeText(name);
+    const rows: { tarih: string; sira: number; id: number; islem: string; aciklama: string; gram: Dec; tutar: Dec; has: Dec }[] = [];
+    const urun = (r: Row) => [normalizeProduct(r.cinsi), cleanText(r.ayar)].filter(Boolean).join(' ');
+    for (const r of this.s.satis) {
+      if (normalizeText(r.musteri) !== key) continue;
+      rows.push({ tarih: String(r.tarih), sira: 1, id: Number(r.id), islem: 'Satış', aciklama: urun(r), gram: d(r.gram),
+        tutar: saleTotal(r), has: d(r.has).sub(d(r.odenen_has)) });
+    }
+    for (const r of this.s.alis) {
+      if (normalizeText(r.tedarikci) !== key) continue;
+      rows.push({ tarih: String(r.tarih), sira: 2, id: Number(r.id), islem: 'Alış', aciklama: urun(r), gram: d(r.gram),
+        tutar: purchaseTotal(r), has: d(r.has).sub(d(r.odenen_has)).neg() });
+    }
+    for (const r of this.s.hurda) {
+      if (normalizeText(r.kisi) !== key) continue;
+      const has = d(r.has).sub(d(r.odenen_has));
+      const sale = r.islem_turu !== 'ALIS';
+      rows.push({ tarih: String(r.tarih), sira: 3, id: Number(r.id), islem: sale ? 'Hurda satış' : 'Hurda alış', aciklama: urun(r), gram: d(r.gram),
+        tutar: scrapTotal(r), has: sale ? has : has.neg() });
+    }
+    for (const r of this.s.cari_odeme) {
+      if (normalizeText(r.isim) !== key) continue;
+      const odeme = (r.yon ?? 'TAHSILAT') === 'ODEME';
+      rows.push({ tarih: String(r.tarih), sira: 4, id: Number(r.id), islem: odeme ? 'Ödeme (biz ödedik)' : 'Tahsilat', aciklama: cleanText(r.notlar), gram: d(r.gram),
+        tutar: ZERO, has: odeme ? d(r.odenen_has) : d(r.odenen_has).neg() });
+    }
+    rows.sort((a, b) => cmpStr(a.tarih, b.tarih) || a.sira - b.sira || a.id - b.id);
+    return rows.map((r) => ({ tarih: r.tarih, islem: r.islem, aciklama: r.aciklama, gram: asFloat(r.gram, NUM_Q), tutar: asFloat(r.tutar, MONEY_Q), has: asFloat(r.has, HAS_Q) }));
+  }
+
+  /**
+   * Bir ürünün (cinsi + ayar) stok giriş ve çıkışları tarih sırasıyla. Çıkışta has,
+   * stok ekranındaki gibi stoktan düşen (alış maliyetindeki) hastır.
+   */
+  stockMovements(kind: Kind, cinsi: unknown, ayar: unknown): Row[] {
+    const rows: { tarih: string; id: number; islem: string; kisi: string; gram: Dec; has: Dec; milyem: unknown }[] = [];
+    if (kind === 'normal') {
+      const purchases = this.s.alis.filter((r) => sameProduct(r, cinsi, ayar) && !isHurdaProduct(r.cinsi));
+      const totalGram = Dec.sum(purchases.map((r) => d(r.gram)));
+      const avg = totalGram.gt(ZERO) ? Dec.sum(purchases.map((r) => d(r.has))).div(totalGram) : ZERO;
+      for (const r of purchases) rows.push({ tarih: String(r.tarih), id: Number(r.id), islem: 'Alış', kisi: cleanText(r.tedarikci), gram: d(r.gram), has: d(r.has), milyem: r.milyem });
+      for (const r of this.s.satis.filter((x) => sameProduct(x, cinsi, ayar) && !isHurdaProduct(x.cinsi))) {
+        const purchase = this.alis(salePurchaseId(r));
+        const ratio = purchase && d(purchase.gram).gt(ZERO) ? d(purchase.has).div(d(purchase.gram)) : avg;
+        const has = Number(r.stoktan) ? this.allocatedStockHas('normal', r) : d(r.gram).mul(ratio);
+        rows.push({ tarih: String(r.tarih), id: Number(r.id), islem: 'Satış', kisi: cleanText(r.musteri), gram: d(r.gram).neg(), has: has.neg(), milyem: r.satis_milyem ?? r.milyem });
+      }
+    } else {
+      const items = this.s.hurda.filter((r) => sameProduct(r, cinsi, ayar));
+      const buys = items.filter((r) => r.islem_turu === 'ALIS');
+      const totalGram = Dec.sum(buys.map((r) => d(r.gram)));
+      const avg = totalGram.gt(ZERO) ? Dec.sum(buys.map((r) => d(r.has))).div(totalGram) : ZERO;
+      for (const r of items) {
+        if (r.islem_turu === 'ALIS') { rows.push({ tarih: String(r.tarih), id: Number(r.id), islem: 'Hurda alış', kisi: cleanText(r.kisi), gram: d(r.gram), has: d(r.has), milyem: r.milyem }); continue; }
+        const purchase = this.hurdaAlis(r.hurda_alis_id);
+        const has = Number(r.stoktan) ? this.allocatedStockHas('hurda', r)
+          : purchase && d(purchase.gram).gt(ZERO) ? d(r.gram).mul(d(purchase.has)).div(d(purchase.gram)) : d(r.gram).mul(avg);
+        rows.push({ tarih: String(r.tarih), id: Number(r.id), islem: 'Hurda satış', kisi: cleanText(r.kisi), gram: d(r.gram).neg(), has: has.neg(), milyem: r.milyem });
+      }
+    }
+    rows.sort((a, b) => cmpStr(a.tarih, b.tarih) || Number(b.gram.gt(ZERO)) - Number(a.gram.gt(ZERO)) || a.id - b.id);
+    return rows.map((r) => ({ tarih: r.tarih, islem: r.islem, kisi: r.kisi, milyem: asFloat(d(r.milyem ?? 0), NUM_Q), gram: asFloat(r.gram, NUM_Q), has: asFloat(r.has, HAS_Q) }));
+  }
+
   /* ----------------------------- öneriler -------------------------------- */
 
   suggestions(): Row {

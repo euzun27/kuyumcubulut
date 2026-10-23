@@ -3995,3 +3995,20 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .iscilik-row > input { flex: 1; min-width: 0; }
 .iscilik-row > input[hidden] { display: none; }
 .iscilik-hint { display: block; margin-top: 2px; }
+
+/* Ekstreler */
+.ekstre-bar { margin-top: 10px; align-items: flex-end; }
+.ekstre-picker .field { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.ekstre-picker select { min-height: 40px; min-width: 200px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
+.ekstre-doc { margin-top: 16px; }
+.ekstre-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.ekstre-head > div { display: grid; gap: 2px; }
+.ekstre-head small { color: var(--muted); }
+.ekstre-firma { font-size: 16px; }
+.ekstre-title { text-align: right; }
+.ekstre-title h2 { margin: 0; font-size: 18px; }
+.ekstre-table td.strong { font-weight: 700; }
+.ekstre-table th.num, .ekstre-table td.num { text-align: right; white-space: nowrap; }
+.ekstre-devir td { background: var(--panel-strong); font-weight: 600; }
+@media (max-width: 700px) { .ekstre-title { text-align: left; } .ekstre-picker select { min-width: 0; width: 100%; } }
+@media print { .ekstre-doc { margin: 0; } .ekstre-table { font-size: 11px; } }
