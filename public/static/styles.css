@@ -3529,6 +3529,8 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .status-pill.warn { background: var(--red-soft); color: var(--red); margin-left: 6px; }
 .status-pill.stocked { margin-left: 6px; }
 .etiket-stok-box { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+/* labeled() alanı field-main (span 3) getirir; kutuda her şey tek sütun. */
+.etiket-stok-box > * { grid-column: 1 / -1; }
 .etiket-stok-box .check-field { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 700; }
 .etiket-stok-box .check-field input { width: auto; min-height: 0; margin: 0; }
 .etiket-stok-box .field { max-width: 280px; }
