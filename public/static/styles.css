@@ -4051,3 +4051,7 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .sayim-price input { min-height: 40px; width: 100%; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
 .sayim-print { grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center; gap: 8px; }
 .sayim-print input { width: auto; min-height: 0; margin: 0; }
+
+/* Alışta "kaydedince etiket bas" */
+.form-bottom-actions .alis-etiket-bas { align-self: center; margin-left: 6px; font-weight: 700; color: var(--text); cursor: pointer; }
+.entry-form .alis-etiket-bas input { width: auto; min-height: 0; margin: 0; padding: 0; }

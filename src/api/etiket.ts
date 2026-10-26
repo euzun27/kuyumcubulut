@@ -239,4 +239,49 @@ export async function etiketStmts(c: Context<Env>, raw: unknown, saleId: number 
   return stmts;
 }
 
+/**
+ * Alışta barkod ve etiket (POST /api/alis gövdesinde `barkod`, `etiket_bas`):
+ * - Bizim DT etiketimiz satılmışsa geri alımdır: aynı etiket bu alışa bağlanıp yeniden STOKTA olur.
+ * - Başka firmanın barkodu (bilinen ya da ilk kez görülen) her parça için bir etiket kaydına
+ *   `eski_barkod` olarak yazılır; aynı barkodlu paketli ürünlerde satışta stoktaki biri düşer.
+ * - Barkodsuz üründe `etiket_bas` ile her parça için DT etiketi açılır.
+ * Kayıtlar aynı batch'te eklenen alışa `(SELECT MAX(id) FROM alis)` ile bağlanır; ayrıca stok
+ * alışı açılmaz, böylece ürün ikinci kez stoğa girmez.
+ */
+export async function alisEtiketStmts(
+  c: Context<Env>, b: Record<string, unknown>,
+  p: { tarih: string; cinsi: string; ayar: string; adet: { toNumber(): number }; gram: { toString(): string }; milyem: { toNumber(): number } },
+): Promise<Stmt[]> {
+  const kod = text(b.barkod, 80);
+  const bas = [true, 'true', 'on', '1', 1].includes(b.etiket_bas as never);
+  if (!kod && !bas) return [];
+  const alisRef = '(SELECT MAX(id) FROM alis)';
+  const tag = kod ? await findByCode(c.env.DB, kod) : null;
+  if (!tag && /^DT\d+$/i.test(kod)) throw new ValidationError(`${kod.toUpperCase()} numaralı etiket bulunamadı.`);
+  if (tag && String(tag.eski_barkod ?? '') !== kod) {
+    // Okutulan kod bizim DT numaramız.
+    const code = barcodeOf(Number(tag.id));
+    if (tag.durum !== 'SATILDI') throw new ValidationError(`${code} etiketli ürün zaten stokta; ikinci kez alış girilemez.`);
+    if (p.adet.toNumber() > 1) throw new ValidationError(`${code} tek bir parçadır; geri alımda adet 1 olmalıdır.`);
+    return [{
+      sql: `UPDATE etiketler SET durum = 'STOKTA', satis_id = NULL, alis_id = ${alisRef}, cinsi = ?, ayar = ?, gram = ?, milyem = ? WHERE id = ?`,
+      args: [p.cinsi, p.ayar, d(p.gram).q(NUM_Q).toNumber(), p.milyem.toNumber(), tag.id],
+    }];
+  }
+  const adet = p.adet.toNumber();
+  const parca = Number.isInteger(adet) && adet >= 1 ? adet : 1;
+  if (parca > MAX_BATCH) throw new ValidationError(`Tek alışta en fazla ${MAX_BATCH} etiket açılır.`);
+  const toplam = d(p.gram);
+  const birim = toplam.div(parca).q(NUM_Q);
+  const stmts: Stmt[] = [];
+  for (let i = 0; i < parca; i++) {
+    const gram = i === parca - 1 ? toplam.sub(birim.mul(parca - 1)).q(NUM_Q) : birim;
+    stmts.push({
+      sql: `INSERT INTO etiketler (tarih, alis_id, cinsi, ayar, gram, milyem, eski_barkod) VALUES (?, ${alisRef}, ?, ?, ?, ?, ?)`,
+      args: [p.tarih, p.cinsi, p.ayar, gram.toNumber(), p.milyem.toNumber(), kod || null],
+    });
+  }
+  return stmts;
+}
+
 export default etiket;

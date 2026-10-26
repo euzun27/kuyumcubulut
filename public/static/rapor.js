@@ -488,13 +488,84 @@ function attachBarcodeScan(form) {
   form.prepend(h("div", { class: "barcode-bar" }, h("span", { class: "barcode-icon", html: barcodeSvg("DT", 18) }), input, clear, status));
 }
 
+/* ------------------------------------------------------------------ */
+/* Alış formunda barkod ve etiket                                      */
+/* ------------------------------------------------------------------ */
+
+const sayiYaz = (n) => String(Math.round(Number(n) * 1000) / 1000).replace(".", ",");
+
+/**
+ * Alışta okutulan barkod: bizim satılmış DT etiketimiz geri alımdır (form dolar, aynı etiket
+ * yeniden stokta olur); başka firmanın barkodu bilinirse form dolar, bilinmezse elle yazılır ve
+ * kaydedince saklanır. Aynı barkod tekrar okutulursa (paketli gram altın) adet ve gram artar.
+ */
+async function applyPurchaseBarcode(form, code, status) {
+  const kod = code.trim();
+  const hidden = form.elements.namedItem("barkod");
+  const set = (name, value) => { if (form.elements[name] && value !== undefined && value !== null && value !== "") form.elements[name].value = value; };
+  if (hidden.value && hidden.value === kod && form.dataset.barkodTur === "dis") {
+    const adet = (readAmount(form.elements.adet.value) || 1) + 1;
+    const birim = Number(form.dataset.barkodGram) || 0;
+    set("adet", String(adet));
+    if (birim) set("gram", sayiYaz(birim * adet));
+    form.elements.gram.dispatchEvent(new Event("input", { bubbles: true }));
+    status.replaceChildren(h("b", { text: kod }), ` aynı üründen ${adet} adet okutuldu.`);
+    status.className = "barcode-status ok";
+    return;
+  }
+  let tag = null;
+  try { tag = await api(`/api/etiket/kod/${encodeURIComponent(kod)}`); }
+  catch (error) { if (!/etiket yok/i.test(error.message)) throw error; }
+  if (tag && tag.eski_barkod !== kod) {
+    if (tag.durum !== "SATILDI") throw new Error(`${tag.barkod} etiketli ürün zaten stokta; ikinci kez alış girilemez.`);
+    set("cinsi", tag.cinsi); set("ayar", tag.ayar); set("adet", "1");
+    set("gram", sayiYaz(tag.gram)); if (Number(tag.milyem)) set("milyem", sayiYaz(tag.milyem));
+    hidden.value = tag.barkod; form.dataset.barkodTur = "geri";
+    status.replaceChildren(h("b", { text: tag.barkod }), ` geri alım: ${tag.cinsi} ${tag.ayar} · ${formatValue("gram", tag.gram)} gr. Kaydedince aynı etiket yeniden stokta olur.`);
+  } else if (tag) {
+    set("cinsi", tag.cinsi); set("ayar", tag.ayar); set("adet", "1");
+    set("gram", sayiYaz(tag.gram)); if (Number(tag.milyem)) set("milyem", sayiYaz(tag.milyem));
+    hidden.value = kod; form.dataset.barkodTur = "dis"; form.dataset.barkodGram = String(tag.gram || "");
+    status.replaceChildren(h("b", { text: kod }), ` tanınan ürün: ${tag.cinsi} ${tag.ayar} · ${formatValue("gram", tag.gram)} gr. Aynı üründen birden fazla varsa tekrar okutun.`);
+  } else {
+    hidden.value = kod; form.dataset.barkodTur = "dis"; form.dataset.barkodGram = "";
+    status.replaceChildren(h("b", { text: kod }), " yeni barkod: bilgileri girin, kaydedince barkod saklanır ve satışta okutulabilir.");
+  }
+  form.elements.gram.dispatchEvent(new Event("input", { bubbles: true }));
+  form._updatePreview?.();
+  status.className = "barcode-status ok";
+}
+
+function attachPurchaseBarcode(form) {
+  const hidden = h("input", { type: "hidden", name: "barkod" });
+  const input = h("input", { class: "barcode-input", placeholder: "Ürünün barkodu varsa okutun (isteğe bağlı)", autocomplete: "off", "aria-label": "Barkod" });
+  const status = h("span", { class: "barcode-status", text: "Barkodsuz ürünlerde aşağıdan \"etiket bas\" seçebilirsiniz." });
+  const clear = h("button", { type: "button", class: "secondary", text: "Barkodu kaldır", hidden: true, onclick: () => { hidden.value = ""; delete form.dataset.barkodTur; status.textContent = ""; status.className = "barcode-status"; clear.hidden = true; } });
+  input.addEventListener("keydown", async (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    if (!input.value.trim()) return;
+    try { await applyPurchaseBarcode(form, input.value, status); clear.hidden = false; input.value = ""; }
+    catch (error) { status.textContent = error.message; status.className = "barcode-status err"; input.select(); }
+  });
+  form.prepend(h("div", { class: "barcode-bar" }, h("span", { class: "barcode-icon", html: barcodeSvg("DT", 18) }), input, clear, status), hidden);
+
+  // Kaydederken etiket: kayıt ve etiket tek adımda, ürün ikinci kez stoğa girmez.
+  let remembered = false;
+  try { remembered = localStorage.getItem("alisEtiketBas") === "1"; } catch { /* yok */ }
+  const bas = h("input", { type: "checkbox", name: "etiket_bas", value: "1", checked: remembered });
+  bas.addEventListener("change", () => { try { localStorage.setItem("alisEtiketBas", bas.checked ? "1" : "0"); } catch { /* yok */ } });
+  const actions = form.querySelector(".form-bottom-actions");
+  const field = h("label", { class: "check-field alis-etiket-bas", title: "Her parça için bir etiket açılır (adet kadar); kayıttan sonra yazdırma penceresi gelir" }, bas, " Kaydedince etiket bas");
+  if (actions) actions.append(field); else form.append(field);
+}
+
 const renderFormBase = renderForm;
 renderForm = function (type, ...args) {
   const node = renderFormBase(type, ...args);
-  if (type === "satis") {
-    const form = node.matches?.("form") ? node : node.querySelector?.("form");
-    if (form) attachBarcodeScan(form);
-  }
+  const form = node.matches?.("form") ? node : node.querySelector?.("form");
+  if (form && type === "satis") attachBarcodeScan(form);
+  if (form && type === "alis" && !editing && currentUser?.role !== "viewer") attachPurchaseBarcode(form);
   return node;
 };
 

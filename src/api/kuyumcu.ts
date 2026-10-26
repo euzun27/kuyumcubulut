@@ -6,7 +6,7 @@
 import { Hono, type Context } from 'hono';
 import type { Env } from '../lib/db';
 import { all, first, tx, type Stmt } from '../lib/db';
-import { barcodeOf, etiketStmts } from './etiket';
+import { barcodeOf, etiketStmts, alisEtiketStmts, withCode } from './etiket';
 import { d, ZERO, MONEY_Q } from '../lib/decimal';
 import { normalizeText, cleanText } from '../lib/text';
 import { Ledger, cariPaymentOut, purchaseTotal, rowDict, type Row } from '../lib/ledger';
@@ -155,10 +155,13 @@ api.post('/alis', async (c) => {
   const has = txHas(p);
   const paidHas = calcTransactionPayment(p, has);
   const kasa = await kasaLink(c, b, 'alis', null, { tarih: p.tarih, cari: p.tedarikci, yon: 'CIKIS', kategori: 'ALIS' });
-  const [res] = await tx(c.env.DB, [insertStmt('alis', alisValues(p, has, paidHas)), ...kasa]);
+  const tags = await alisEtiketStmts(c, b, p);
+  const [res] = await tx(c.env.DB, [insertStmt('alis', alisValues(p, has, paidHas)), ...kasa, ...tags]);
   const row = (res.results as Row[])[0];
-  await log(c, 'create', 'alis', row.id, `${p.tedarikci} - ${p.cinsi} ${p.ayar} ${p.gram} gr`);
-  return c.json(ok(new Ledger({ alis: [], satis: [], hurda: [], cari_odeme: [], giderler: [], allocations: [] }).purchaseOut(row), 'Alış kaydedildi.'));
+  const etiketler = tags.length ? (await all(c.env.DB, `SELECT * FROM etiketler WHERE alis_id = ? ORDER BY id`, row.id)).map(withCode) : [];
+  await log(c, 'create', 'alis', row.id, `${p.tedarikci} - ${p.cinsi} ${p.ayar} ${p.gram} gr${etiketler.length ? ` · ${etiketler.length} etiket` : ''}`);
+  const out = new Ledger({ alis: [], satis: [], hurda: [], cari_odeme: [], giderler: [], allocations: [] }).purchaseOut(row);
+  return c.json(ok({ ...out, etiketler }, `Alış kaydedildi${etiketler.length ? `, ${etiketler.length} etiket hazır` : ''}.`));
 });
 
 api.put('/alis/:id', async (c) => {

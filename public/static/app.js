@@ -1149,19 +1149,22 @@ function openTransactionPaymentModal(form) {
     const actionText = isEditing ? "g\u00fcncellemek" : "kaydetmek";
     const messages = { alis: `Bu al\u0131\u015f kayd\u0131n\u0131 ${actionText} istiyor musunuz`, satis: `Bu sat\u0131\u015f kayd\u0131n\u0131 ${actionText} istiyor musunuz`, hurda: `Bu hurda kayd\u0131n\u0131 ${actionText} istiyor musunuz` };
     if (!(await showConfirm(messages[type], isEditing ? "G\u00fcncelle" : "Kaydet", "\u0130ptal"))) return;
+    let printAfter = null;
     try {
       if (isEditing) {
         await api(`/api/${type}/${editing.id}`, { method: "PUT", body: JSON.stringify(data) });
         showMessage(`${formViewMeta(type, hurdaMode).title} g\u00fcncellendi.`);
       } else {
         const saved = await api(`/api/${type}`, { method: "POST", body: JSON.stringify(data) });
-        showMessage(`${formViewMeta(type, hurdaMode).title} kaydedildi. Has: ${formatValue("has", saved.has)}`);
+        showMessage(`${formViewMeta(type, hurdaMode).title} kaydedildi. Has: ${formatValue("has", saved.has)}${saved.etiketler?.length ? ` · ${saved.etiketler.length} etiket` : ""}`);
+        if (data.etiket_bas && saved.etiketler?.length && typeof openPrintLabels === "function") printAfter = saved.etiketler;
       }
       editing = null;
       state.selectedPurchase = null;
       state.selectedHurdaPurchase = null;
       await refreshSuggestions();
       render();
+      if (printAfter) openPrintLabels(printAfter);
     } catch (error) { showMessage(error.message, true); }
   });
 
