@@ -2384,7 +2384,8 @@ function fitPageTable() {
   if (!section) return;
   const wrap = section.querySelector(".table-wrap");
   if (!wrap) return;
-  if (window.innerWidth <= 680) { wrap.style.removeProperty("height"); return; }
+  // Dikey tablette ve telefonda sayfanın kendisi kayar; tablo doğal boyunda kalır.
+  if (window.innerWidth <= 680 || !/auto|scroll/.test(getComputedStyle(content).overflowY)) { wrap.style.removeProperty("height"); return; }
   const trailingSpace = section.getBoundingClientRect().bottom - wrap.getBoundingClientRect().bottom + parseFloat(getComputedStyle(section).marginBottom || 0);
   const available = content.getBoundingClientRect().bottom - wrap.getBoundingClientRect().top - content.scrollTop - trailingSpace - 8;
   wrap.style.height = `${Math.max(100, available)}px`;

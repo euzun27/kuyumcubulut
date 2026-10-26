@@ -1,0 +1,204 @@
+/* ===================================================================
+   Bulut sürümü: tablet ve telefon için dokunmatik, sade görünüm.
+   styles.css'ten sonra yüklenir; yalnızca görünümü değiştirir.
+   =================================================================== */
+
+/* ---------- Genel görünüm (tüm ekranlar) ---------- */
+:root {
+  --radius: 12px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(32, 38, 45, .05), 0 8px 24px rgba(32, 38, 45, .06);
+  --focus: 0 0 0 3px rgba(194, 149, 67, .35);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+h1 { font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+h2 { font-weight: 700; letter-spacing: -.005em; }
+
+/* Rakamlar hizalı dursun: tutarlar, gramlar, kartlar */
+.card strong, td, .has-preview strong, .price-button, input { font-variant-numeric: tabular-nums; }
+
+.card, .panel, .table-wrap { border-radius: var(--radius); box-shadow: var(--shadow); }
+.card { padding: 14px 16px; }
+.card span { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+.card strong { font-size: 20px; margin-top: 8px; }
+.form-panel { padding: 18px; }
+.modal-box { border-radius: 16px; padding: 22px; }
+
+#search,
+.entry-form input,
+.entry-form select,
+.entry-form textarea { border-radius: var(--radius-sm); transition: border-color .15s, box-shadow .15s; }
+
+#search:focus,
+.entry-form input:focus,
+.entry-form select:focus,
+.entry-form textarea:focus { outline: none; border-color: var(--gold); box-shadow: var(--focus); }
+
+button:focus-visible, .nav:focus-visible { outline: none; box-shadow: var(--focus); }
+
+.field { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+
+.form-bottom-actions { border-top-width: 1px; gap: 10px; }
+.form-bottom-actions button { border-radius: var(--radius-sm); }
+.form-bottom-actions button.secondary {
+  background: var(--theme-surface, #fff); color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.has-preview { border-radius: var(--radius); }
+
+th { font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+tbody tr:nth-child(even) { background: rgba(0, 0, 0, .018); }
+
+.nav { border-radius: var(--radius-sm); font-weight: 600; }
+
+/* Sınıfsız işlem düğmeleri tarayıcının gri düğmesi gibi görünmesin */
+.kasa-actions button:not([class]) {
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--theme-surface, #fff); color: var(--text); font-weight: 600; cursor: pointer;
+}
+.kasa-actions button, .kasa-day button { border-radius: var(--radius-sm); }
+
+/* ---------- Dokunmatik ekranlar ve tabletler ---------- */
+@media (pointer: coarse), (max-width: 1024px) {
+  html { -webkit-text-size-adjust: 100%; }
+  button, a, input, select, textarea, label, summary, [role="button"] { touch-action: manipulation; }
+
+  /* Basınca geri bildirim (fare yok, hover anlamsız) */
+  button:active:not(:disabled), .nav:active, summary:active { transform: scale(.97); filter: brightness(.95); }
+  .form-bottom-actions button:hover { transform: none; box-shadow: none; }
+
+  /* Form alanları: parmakla rahat dokunulsun, iOS yakınlaştırmasın */
+  #search,
+  .entry-form input:not([type="checkbox"]):not([type="radio"]),
+  .entry-form select,
+  .modal input:not([type="checkbox"]):not([type="radio"]),
+  .modal select,
+  .field input:not([type="checkbox"]):not([type="radio"]),
+  .field select {
+    min-height: 48px; padding: 12px 14px; font-size: 16px;
+  }
+  .entry-form textarea, .modal textarea, .field textarea { min-height: 72px; padding: 12px 14px; font-size: 16px; }
+  .entry-form { gap: 14px 14px; }
+  .field { font-size: 13px; gap: 7px; }
+
+  input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; accent-color: var(--green); }
+
+  /* Düğmeler en az 44 px */
+  button, .page-tab, summary { min-height: 44px; }
+  .unit-toggle button { min-height: 32px; height: 32px; padding: 0 14px; font-size: 13px; line-height: 30px; }
+  .icon-btn { min-width: 44px; min-height: 44px; border-radius: var(--radius-sm); }
+  .top-export-button, .price-button, .tv-button, .toolbar-menu > summary { min-height: 44px; border-radius: var(--radius-sm); }
+  .top-export-button { padding: 0 16px; font-size: 14px; }
+  .sidebar-logout { min-height: 44px; padding: 0 14px; border-radius: var(--radius-sm); }
+  .suggest-box button { min-height: 46px; padding: 12px 14px; font-size: 15px; }
+  .suggest-box { max-height: 300px; }
+
+  /* Hızlı ödeme düğmeleri: büyük, ızgara halinde */
+  .kasa-quick { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .sarrafiye-chip { min-height: 40px; padding: 0 15px; font-size: 13px; }
+  .entry-form .has-preview .manual-has-input { width: 130px; min-height: 44px; padding: 8px 10px; font-size: 16px; }
+  .payment-action-box .kasa-quick { flex: 1 1 100%; }
+  .kasa-quick-btn { min-height: 48px; font-size: 14px; font-weight: 700; border-radius: var(--radius-sm); }
+  .payment-open-btn { min-height: 48px; padding: 0 18px; border-radius: var(--radius-sm); }
+  .payment-type-tab { min-height: 46px; padding: 0 14px; font-size: 14px; }
+
+  /* Kaydet çubuğu ekranın altında sabit: uzun formda kaydırmadan kaydedilir */
+  .form-panel > .entry-form > .form-bottom-actions,
+  .form-panel .form-bottom-actions:last-child {
+    position: sticky; bottom: 0; z-index: 30;
+    margin: 6px -18px -18px; padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+    background: var(--panel); border-top: 1px solid var(--line);
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: 0 -8px 20px rgba(32, 38, 45, .06);
+  }
+  .form-bottom-actions button { min-height: 52px; min-width: 160px; font-size: 16px; }
+
+  /* Pencereler: dokunmak için daha geniş kapat düğmesi, kaydırma akıcı */
+  .modal-box { max-height: calc(100dvh - 32px); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  .modal-title button, .modal-close { min-width: 44px; min-height: 44px; }
+  .modal th, .modal td { padding: 11px 12px; font-size: 14px; }
+  .modal table { font-size: 14px; }
+
+  /* Tablolar: satırlar daha yüksek, yazı daha okunur, yatay kaydırma akıcı */
+  .table-wrap { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+  th, td { padding: 13px 14px; }
+  td { font-size: 14px; }
+
+  /* Klavye kısayolu ipuçları dokunmatikte gereksiz */
+  kbd { display: none !important; }
+
+  /* Menü öğeleri daha yüksek */
+  .nav { min-height: 48px; font-size: 15px; }
+}
+
+/* ---------- Yatay tablet (menü yanda kalır) ---------- */
+@media (pointer: coarse) and (min-width: 1025px) {
+  body { grid-template-columns: 220px minmax(0, 1fr); }
+  .nav kbd { display: none; }
+  .sidebar { height: 100vh; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+}
+
+/* ---------- Dikey tablet ve telefon: sayfanın kendisi kaysın ---------- */
+@media (max-width: 1024px) {
+  /* body kaydırma kutusu olunca sabit üst başlık ve Kaydet çubuğu yapışmıyordu */
+  html, body { overflow: visible; }
+  .app { overflow-x: clip; }
+}
+
+/* ---------- Dikey tablet ---------- */
+@media (min-width: 681px) and (max-width: 1024px) {
+  .sale-summary-row > .has-preview, .sale-summary-row > .payment-action-box { grid-column: 1 / -1; }
+  .app { padding: 20px; }
+  .sidebar { box-shadow: 0 2px 12px rgba(0, 0, 0, .12); position: sticky; top: 0; z-index: 900; }
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .nav kbd { display: none; }
+  .form-panel > .entry-form > .form-bottom-actions,
+  .form-panel .form-bottom-actions:last-child { margin: 6px -18px -18px; }
+}
+
+/* ---------- Telefon ---------- */
+@media (max-width: 680px) {
+  .app { padding: 14px 12px calc(88px + env(safe-area-inset-bottom)); }
+  h1 { font-size: 22px; }
+  .form-panel { padding: 14px; }
+  .card { padding: 12px 14px; }
+  .card strong { font-size: 18px; }
+  .modal { padding: 0; align-items: flex-end; }
+  .modal-box { max-height: 92dvh; border-radius: 18px 18px 0 0; padding: 18px 14px calc(18px + env(safe-area-inset-bottom)); }
+
+  /* Kaydet çubuğu alt menünün hemen üstünde dursun */
+  .form-panel > .entry-form > .form-bottom-actions,
+  .form-panel .form-bottom-actions:last-child {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    margin: 6px -14px -14px; padding: 10px 14px;
+  }
+  .form-bottom-actions button { flex: 1 1 0; min-width: 0; }
+
+  .kasa-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kasa-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .kasa-actions button { min-height: 48px; }
+  .quick-actions { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .quick-actions button { min-height: 52px; justify-content: center; }
+
+  /* Ödeme pencereleri telefonda yana taşmasın */
+  .modal-box { width: 100%; max-width: none; }
+  .transaction-payment-modal,
+  .cari-person-modal .entry-form { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; overflow-x: hidden; }
+  .transaction-payment-modal .payment-gram-field,
+  .cari-person-modal .payment-gram-field { grid-column: 1 / 4; }
+  .transaction-payment-modal .payment-milyem-field,
+  .cari-person-modal .payment-milyem-field { grid-column: 4 / 7; }
+  .cari-person-modal .cari-date-field,
+  .cari-person-modal .cari-person-field { grid-column: 1 / -1; }
+  .payment-type-tab { font-size: 13px; }
+  .bottom-nav { box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); }
+  .bottom-nav button { font-size: 11px; }
+}
