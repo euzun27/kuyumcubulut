@@ -33,6 +33,7 @@ import {
 import { currentPrices } from './fiyat';
 import { dovizCari } from './doviz';
 import { audit, verifyPassword } from '../lib/auth';
+import { SURUM } from '../lib/surum';
 import { createBackup, cleanupOldBackups, latestBackup, restoreLatest, listBackups, loadBackupData, restoreData, checkBackupData, snapshotTables } from '../lib/backup';
 import { checkItems, guardNegativeTl, linkedByRecord, linkedStmts, loadAccounts, parseKasaItems, type LinkedType } from '../lib/kasa';
 
@@ -593,7 +594,7 @@ async function settingsStatus(c: Context<Env>) {
     last_backup: latest?.created_at ?? null,
     ...(c.env.LOCAL
       ? { version: `Masaüstü sürümü ${c.env.LOCAL.version}`, update_info: `Veriler: ${c.env.LOCAL.dataDir}\nYedekler: ${c.env.LOCAL.backupDir}\nYeni sürümü kurmak kayıtlarınızı silmez.` }
-      : { version: 'Bulut sürümü', update_info: 'Güncellemeler otomatik yayınlanır; kayıtlarınız korunur.' }),
+      : { version: `Bulut sürümü ${SURUM}`, update_info: 'Güncellemeler sunucuya yüklenir; kayıtlarınız korunur.' }),
   };
 }
 

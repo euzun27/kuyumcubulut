@@ -260,11 +260,14 @@ function openPrintLabels(tags) {
   const kuyruk = h("select", { name: "kuyruk" }, new Option("Kuyruk solda (yazıcıdan çıkarken)", "sol"), new Option("Kuyruk sağda (yazıcıdan çıkarken)", "sag"));
   kuyruk.value = kelebek.kuyruk;
   kuyruk.addEventListener("change", () => { kelebek.kuyruk = kuyruk.value; draw(); });
+  // Kalibrasyon düğmesi yalnızca kurulumlu sürümde (Zebra'ya doğrudan yazdırırken) var.
+  const kelebekHint = h("p", { class: "hint", text: "Kuyruğa hiçbir şey basılmaz. Yazı etikete oturmazsa kaydırmalarla ince ayar yapın (yatay: + sağa, − sola; dikey: + aşağı, − yukarı)." });
+  ortamHazir().then((masaustu) => { if (masaustu) kelebekHint.textContent = "Kuyruğa hiçbir şey basılmaz. Yazı etikete oturmazsa önce aşağıdaki Kalibre et düğmesine basın; sonra kaydırmalarla ince ayar yapın (yatay: + sağa, − sola; dikey: + aşağı, − yukarı)."; });
   const kelebekBox = h("div", { class: "kelebek-ayar" },
     labeled("Kuyruk tarafı", kuyruk), labeled("Basılacak genişlik (mm)", kNum("genislik", { min: "20", max: "72" })),
     labeled("Etiket yüksekliği (mm)", kNum("yukseklik", { min: "6", max: "12" })), labeled("Yatay kaydırma (mm)", kNum("kaydir", { min: "-10", max: "10" })),
     labeled("Dikey kaydırma (mm)", kNum("dikey", { min: "-5", max: "5" })),
-    h("p", { class: "hint", text: "Kuyruğa hiçbir şey basılmaz. Yazı etikete oturmazsa önce aşağıdaki Kalibre et düğmesine basın; sonra kaydırmalarla ince ayar yapın (yatay: + sağa, − sola; dikey: + aşağı, − yukarı)." }));
+    kelebekHint);
   const preview = h("div", { class: "label-preview" });
   const draw = () => {
     kelebekBox.hidden = format.value !== "kelebek";
