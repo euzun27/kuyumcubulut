@@ -11,6 +11,7 @@ import { all, first, tx, type Stmt } from '../lib/db';
 import { d, NUM_Q, MONEY_Q } from '../lib/decimal';
 import { HttpError, ValidationError, today, calcHas } from '../lib/validate';
 import { normalizeProduct } from '../lib/text';
+import { costMilyem, costHasLabor } from '../lib/ledger';
 import { audit } from '../lib/auth';
 import { date, intId, text } from '../lib/kasa';
 
@@ -115,7 +116,10 @@ etiket.get('/', async (c) => {
 etiket.get('/kod/:kod', async (c) => {
   const row = await findByCode(c.env.DB, c.req.param('kod'));
   if (!row) throw new HttpError(404, 'Bu barkoda ait etiket yok.');
-  return c.json(ok(withCode(row)));
+  // Etiket bir alışa bağlıysa önerilen satış fiyatı o alışın maliyetinden hesaplanır.
+  const alis = row.alis_id ? await first(c.env.DB, `SELECT * FROM alis WHERE id = ?`, row.alis_id) : null;
+  const maliyet = alis ? { maliyet_milyem: costMilyem(alis), maliyet_iscilik: costHasLabor(alis) } : {};
+  return c.json(ok({ ...withCode(row), ...maliyet }));
 });
 
 /** Etiketten stoğa alınan ürünlerin alış kaydındaki tedarikçi adı. */

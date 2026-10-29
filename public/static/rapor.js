@@ -283,12 +283,20 @@ async function applyBarcode(form, code, status) {
   form._updatePreview?.();
   status.replaceChildren(h("b", { text: tag.barkod }), ` ${tag.cinsi} ${tag.ayar} · ${formatValue("gram", tag.gram)} gr${extra ? ` · ${extra}` : ""}${Number(tag.fiyat) ? ` · Etiket fiyatı ${fmtMoney(tag.fiyat)}` : ""}`);
   status.className = "barcode-status ok";
+  const alisli = tag.maliyet_milyem !== undefined;
+  attachSuggestedPrice(form, {
+    cinsi: tag.cinsi, milyem: Number(tag.milyem) || pool.alis_milyem,
+    maliyet_milyem: alisli ? tag.maliyet_milyem : pool.maliyet_milyem,
+    // Maliyette işçilik yoksa (açılış stoğu) etiketteki işçilik fiyata eklenir.
+    ek_iscilik: (alisli ? tag.maliyet_iscilik : pool.maliyet_iscilik) ? 0 : Number(tag.iscilik) || 0,
+    etiket_fiyat: Number(tag.fiyat) || 0,
+  });
 }
 
 function attachBarcodeScan(form) {
   const input = h("input", { class: "barcode-input", placeholder: "Barkod okutun veya yazın (DT000123) ve Enter'a basın", autocomplete: "off", "aria-label": "Barkod" });
   const status = h("span", { class: "barcode-status" });
-  const clear = h("button", { type: "button", class: "secondary", text: "Etiketi kaldır", hidden: true, onclick: () => { form.elements.namedItem("etiket_id")?.remove(); status.textContent = ""; status.className = "barcode-status"; clear.hidden = true; } });
+  const clear = h("button", { type: "button", class: "secondary", text: "Etiketi kaldır", hidden: true, onclick: () => { form.elements.namedItem("etiket_id")?.remove(); form._suggestion?.remove(); status.textContent = ""; status.className = "barcode-status"; clear.hidden = true; } });
   input.addEventListener("keydown", async (event) => {
     if (event.key !== "Enter") return;
     event.preventDefault();

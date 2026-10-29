@@ -4036,3 +4036,22 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .sayim-price input { min-height: 40px; width: 100%; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
 .sayim-print { grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center; gap: 8px; }
 .sayim-print input { width: auto; min-height: 0; margin: 0; }
+
+/* Önerilen satış fiyatı */
+.oneri-fiyat { grid-column: 1 / -1; display: grid; gap: 4px; padding: 10px 14px; border: 1px solid var(--green, #2e9d5b); border-radius: 10px; background: color-mix(in srgb, var(--green, #2e9d5b) 8%, transparent); }
+.oneri-fiyat.zarar { border-color: var(--red, #d14343); background: color-mix(in srgb, var(--red, #d14343) 8%, transparent); }
+.oneri-ust { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.oneri-ust > span { font-weight: 600; }
+.oneri-tutar { font-size: 20px; }
+.oneri-ust button { margin-left: auto; }
+.oneri-detay { color: var(--muted, #888); }
+.oneri-uyari { color: var(--red, #d14343); font-weight: 600; }
+.oneri-uyari:empty { display: none; }
+.sale-setting-rows { display: grid; gap: 6px; }
+.sale-setting-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; gap: 6px; align-items: center; }
+.sale-setting-name { position: relative; }
+.sale-setting-name input { width: 100%; }
+.sale-setting-title { display: block; margin-top: 8px; }
+.sale-setting .price-rates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sale-setting select { width: 100%; min-height: 40px; padding: 9px 11px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 7px; font-size: 13px; }
+@media (max-width: 560px) { .sale-setting .price-rates { grid-template-columns: 1fr; } }

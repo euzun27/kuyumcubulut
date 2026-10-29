@@ -39,6 +39,21 @@ export function purchaseTotal(row: Row): Dec {
   return d(row.has).mul(d(row.has_fiyati)).add(d(row.iscilik)).add(d(row.ek_masraf)).q(MONEY_Q);
 }
 
+/**
+ * Alışın işçilik ve masraf dahil maliyet milyemi: tutar ÷ (gram × has fiyatı) × 1000.
+ * Ör. 11,61 gr, has fiyatı 6.435,15, tutar 57.155,72 → 765. Önerilen satış fiyatı bunun
+ * üstüne kâr milyemi eklenerek güncel satış has fiyatıyla hesaplanır. Hesaplanamazsa null.
+ */
+export function costMilyem(row: Row): number | null {
+  const gram = d(row.gram);
+  const fiyat = d(row.has_fiyati);
+  if (gram.le(ZERO) || fiyat.le(ZERO)) return null;
+  return purchaseTotal(row).div(gram.mul(fiyat)).mul(1000).q(NUM_Q).toNumber();
+}
+
+/** Alış maliyetinde işçilik ya da masraf var mı (yoksa etiketteki işçilik satışa eklenir). */
+export const costHasLabor = (row: Row): boolean => d(row.iscilik).add(d(row.ek_masraf)).gt(ZERO);
+
 export function saleTotal(row: Row): Dec {
   return d(row.has).mul(d(row.has_fiyati)).add(d(row.iscilik)).add(d(row.ek_ucret)).sub(d(row.indirim)).q(MONEY_Q);
 }
@@ -276,6 +291,9 @@ export class Ledger {
         kalan_gram: asFloat(grams, NUM_Q),
         kalan_has: asFloat(has, HAS_Q),
         alis_milyem: asFloat(milyem, NUM_Q),
+        // FIFO'da sıradaki partinin maliyet milyemi (önerilen satış fiyatı için).
+        maliyet_milyem: costMilyem(lots[0][0]),
+        maliyet_iscilik: costHasLabor(lots[0][0]),
         kaynaklar: lots.map(([r, free]) => ({ gram: asFloat(free, NUM_Q), milyem: asFloat(r.milyem, NUM_Q) })),
       });
     }

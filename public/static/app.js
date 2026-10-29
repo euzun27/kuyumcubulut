@@ -561,7 +561,7 @@ async function openPriceDialog() {
   rateInputs.forEach(([cur, a, b]) => rateBox.append(field(`${cur} alış (TL)`, a), field(`${cur} satış (TL)`, b)));
   form.append(field("Alış (TL/gr has)", alis), field("Satış (TL/gr has)", satis), rateBox, hint, actions);
   box.append(title, intro, form);
-  if (isAdmin()) box.append(priceAdjustSection(() => fill()), priceSourceSection());
+  if (isAdmin()) box.append(priceAdjustSection(() => fill()), saleSettingSection(), priceSourceSection());
   overlay.appendChild(box); document.body.appendChild(overlay);
   const dismiss = () => overlay.remove();
   cancel.onclick = dismiss; overlay.onclick = (e) => { if (e.target === overlay) dismiss(); };
@@ -1231,6 +1231,7 @@ async function openStockModal(form, chosenLabel, scrap = false) {
       saleMilyem.value = "";
       if (form.elements.has_fiyati) setLivePrice(form.elements.has_fiyati);
       showSelectedPurchase(chosenLabel, row); form._updatePreview?.();
+      if (!scrap) suggestFromStock(form, row);
     });
   } catch (error) { showMessage(error.message, true); }
 }
