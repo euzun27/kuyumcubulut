@@ -41,8 +41,9 @@ async function attachSuggestedPrice(form, info) {
   const purity = form.elements.satis_milyem;
   const labor = form.elements.iscilik;
   if (!purity || !labor || !form.elements.has_fiyati) return;
-  if (!parseNum(purity.value) && Number(info.milyem)) {
-    purity.value = String(Math.round(Number(info.milyem) * 100) / 100).replace(".", ",");
+  const baseMilyem = Number(info.milyem) > 0 ? String(Math.round(Number(info.milyem) * 100) / 100).replace(".", ",") : "";
+  if (!parseNum(purity.value) && baseMilyem) {
+    purity.value = baseMilyem;
     purity.dispatchEvent(new Event("input", { bubbles: true }));
   }
   const kar = profitMilyem(ayar, info.cinsi);
@@ -54,9 +55,10 @@ async function attachSuggestedPrice(form, info) {
   const value = h("strong", { class: "oneri-tutar" });
   const detail = h("small", { class: "oneri-detay" });
   const warn = h("small", { class: "oneri-uyari" });
+  const note = h("small", { class: "oneri-not" });
   const applyBtn = h("button", { type: "button", class: "secondary", text: "Önerilen fiyatı uygula" });
   const box = h("div", { class: "oneri-fiyat", role: "status" },
-    h("div", { class: "oneri-ust" }, h("span", { text: "Önerilen fiyat" }), value, applyBtn), detail, warn);
+    h("div", { class: "oneri-ust" }, h("span", { text: "Önerilen fiyat" }), value, applyBtn), detail, note, warn);
   form._suggestion = box;
   (form.querySelector(".barcode-bar") || form.firstChild)?.after(box);
 
@@ -82,7 +84,7 @@ async function attachSuggestedPrice(form, info) {
   const show = () => {
     if (!box.isConnected) return;
     const { gram, has, cost, price } = calc();
-    if (!(gram > 0 && has > 0)) { value.textContent = "—"; detail.textContent = "Gram ve has fiyatı girilince hesaplanır."; warn.textContent = ""; applyBtn.hidden = true; box.classList.remove("zarar"); return; }
+    if (!(gram > 0 && has > 0)) { value.textContent = "—"; detail.textContent = "Gram ve has fiyatı girilince hesaplanır."; warn.textContent = ""; note.textContent = ""; applyBtn.hidden = true; box.classList.remove("zarar"); return; }
     value.textContent = fmtMoney(price);
     const parts = fixed
       ? [`Etiket fiyatı`]
@@ -90,16 +92,24 @@ async function attachSuggestedPrice(form, info) {
     if (extra) parts.push(`etiket işçiliği ${fmtMoney(extra)}`);
     if (!fixed && ayar.adim) parts.push(`${ayar.adim} TL'ye ${ayar.yuvarlama === "YAKIN" ? "yuvarlandı" : "yukarı yuvarlandı"}`);
     parts.push(knownCost ? `Maliyet ${fmtMoney(cost)}` : "Maliyet bilinmiyor; ayar milyemi esas alındı");
+    // İşçiliksiz, yalnız milyemle satan için aynı fiyatın satış milyemi.
+    if (!fixed) parts.push(`İşçiliksiz satışta ${formatTurkishNumber(price / has / gram * 1000, 0, 2)} milyem`);
     detail.textContent = parts.join(" · ");
     const current = Math.round(calcHas(form) * 1000) / 1000 * has + parseNum(labor.value);
     const loss = knownCost && current + 0.005 < cost;
     box.classList.toggle("zarar", loss);
     warn.textContent = loss ? `Satış fiyatı (${fmtMoney(current)}) maliyetin ${fmtMoney(cost - current)} altında.` : "";
+    note.textContent = !loss && knownCost && Math.abs(current - price) >= 0.01
+      ? `Formdaki tutar ${fmtMoney(current)}: önerinin ${fmtMoney(Math.abs(current - price))} ${current > price ? "üstünde" : "altında"}, maliyetin ${fmtMoney(current - cost)} üstünde.` : "";
     applyBtn.hidden = Math.abs(current - price) < 0.01;
   };
   // Elle yazılmış işçilik korunur; boşsa ya da son öneriyse yeniden hesaplanır.
   const refresh = () => { if (labor.value === (auto ?? "") || (auto === null && !labor.value.trim())) fill(); show(); };
-  applyBtn.onclick = () => { fill(); show(); };
+  // Uygula: satış milyemi elle yükseltilmiş olsa da ayar milyemine döner, fark yine işçiliğe yazılır.
+  applyBtn.onclick = () => {
+    if (baseMilyem && purity.value !== baseMilyem) { purity.value = baseMilyem; purity.dispatchEvent(new Event("input", { bubbles: true })); }
+    fill(); show();
+  };
   ["has_fiyati", "gram", "satis_milyem"].forEach((name) => form.elements[name]?.addEventListener("input", refresh));
   labor.addEventListener("input", show);
   form.elements.iscilik_milyem?.addEventListener("input", show);

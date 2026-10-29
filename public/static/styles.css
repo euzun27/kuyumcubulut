@@ -4073,3 +4073,5 @@ button.secondary, .payment-open-btn { padding: 9px 13px; font-weight: 600; }
 .sale-setting .price-rates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .sale-setting select { width: 100%; min-height: 40px; padding: 9px 11px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 7px; font-size: 13px; }
 @media (max-width: 560px) { .sale-setting .price-rates { grid-template-columns: 1fr; } }
+.oneri-not { font-weight: 600; }
+.oneri-not:empty { display: none; }
