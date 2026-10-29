@@ -468,6 +468,17 @@ table.facts td:first-child { font-weight: 600; color: var(--green); white-space:
   </ol>
   <div class="callout tip"><span class="ct">Hızlı ödeme düğmeleri</span><p><span class="ui">Nakit al</span>, <span class="ui">Kart (POS)</span> ve <span class="ui">Havale / EFT</span> düğmeleri işlem tutarının tamamını ilgili kasa hesabına yazar ve müşterinin has borcunu kapatır. Gram veya fiyatı sonradan değiştirirseniz ödeme tutarı da kendiliğinden güncellenir.</p></div>
 
+  <h2>Önerilen satış fiyatı</h2>
+  <p>Barkod okutulduğunda ya da stoktan ürün seçilip gram girildiğinde formun üstünde <strong>Önerilen fiyat</strong> kutusu çıkar ve alanlar bu fiyatla dolar. Fiyat ürünün alış maliyetinden ve güncel (fiyat farkı uygulanmış, TV panosundaki) satış has fiyatından hesaplanır:</p>
+  <div class="formula">Önerilen fiyat = Gram × (Maliyet milyemi + Kâr milyemi) ÷ 1000 × Satış has fiyatı, sonra yuvarlama</div>
+  <p><strong>Maliyet milyemi</strong> alış kaydından gelir ve işçiliği de içerir: alış tutarı ÷ (gram × alıştaki has fiyatı) × 1000. Örneğin 11,61 gr 14 ayar bilezik 6.435,15 has fiyatıyla 57.155,72 TL’ye alındıysa maliyet milyemi 765’tir. Kâr 30 milyem, satış has fiyatı 7.473,44 TL ve 100 TL’ye yukarı yuvarlama ile önerilen fiyat 69.000 TL olur. Satış milyemi ayarın milyemi (585) kalır, aradaki fark <span class="ui">İşçilik</span> kutusuna yazılır; fişte altın ve işçilik ayrı görünür.</p>
+  <ul>
+    <li>Etikette sabit <em>etiket fiyatı</em> varsa önerilen fiyat odur.</li>
+    <li>Açılış stoğu gibi işçiliksiz maliyetli ürünlerde etiketteki işçilik fiyata eklenir.</li>
+    <li>Pazarlıkta işçiliği değiştirebilirsiniz. Fiyat maliyetin altına düşerse kutu kırmızı olur ve ne kadar altında olduğu yazar; <span class="ui">Önerilen fiyatı uygula</span> öneriye geri döner.</li>
+  </ul>
+  <div class="callout tip"><span class="ct">Kâr milyemini ayarlama (yönetici)</span><p>Üst çubuktaki <span class="ui">HAS FİYATI</span> düğmesiyle açılan pencerede <strong>Önerilen satış fiyatı (kâr milyemi)</strong> bölümüne varsayılan kârı, yuvarlama adımını (ör. 100 TL) ve yönünü yazın. <span class="ui">Cins ekle</span> ile bilezik, kolye gibi cinslere ayrı kâr verebilirsiniz; cinse özel kâr yoksa varsayılan kullanılır.</p></div>
+
   <h2>Bölünmüş ve dövizli ödeme</h2>
   <div class="callout tip"><span class="ct">Müşteri dolar veya euro ile öderse</span><p>Ödeme Bilgisi kutusunun yanındaki <span class="ui">Dolar</span> veya <span class="ui">Euro</span> düğmesine tıklayın. Program işlemin TL tutarını günün kuruyla dövize çevirir (müşteri döviz veriyorsa <strong>alış</strong>, siz döviz ödüyorsanız <strong>satış</strong> kuru) ve tutarı Nakit Dolar / Nakit Euro kasasına işler; özette kur da yazar. Alış ekranında aynı düğmeler müşteriye döviz ödemek içindir. Kuru değiştirmek veya ödemeyi TL ve döviz olarak bölmek için <span class="ui">Ödeme Ekle / Düzenle</span>’yi kullanın.</p></div>
   <p><span class="ui">Ödeme Ekle / Düzenle</span> penceresinde beş seçenek vardır:</p>

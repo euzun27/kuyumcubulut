@@ -14,6 +14,7 @@ import { Hono } from 'hono';
 import type { Env } from '../lib/db';
 import { first, run } from '../lib/db';
 import { d } from '../lib/decimal';
+import { normalizeProduct } from '../lib/text';
 import { HttpError, ValidationError, today } from '../lib/validate';
 import { haremSnapshot, haremOnce, haremDurum } from '../lib/harem';
 
@@ -378,6 +379,58 @@ fiyat.put('/ayar', async (c) => {
   if (!ayar.alis && !ayar.satis) await run(c.env.DB, `DELETE FROM app_meta WHERE key = 'fiyat_ayari'`);
   else await run(c.env.DB, `INSERT OR REPLACE INTO app_meta (key, value) VALUES ('fiyat_ayari', ?)`, JSON.stringify(ayar));
   return c.json({ status: 'ok', message: 'Fiyat farkı kaydedildi.', data: ayar });
+});
+
+/**
+ * Önerilen satış fiyatı ayarı: maliyet milyeminin üstüne eklenecek kâr milyemi
+ * (varsayılan ve cins bazında) ve fiyatın yuvarlanması. Satış formu bu ayarla
+ * Gram × (maliyet + kâr) ÷ 1000 × güncel satış has fiyatı hesaplar.
+ */
+export type SaleSetting = { varsayilan: number; cinsler: Record<string, number>; adim: number; yuvarlama: 'YUKARI' | 'YAKIN' };
+const SALE_STEPS = [0, 1, 5, 10, 50, 100, 250, 500, 1000];
+
+export async function saleSetting(c: { env: Env['Bindings'] }): Promise<SaleSetting> {
+  const row = await first<{ value: string }>(c.env.DB, `SELECT value FROM app_meta WHERE key = 'satis_ayari'`);
+  const empty: SaleSetting = { varsayilan: 0, cinsler: {}, adim: 0, yuvarlama: 'YUKARI' };
+  try {
+    const v = JSON.parse(row?.value ?? '{}');
+    return { ...empty, ...v, cinsler: v.cinsler && typeof v.cinsler === 'object' ? v.cinsler : {} };
+  } catch {
+    return empty;
+  }
+}
+
+/** GET /api/altin-fiyati/satis-ayari: satış formu her kullanıcı için okur. */
+fiyat.get('/satis-ayari', async (c) => c.json({ status: 'ok', message: '', data: await saleSetting(c) }));
+
+/** PUT /api/altin-fiyati/satis-ayari {varsayilan, cinsler: {BİLEZİK: 30}, adim, yuvarlama} (yönetici). */
+fiyat.put('/satis-ayari', async (c) => {
+  if (c.get('user')?.role !== 'admin') throw new HttpError(403, 'Bu işlem için yönetici yetkisi gerekir.');
+  const b = ((await c.req.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
+  const milyem = (v: unknown, label: string) => {
+    if (v === undefined || v === null || v === '') return 0;
+    let n;
+    try {
+      n = d(v);
+    } catch {
+      throw new ValidationError(`${label} geçerli bir sayı olmalıdır.`);
+    }
+    if (n.lt(-500) || n.gt(1000)) throw new ValidationError(`${label} -500 ile 1000 milyem arasında olmalıdır.`);
+    return n.q(2).toNumber();
+  };
+  const cinsler: Record<string, number> = {};
+  const raw = b.cinsler && typeof b.cinsler === 'object' ? (b.cinsler as Record<string, unknown>) : {};
+  for (const [name, value] of Object.entries(raw)) {
+    const cinsi = normalizeProduct(name);
+    if (!cinsi) continue;
+    if (Object.keys(cinsler).length >= 100) throw new ValidationError('En fazla 100 cins girilebilir.');
+    cinsler[cinsi] = milyem(value, `${cinsi} kâr milyemi`);
+  }
+  const adim = Number(b.adim) || 0;
+  if (!SALE_STEPS.includes(adim)) throw new ValidationError('Yuvarlama adımı geçersiz.');
+  const ayar: SaleSetting = { varsayilan: milyem(b.varsayilan, 'Varsayılan kâr milyemi'), cinsler, adim, yuvarlama: b.yuvarlama === 'YAKIN' ? 'YAKIN' : 'YUKARI' };
+  await run(c.env.DB, `INSERT OR REPLACE INTO app_meta (key, value) VALUES ('satis_ayari', ?)`, JSON.stringify(ayar));
+  return c.json({ status: 'ok', message: 'Satış fiyatı ayarı kaydedildi.', data: ayar });
 });
 
 /** PUT /api/altin-fiyati/kaynak {anahtar}: AltınAPI anahtarını kaydeder; boş anahtar Truncgil'e döner. */
